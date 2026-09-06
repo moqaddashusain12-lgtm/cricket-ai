@@ -1,161 +1,319 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
   <title>Cricket AI Image Generator</title>
 
   <style>
+
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #eef3f7;
-      color: #111;
+      background: #0b1220;
+      color: white;
+      min-height: 100vh;
     }
 
-    .app {
-      max-width: 600px;
-      margin: auto;
-      padding: 30px 18px;
+    header {
+      background: linear-gradient(135deg,
+        #0f5132,
+        #198754);
+      padding: 20px;
       text-align: center;
+      box-shadow: 0 3px 15px rgba(0,0,0,.4);
     }
 
-    h1 {
-      font-size: 32px;
-      margin-bottom: 8px;
+    header h1 {
+      font-size: 28px;
     }
 
-    .subtitle {
-      color: #555;
-      font-size: 17px;
-      margin-bottom: 20px;
+    header p {
+      margin-top: 8px;
+      color: #d9ffe7;
     }
 
-    textarea {
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 25px 15px;
+    }
+
+    .card {
+      background: #162033;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      margin-bottom: 7px;
+      font-weight: bold;
+    }
+
+    input,
+    select {
       width: 100%;
-      height: 130px;
       padding: 14px;
-      border: 2px solid #ddd;
-      border-radius: 14px;
+      border: none;
+      border-radius: 10px;
       font-size: 16px;
-      resize: vertical;
       outline: none;
     }
 
     button {
       width: 100%;
-      margin-top: 15px;
+      margin-top: 25px;
       padding: 15px;
-      border: 0;
-      border-radius: 14px;
-      background: #111;
+      border: none;
+      border-radius: 10px;
+      background: #22c55e;
       color: white;
       font-size: 18px;
       font-weight: bold;
+      cursor: pointer;
     }
 
-    #status {
-      margin-top: 18px;
-      font-size: 16px;
+    button:hover {
+      background: #16a34a;
     }
 
     #result {
-      margin-top: 20px;
-      padding: 15px;
-      background: white;
-      border-radius: 14px;
-      min-height: 100px;
+      display: none;
+      margin-top: 30px;
     }
 
-    #result img {
-      width: 100%;
-      border-radius: 12px;
+    .image-box {
+      min-height: 350px;
+      border-radius: 18px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+
+      background:
+        radial-gradient(circle at top,
+          #22c55e,
+          #064e3b 45%,
+          #020617 100%);
+
+      border: 2px solid #22c55e;
     }
 
-    .example {
+    .emoji {
+      font-size: 100px;
+      margin-bottom: 15px;
+    }
+
+    .player-name {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .team {
+      margin-top: 10px;
+      font-size: 20px;
+      color: #d1fae5;
+    }
+
+    .style {
       margin-top: 15px;
-      color: #666;
+      background: rgba(255,255,255,.15);
+      padding: 10px 18px;
+      border-radius: 30px;
+    }
+
+    .note {
+      margin-top: 15px;
+      text-align: center;
+      color: #94a3b8;
       font-size: 14px;
     }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #94a3b8;
+    }
+
   </style>
+
 </head>
 
 <body>
 
-  <div class="app">
+<header>
 
-    <h1>🏏 Cricket AI</h1>
+  <h1>🏏 Cricket AI Image Generator</h1>
 
-    <div class="subtitle">
-      अपनी कल्पना की क्रिकेट इमेज बनाएँ
-    </div>
+  <p>Create amazing cricket artwork with AI</p>
 
-    <textarea
-      id="prompt"
-      placeholder="जैसे: Indian cricket team celebrating World Cup victory in a stadium">
-    </textarea>
+</header>
+
+
+<div class="container">
+
+  <div class="card">
+
+    <label>Player Name</label>
+
+    <input
+      type="text"
+      id="player"
+      placeholder="Enter player name"
+    >
+
+
+    <label>Team</label>
+
+    <input
+      type="text"
+      id="team"
+      placeholder="Example: India"
+    >
+
+
+    <label>Image Style</label>
+
+    <select id="style">
+
+      <option>Realistic</option>
+
+      <option>Digital Art</option>
+
+      <option>Anime</option>
+
+      <option>Poster Style</option>
+
+      <option>Cyberpunk</option>
+
+    </select>
+
 
     <button onclick="generateImage()">
-      ✨ Generate Image
+
+      ✨ Generate Cricket Image
+
     </button>
 
-    <div id="status"></div>
 
     <div id="result">
-      आपकी AI image यहाँ दिखाई देगी
-    </div>
 
-    <div class="example">
-      Example: A cricketer hitting a six in a packed stadium, cinematic, realistic
+      <div class="image-box">
+
+        <div class="emoji">
+          🏏
+        </div>
+
+        <div
+          class="player-name"
+          id="resultPlayer">
+
+          Cricket Player
+
+        </div>
+
+        <div
+          class="team"
+          id="resultTeam">
+
+          Team
+
+        </div>
+
+        <div
+          class="style"
+          id="resultStyle">
+
+          Realistic
+
+        </div>
+
+      </div>
+
+
+      <p class="note">
+
+        ✨ AI Cricket Artwork Preview
+
+      </p>
+
     </div>
 
   </div>
 
-  <script>
-    async function generateImage() {
+</div>
 
-      const prompt = document.getElementById("prompt").value.trim();
-      const status = document.getElementById("status");
-      const result = document.getElementById("result");
 
-      if (!prompt) {
-        status.innerHTML = "⚠️ पहले अपना image prompt लिखें।";
-        return;
-      }
+<footer>
 
-      status.innerHTML = "⏳ Image बनाई जा रही है...";
-      result.innerHTML = "";
+  © 2026 Cricket AI Image Generator
 
-      const finalPrompt =
-        prompt +
-        ", cricket theme, realistic, cinematic lighting, high quality, detailed";
+</footer>
 
-      const imageUrl =
-        "https://gen.pollinations.ai/image/" +
-        encodeURIComponent(finalPrompt) +
-        "?model=flux";
 
-      const img = document.createElement("img");
+<script>
 
-      img.onload = function() {
-        status.innerHTML = "✅ Image तैयार है!";
-        result.innerHTML = "";
-        result.appendChild(img);
-      };
+function generateImage() {
 
-      img.onerror = function() {
-        status.innerHTML = "❌ Image generate नहीं हुई।";
-        result.innerHTML =
-          "API authentication सेट करना बाकी है।";
-      };
+  let player =
+    document.getElementById("player").value;
 
-      img.src = imageUrl;
-    }
-  </script>
+  let team =
+    document.getElementById("team").value;
+
+  let style =
+    document.getElementById("style").value;
+
+
+  if (player === "") {
+
+    player = "Cricket Player";
+
+  }
+
+
+  if (team === "") {
+
+    team = "International Team";
+
+  }
+
+
+  document.getElementById(
+    "resultPlayer"
+  ).innerText = player;
+
+
+  document.getElementById(
+    "resultTeam"
+  ).innerText = team;
+
+
+  document.getElementById(
+    "resultStyle"
+  ).innerText = style;
+
+
+  document.getElementById(
+    "result"
+  ).style.display = "block";
+
+}
+
+</script>
 
 </body>
-</html>
+  </html>
