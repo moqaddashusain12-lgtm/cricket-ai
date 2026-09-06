@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cricket AI Image Generator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #eef3f7;
+      color: #111;
+    }
+
+    .app {
+      max-width: 600px;
+      margin: auto;
+      padding: 30px 18px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #555;
+      font-size: 17px;
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 130px;
+      padding: 14px;
+      border: 2px solid #ddd;
+      border-radius: 14px;
+      font-size: 16px;
+      resize: vertical;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 15px;
+      border: 0;
+      border-radius: 14px;
+      background: #111;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #status {
+      margin-top: 18px;
+      font-size: 16px;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 14px;
+      min-height: 100px;
+    }
+
+    #result img {
+      width: 100%;
+      border-radius: 12px;
+    }
+
+    .example {
+      margin-top: 15px;
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <h1>🏏 Cricket AI</h1>
+
+    <div class="subtitle">
+      अपनी कल्पना की क्रिकेट इमेज बनाएँ
+    </div>
+
+    <textarea
+      id="prompt"
+      placeholder="जैसे: Indian cricket team celebrating World Cup victory in a stadium">
+    </textarea>
+
+    <button onclick="generateImage()">
+      ✨ Generate Image
+    </button>
+
+    <div id="status"></div>
+
+    <div id="result">
+      आपकी AI image यहाँ दिखाई देगी
+    </div>
+
+    <div class="example">
+      Example: A cricketer hitting a six in a packed stadium, cinematic, realistic
+    </div>
+
+  </div>
+
+  <script>
+    async function generateImage() {
+
+      const prompt = document.getElementById("prompt").value.trim();
+      const status = document.getElementById("status");
+      const result = document.getElementById("result");
+
+      if (!prompt) {
+        status.innerHTML = "⚠️ पहले अपना image prompt लिखें।";
+        return;
+      }
+
+      status.innerHTML = "⏳ Image बनाई जा रही है...";
+      result.innerHTML = "";
+
+      const finalPrompt =
+        prompt +
+        ", cricket theme, realistic, cinematic lighting, high quality, detailed";
+
+      const imageUrl =
+        "https://gen.pollinations.ai/image/" +
+        encodeURIComponent(finalPrompt) +
+        "?model=flux";
+
+      const img = document.createElement("img");
+
+      img.onload = function() {
+        status.innerHTML = "✅ Image तैयार है!";
+        result.innerHTML = "";
+        result.appendChild(img);
+      };
+
+      img.onerror = function() {
+        status.innerHTML = "❌ Image generate नहीं हुई।";
+        result.innerHTML =
+          "API authentication सेट करना बाकी है।";
+      };
+
+      img.src = imageUrl;
+    }
+  </script>
+
+</body>
+</html>
