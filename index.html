@@ -1,145 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-  <title>Cricket AI Image Generator</title>
+  <title>Cricket AI & News</title>
 
   <style>
-
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
       background: #0b1220;
       color: white;
-      min-height: 100vh;
     }
 
     header {
-      background: linear-gradient(135deg,
-        #0f5132,
-        #198754);
-      padding: 20px;
       text-align: center;
-      box-shadow: 0 3px 15px rgba(0,0,0,.4);
+      padding: 25px 15px;
+      background: #123b2a;
     }
 
     header h1 {
+      margin: 0;
       font-size: 28px;
     }
 
     header p {
-      margin-top: 8px;
-      color: #d9ffe7;
+      color: #c8f7d8;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 700px;
       margin: auto;
-      padding: 25px 15px;
+      padding: 20px 15px;
     }
 
     .card {
       background: #162033;
-      border-radius: 18px;
-      padding: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 25px;
     }
 
     label {
       display: block;
-      margin-top: 18px;
+      margin-top: 15px;
       margin-bottom: 7px;
       font-weight: bold;
     }
 
-    input,
-    select {
+    input, select {
       width: 100%;
       padding: 14px;
-      border: none;
       border-radius: 10px;
+      border: none;
       font-size: 16px;
-      outline: none;
     }
 
     button {
       width: 100%;
-      margin-top: 25px;
       padding: 15px;
+      margin-top: 20px;
       border: none;
       border-radius: 10px;
-      background: #22c55e;
-      color: white;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: bold;
       cursor: pointer;
-    }
-
-    button:hover {
-      background: #16a34a;
+      background: #22c55e;
+      color: white;
     }
 
     #result {
       display: none;
-      margin-top: 30px;
-    }
-
-    .image-box {
-      min-height: 350px;
-      border-radius: 18px;
-      padding: 30px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      margin-top: 20px;
+      padding: 20px;
       text-align: center;
-
-      background:
-        radial-gradient(circle at top,
-          #22c55e,
-          #064e3b 45%,
-          #020617 100%);
-
-      border: 2px solid #22c55e;
+      border-radius: 15px;
+      background: #064e3b;
     }
 
     .emoji {
-      font-size: 100px;
-      margin-bottom: 15px;
+      font-size: 80px;
     }
 
-    .player-name {
-      font-size: 32px;
-      font-weight: bold;
-    }
-
-    .team {
+    .news-title {
       margin-top: 10px;
-      font-size: 20px;
-      color: #d1fae5;
+      font-size: 24px;
     }
 
-    .style {
+    .news-card {
+      background: #162033;
+      padding: 18px;
       margin-top: 15px;
-      background: rgba(255,255,255,.15);
-      padding: 10px 18px;
-      border-radius: 30px;
+      border-radius: 14px;
     }
 
-    .note {
-      margin-top: 15px;
-      text-align: center;
-      color: #94a3b8;
-      font-size: 14px;
+    .news-card h3 {
+      margin-top: 0;
+    }
+
+    .news-card p {
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .news-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 15px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
     }
 
     footer {
@@ -147,107 +123,115 @@
       padding: 25px;
       color: #94a3b8;
     }
-
   </style>
-
 </head>
 
 <body>
 
 <header>
-
-  <h1>🏏 Cricket AI Image Generator</h1>
-
-  <p>Create amazing cricket artwork with AI</p>
-
+  <h1>🏏 Cricket AI</h1>
+  <p>AI Cricket Images & Latest Cricket News</p>
 </header>
-
 
 <div class="container">
 
+  <!-- AI GENERATOR -->
+
   <div class="card">
+
+    <h2>✨ Cricket AI Image Generator</h2>
 
     <label>Player Name</label>
 
     <input
       type="text"
       id="player"
-      placeholder="Enter player name"
-    >
-
+      placeholder="जैसे: Virat Kohli">
 
     <label>Team</label>
 
     <input
       type="text"
       id="team"
-      placeholder="Example: India"
-    >
-
+      placeholder="जैसे: India">
 
     <label>Image Style</label>
 
     <select id="style">
-
       <option>Realistic</option>
-
       <option>Digital Art</option>
-
       <option>Anime</option>
-
       <option>Poster Style</option>
-
-      <option>Cyberpunk</option>
-
     </select>
 
-
     <button onclick="generateImage()">
-
       ✨ Generate Cricket Image
-
     </button>
-
 
     <div id="result">
 
-      <div class="image-box">
+      <div class="emoji">🏏</div>
 
-        <div class="emoji">
-          🏏
-        </div>
+      <h2 id="resultPlayer">
+        Cricket Player
+      </h2>
 
-        <div
-          class="player-name"
-          id="resultPlayer">
+      <p id="resultTeam">
+        International Team
+      </p>
 
-          Cricket Player
+      <p id="resultStyle">
+        Realistic
+      </p>
 
-        </div>
+    </div>
 
-        <div
-          class="team"
-          id="resultTeam">
-
-          Team
-
-        </div>
-
-        <div
-          class="style"
-          id="resultStyle">
-
-          Realistic
-
-        </div>
-
-      </div>
+  </div>
 
 
-      <p class="note">
+  <!-- NEWS SECTION -->
 
-        ✨ AI Cricket Artwork Preview
+  <div class="card">
 
+    <h2>📰 Latest Cricket News</h2>
+
+
+    <div class="news-card">
+
+      <h3>
+        🏏 ईशान किशन का शानदार प्रदर्शन
+      </h3>
+
+      <p>
+        ईशान किशन ने दलीप ट्रॉफी में शानदार बल्लेबाजी करते हुए
+        क्रिकेट प्रशंसकों का ध्यान आकर्षित किया।
+      </p>
+
+      <p>
+        📅 2026 &nbsp; | &nbsp; 🏏 Duleep Trophy
+      </p>
+
+      <a
+        class="news-link"
+        href="https://www.abplive.com/sports/cricket/ishan-kishan-smashed-a-century-in-the-final-of-2026-duleep-trophy-scoring-his-10th-century-3185206/amp"
+        target="_blank">
+
+        Read Full News →
+
+      </a>
+
+    </div>
+
+
+    <div class="news-card">
+
+      <h3>
+        🏆 क्रिकेट की ताज़ा खबरें
+      </h3>
+
+      <p>
+        यहाँ भविष्य में IPL, International Cricket,
+        World Cup और अन्य क्रिकेट की खबरें दिखाई जाएँगी।
       </p>
 
     </div>
@@ -258,9 +242,7 @@
 
 
 <footer>
-
-  © 2026 Cricket AI Image Generator
-
+  © 2026 Cricket AI
 </footer>
 
 
@@ -279,16 +261,12 @@ function generateImage() {
 
 
   if (player === "") {
-
     player = "Cricket Player";
-
   }
 
 
   if (team === "") {
-
     team = "International Team";
-
   }
 
 
@@ -316,4 +294,4 @@ function generateImage() {
 </script>
 
 </body>
-  </html>
+        </html>
