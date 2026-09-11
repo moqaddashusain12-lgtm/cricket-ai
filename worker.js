@@ -2,108 +2,127 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // AI Image Generation API
+    // =========================
+    // AI IMAGE GENERATOR
+    // =========================
+
     if (url.pathname === "/api/generate-image") {
+
       if (request.method !== "POST") {
-        return new Response(
-          JSON.stringify({
+        return Response.json(
+          {
             success: false,
             error: "Only POST requests are allowed"
-          }),
-          {
-            status: 405,
-            headers: {
-              "Content-Type": "application/json"
-            }
-          }
+          },
+          { status: 405 }
         );
       }
 
       try {
+
         const body = await request.json();
 
         const player =
           body.player || "Cricket Player";
 
         const team =
-          body.team || "International Cricket Team";
+          body.team || "India";
 
         const style =
           body.style || "Realistic";
 
 
         const prompt = `
-${style} professional sports photography.
+${style} professional cricket sports photography.
 
-A cricket player inspired by the description:
-Player name: ${player}
-Team: ${team}
+A professional cricket player.
 
-The player is wearing a professional cricket uniform,
-holding a cricket bat,
-standing inside a large international cricket stadium.
+Player description: ${player}
 
-Dramatic stadium lights,
-cinematic composition,
-highly detailed,
-professional sports photography.
+Playing for: ${team}
+
+The player is wearing a professional cricket uniform.
+
+Holding a cricket bat.
+
+Inside a large international cricket stadium.
+
+Dramatic stadium lights.
+
+Cinematic composition.
+
+Highly detailed.
+
+Professional sports photography.
+
+High quality.
 `;
 
 
-        const result = await env.AI.run(
+        const aiResult = await env.AI.run(
           "@cf/black-forest-labs/flux-1-schnell",
           {
-            prompt: prompt
+            prompt: prompt,
+            steps: 4
           }
         );
 
 
-        return new Response(
-          result,
-          {
-            headers: {
-              "Content-Type": "image/jpeg",
-              "Cache-Control": "no-store"
-            }
-          }
-        );
+        // FLUX returns Base64 image
+        const imageUrl =
+          "data:image/jpeg;base64," +
+          aiResult.image;
+
+
+        return Response.json({
+          success: true,
+          image: imageUrl
+        });
+
 
       } catch (error) {
 
-        return new Response(
-          JSON.stringify({
+        return Response.json(
+          {
             success: false,
             error: error.message
-          }),
-          {
-            status: 500,
-            headers: {
-              "Content-Type": "application/json"
-            }
-          }
+          },
+          { status: 500 }
         );
 
       }
+
     }
 
 
-    // Cricket News API
+    // =========================
+    // CRICKET NEWS API
+    // =========================
+
     if (url.pathname === "/api/news") {
 
       try {
 
         const rssUrl =
-          "https://news.google.com/rss/search?q=cricket&hl=en-IN&gl=IN&ceid=IN:en";
+          "https://news.google.com/rss/search?q=latest+cricket&hl=en-IN&gl=IN&ceid=IN:en";
 
 
         const response =
-          await fetch(rssUrl);
+          await fetch(rssUrl, {
+            headers: {
+              "User-Agent":
+                "Mozilla/5.0"
+            }
+          });
 
 
         if (!response.ok) {
+
           throw new Error(
-            "News server error"
+            "News server error: " +
+            response.status
           );
+
         }
 
 
@@ -111,86 +130,86 @@ professional sports photography.
           await response.text();
 
 
-        const items =
-          [...xml.matchAll(
-            /<item>([\s\S]*?)<\/item>/gi
-          )];
+        const news = [];
+
+        const itemRegex =
+          /<item>([\s\S]*?)<\/item>/gi;
 
 
-        const news =
-          items
-            .slice(0, 8)
-            .map((item) => {
-
-              const content =
-                item[1];
+        let match;
 
 
-              const titleMatch =
-                content.match(
-                  /<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/i
-                ) ||
-                content.match(
-                  /<title>([\s\S]*?)<\/title>/i
-                );
+        while (
+          (match =
+            itemRegex.exec(xml)) !== null
+          &&
+          news.length < 8
+        ) {
+
+          const item =
+            match[1];
 
 
-              const linkMatch =
-                content.match(
-                  /<link>([\s\S]*?)<\/link>/i
-                );
+          const titleMatch =
+            item.match(
+              /<title>([\s\S]*?)<\/title>/i
+            );
 
 
-              const title =
-                titleMatch
-                  ? titleMatch[1]
-                  : "Cricket News";
+          const linkMatch =
+            item.match(
+              /<link>([\s\S]*?)<\/link>/i
+            );
 
 
-              const link =
-                linkMatch
-                  ? linkMatch[1]
-                  : "#";
+          if (
+            titleMatch &&
+            linkMatch
+          ) {
+
+            const title =
+              cleanText(
+                titleMatch[1]
+              );
 
 
-              return {
-                title:
-                  cleanText(title),
-
-                link:
-                  cleanText(link)
-              };
-
-            });
+            const link =
+              cleanText(
+                linkMatch[1]
+              );
 
 
-        return new Response(
-          JSON.stringify({
-            success: true,
-            news: news
-          }),
-          {
-            headers: {
-              "Content-Type":
-                "application/json"
+            if (
+              title &&
+              link
+            ) {
+
+              news.push({
+                title: title,
+                link: link
+              });
+
             }
+
           }
-        );
+
+        }
+
+
+        return Response.json({
+          success: true,
+          news: news
+        });
+
 
       } catch (error) {
 
-        return new Response(
-          JSON.stringify({
+        return Response.json(
+          {
             success: false,
             error: error.message
-          }),
-          {
-            status: 500,
-            headers: {
-              "Content-Type":
-                "application/json"
-            }
-          }
+          },
+          { status: 500 }
         );
 
       }
@@ -198,14 +217,21 @@ professional sports photography.
     }
 
 
-    // बाकी requests static files को serve करेंगे
+    // =========================
+    // STATIC WEBSITE
+    // =========================
+
     return env.ASSETS.fetch(request);
 
   }
+
 };
 
 
-// RSS text साफ करने के लिए
+// =========================
+// CLEAN RSS TEXT
+// =========================
+
 function cleanText(text) {
 
   return String(text)
@@ -247,4 +273,4 @@ function cleanText(text) {
 
     .trim();
 
-                }
+}
