@@ -1,7 +1,7 @@
 {
   "name": "cricket-ai-app",
   "main": "worker.js",
-  "compatibility_date": "2026-09-12",
+  "compatibility_date": "2026-09-11",
 
   "ai": {
     "binding": "AI"
