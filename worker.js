@@ -68,7 +68,6 @@ High quality.
         );
 
 
-        // FLUX returns Base64 image
         const imageUrl =
           "data:image/jpeg;base64," +
           aiResult.image;
@@ -103,95 +102,79 @@ High quality.
 
       try {
 
-        const rssUrl =
-          "https://news.google.com/rss/search?q=latest+cricket&hl=en-IN&gl=IN&ceid=IN:en";
+        // अलग-अलग Google News RSS sources
+        const rssSources = [
+
+          "https://news.google.com/rss/search?q=cricket&hl=en-IN&gl=IN&ceid=IN:en",
+
+          "https://news.google.com/rss/search?q=India+cricket&hl=en-IN&gl=IN&ceid=IN:en",
+
+          "https://news.google.com/rss/search?q=ICC+cricket&hl=en-IN&gl=IN&ceid=IN:en"
+
+        ];
 
 
-        const response =
-          await fetch(rssUrl, {
-            headers: {
-              "User-Agent":
-                "Mozilla/5.0"
+        let xml = null;
+        let lastError = "";
+
+
+        // पहला working source खोजें
+        for (const rssUrl of rssSources) {
+
+          try {
+
+            const response =
+              await fetch(rssUrl);
+
+            if (response.ok) {
+
+              const text =
+                await response.text();
+
+              if (text.includes("<item>")) {
+
+                xml = text;
+                break;
+
+              }
+
+            } else {
+
+              lastError =
+                "News source error: " +
+                response.status;
+
             }
-          });
+
+          } catch (error) {
+
+            lastError =
+              error.message;
+
+          }
+
+        }
 
 
-        if (!response.ok) {
+        if (!xml) {
 
           throw new Error(
-            "News server error: " +
-            response.status
+            lastError ||
+            "News अभी उपलब्ध नहीं है"
           );
 
         }
 
 
-        const xml =
-          await response.text();
+        const news =
+          parseRSS(xml);
 
 
-        const news = [];
+        if (news.length === 0) {
 
-        const itemRegex =
-          /<item>([\s\S]*?)<\/item>/gi;
-
-
-        let match;
-
-
-        while (
-          (match =
-            itemRegex.exec(xml)) !== null
-          &&
-          news.length < 8
-        ) {
-
-          const item =
-            match[1];
-
-
-          const titleMatch =
-            item.match(
-              /<title>([\s\S]*?)<\/title>/i
-            );
-
-
-          const linkMatch =
-            item.match(
-              /<link>([\s\S]*?)<\/link>/i
-            );
-
-
-          if (
-            titleMatch &&
-            linkMatch
-          ) {
-
-            const title =
-              cleanText(
-                titleMatch[1]
-              );
-
-
-            const link =
-              cleanText(
-                linkMatch[1]
-              );
-
-
-            if (
-              title &&
-              link
-            ) {
-
-              news.push({
-                title: title,
-                link: link
-              });
-
-            }
-
-          }
+          throw new Error(
+            "कोई Cricket News नहीं मिली"
+          );
 
         }
 
@@ -207,7 +190,9 @@ High quality.
         return Response.json(
           {
             success: false,
-            error: error.message
+            error:
+              "News load नहीं हो सकी: " +
+              error.message
           },
           { status: 500 }
         );
@@ -229,6 +214,76 @@ High quality.
 
 
 // =========================
+// RSS PARSER
+// =========================
+
+function parseRSS(xml) {
+
+  const news = [];
+
+  const itemRegex =
+    /<item>([\s\S]*?)<\/item>/gi;
+
+  let match;
+
+
+  while (
+    (match = itemRegex.exec(xml)) !== null
+    &&
+    news.length < 8
+  ) {
+
+    const item = match[1];
+
+
+    const titleMatch =
+      item.match(
+        /<title>([\s\S]*?)<\/title>/i
+      );
+
+
+    const linkMatch =
+      item.match(
+        /<link>([\s\S]*?)<\/link>/i
+      );
+
+
+    if (
+      titleMatch &&
+      linkMatch
+    ) {
+
+      const title =
+        cleanText(titleMatch[1]);
+
+
+      const link =
+        cleanText(linkMatch[1]);
+
+
+      if (
+        title &&
+        link
+      ) {
+
+        news.push({
+          title: title,
+          link: link
+        });
+
+      }
+
+    }
+
+  }
+
+
+  return news;
+
+}
+
+
+// =========================
 // CLEAN RSS TEXT
 // =========================
 
@@ -236,41 +291,13 @@ function cleanText(text) {
 
   return String(text)
 
-    .replace(
-      /<!\[CDATA\[/g,
-      ""
-    )
-
-    .replace(
-      /\]\]>/g,
-      ""
-    )
-
-    .replace(
-      /&amp;/g,
-      "&"
-    )
-
-    .replace(
-      /&quot;/g,
-      '"'
-    )
-
-    .replace(
-      /&#39;/g,
-      "'"
-    )
-
-    .replace(
-      /&lt;/g,
-      "<"
-    )
-
-    .replace(
-      /&gt;/g,
-      ">"
-    )
-
+    .replace(/<!\[CDATA\[/g, "")
+    .replace(/\]\]>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
     .trim();
 
 }
