@@ -12,7 +12,6 @@ export default {
     if (url.pathname === "/api/generate-image") {
 
 
-      // केवल POST request की अनुमति
       if (request.method !== "POST") {
 
         return Response.json(
@@ -45,7 +44,7 @@ export default {
 
 
         // =========================
-        // GET REQUEST DATA
+        // GET DATA
         // =========================
 
         const body = await request.json();
@@ -68,7 +67,7 @@ export default {
 
 
         // =========================
-        // NEW ADVANCED OPTIONS
+        // ADVANCED OPTIONS
         // =========================
 
         const jersey =
@@ -91,16 +90,18 @@ export default {
 
 
         // =========================
-        // AI IMAGE PROMPT
+        // AI PROMPT
         // =========================
 
         const prompt = `
 
-Create a high quality ${style} image of a professional cricket player.
+Create a high quality ${style} cricket image.
 
-Player name: ${player}.
+A professional cricket player.
 
-The player represents the ${team} cricket team.
+Player description: ${player}.
+
+The player represents ${team}.
 
 Jersey number: ${jersey}.
 
@@ -120,19 +121,15 @@ Location:
 
 ${stadium}.
 
-The player is wearing a professional ${team} cricket uniform.
-
-The jersey clearly displays the number ${jersey}.
+Professional ${team} cricket uniform.
 
 Professional cricket equipment.
 
-Realistic cricket environment.
-
-Exciting professional cricket atmosphere.
+Large exciting cricket atmosphere.
 
 Dynamic sports composition.
 
-Cinematic stadium lighting.
+Cinematic lighting.
 
 High detail.
 
@@ -158,18 +155,15 @@ No text.
           "@cf/black-forest-labs/flux-1-schnell",
 
           {
-
             prompt: prompt,
-
             steps: 4
-
           }
 
         );
 
 
         // =========================
-        // CHECK AI RESPONSE
+        // CHECK RESPONSE
         // =========================
 
         if (!aiResult) {
@@ -181,25 +175,15 @@ No text.
         }
 
 
-        /*
-          Workers AI image models may return
-          the image directly as binary data.
-
-          इसलिए पुराने base64 conversion
-          को force नहीं करेंगे।
-        */
-
-
         // =========================
-        // RETURN IMAGE
+        // RETURN AI IMAGE
         // =========================
 
         return new Response(
 
-          aiResult,
+          aiResult.image,
 
           {
-
             headers: {
 
               "Content-Type": "image/jpeg",
@@ -207,7 +191,6 @@ No text.
               "Cache-Control": "no-store"
 
             }
-
           }
 
         );
@@ -227,31 +210,24 @@ No text.
         return Response.json(
 
           {
-
             success: false,
 
             error:
-
               "AI Error: " +
-
               (
                 error.message ||
                 "Unknown error"
               )
-
           },
 
           {
-
             status: 500
-
           }
 
         );
 
 
       }
-
 
     }
 
@@ -261,7 +237,6 @@ No text.
     // =========================
 
     return env.ASSETS.fetch(request);
-
 
   }
 
