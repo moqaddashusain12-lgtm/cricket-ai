@@ -3,14 +3,14 @@ export default {
 
     const url = new URL(request.url);
 
-    // =========================
+    // =============================
     // AI IMAGE GENERATION API
-    // =========================
+    // =============================
 
     if (url.pathname === "/api/generate-image") {
 
+      // POST request जरूरी है
       if (request.method !== "POST") {
-
         return Response.json(
           {
             success: false,
@@ -20,11 +20,25 @@ export default {
             status: 405
           }
         );
-
       }
 
       try {
 
+        // Check AI Binding
+        if (!env.AI) {
+          return Response.json(
+            {
+              success: false,
+              error: "Workers AI binding 'AI' नहीं मिली"
+            },
+            {
+              status: 500
+            }
+          );
+        }
+
+
+        // Read request data
         const body = await request.json();
 
         const player =
@@ -37,12 +51,14 @@ export default {
           body.style || "Realistic";
 
 
+        // =============================
+        // AI PROMPT
+        // =============================
+
         const prompt = `
 ${style} professional cricket sports photography.
 
-A professional cricket player.
-
-Player description: ${player}.
+A professional cricket player named ${player}.
 
 Playing for ${team}.
 
@@ -60,11 +76,21 @@ Highly detailed.
 
 Professional sports photography.
 
+Sharp focus.
+
 High quality.
+
+No watermark.
+
+No text.
 `;
 
 
-        const aiResult = await env.AI.run(
+        // =============================
+        // GENERATE IMAGE WITH AI
+        // =============================
+
+        const image = await env.AI.run(
           "@cf/black-forest-labs/flux-1-schnell",
           {
             prompt: prompt,
@@ -73,15 +99,16 @@ High quality.
         );
 
 
-        // =========================
-        // RETURN AI IMAGE
-        // =========================
+        // =============================
+        // RETURN IMAGE
+        // =============================
 
         return new Response(
-          aiResult.image,
+          image,
           {
             headers: {
-              "Content-Type": "image/jpeg"
+              "Content-Type": "image/jpeg",
+              "Cache-Control": "no-store"
             }
           }
         );
@@ -89,10 +116,14 @@ High quality.
 
       } catch (error) {
 
+        console.error("AI Generation Error:", error);
+
         return Response.json(
           {
             success: false,
-            error: "AI Error: " + error.message
+            error:
+              "AI Error: " +
+              (error.message || "Unknown error")
           },
           {
             status: 500
@@ -104,12 +135,11 @@ High quality.
     }
 
 
-    // =========================
+    // =============================
     // STATIC WEBSITE
-    // =========================
+    // =============================
 
     return env.ASSETS.fetch(request);
 
   }
-
 };
