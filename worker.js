@@ -1,7 +1,9 @@
 export default {
+
   async fetch(request, env) {
 
     const url = new URL(request.url);
+
 
     // =========================
     // AI IMAGE GENERATION API
@@ -9,7 +11,9 @@ export default {
 
     if (url.pathname === "/api/generate-image") {
 
+
       if (request.method !== "POST") {
+
         return Response.json(
           {
             success: false,
@@ -19,29 +23,52 @@ export default {
             status: 405
           }
         );
+
       }
+
 
       try {
 
-        // AI binding check
+
+        // =========================
+        // CHECK AI BINDING
+        // =========================
+
         if (!env.AI) {
+
           throw new Error(
             "Workers AI binding 'AI' not found"
           );
+
         }
 
 
-        // Read request data
-        const body = await request.json();
+        // =========================
+        // GET DATA
+        // =========================
+
+        const body =
+          await request.json();
+
 
         const player =
-          body.player || "Cricket Player";
+          body.player ||
+          "Cricket Player";
+
 
         const team =
-          body.team || "India";
+          body.team ||
+          "India";
+
+
+        const pose =
+          body.pose ||
+          "Batting";
+
 
         const style =
-          body.style || "Realistic";
+          body.style ||
+          "Realistic";
 
 
         // =========================
@@ -49,33 +76,43 @@ export default {
         // =========================
 
         const prompt = `
-${style} professional cricket sports photography.
 
-A professional cricket player named ${player}.
+Create a high quality ${style} cricket image.
 
-Playing for ${team}.
+A professional cricket player.
 
-Wearing a professional cricket uniform.
+Player name: ${player}.
 
-Holding a cricket bat.
+The player represents ${team}.
 
-Inside a large international cricket stadium.
+Player action and pose:
 
-Dramatic stadium lights.
+${pose}.
 
-Cinematic composition.
+Professional cricket uniform.
 
-Highly detailed.
+Professional cricket equipment.
 
-Professional sports photography.
+Large international cricket stadium.
+
+Dramatic stadium lighting.
+
+Exciting professional cricket atmosphere.
+
+Dynamic sports composition.
+
+High detail.
 
 Sharp focus.
 
-High quality.
+Professional quality.
 
 No watermark.
 
+No logo.
+
 No text.
+
 `;
 
 
@@ -83,92 +120,160 @@ No text.
         // GENERATE IMAGE
         // =========================
 
-        const aiResult = await env.AI.run(
-          "@cf/black-forest-labs/flux-1-schnell",
-          {
-            prompt: prompt,
-            steps: 4
-          }
-        );
+        const aiResult =
 
+          await env.AI.run(
 
-        // =========================
-        // CHECK IMAGE
-        // =========================
+            "@cf/black-forest-labs/flux-1-schnell",
 
-        if (!aiResult || !aiResult.image) {
-          throw new Error(
-            "AI ने image data वापस नहीं दिया"
+            {
+
+              prompt:
+              prompt,
+
+              steps:
+              4
+
+            }
+
           );
+
+
+        // =========================
+        // CHECK AI RESPONSE
+        // =========================
+
+        if (
+
+          !aiResult ||
+
+          !aiResult.image
+
+        ) {
+
+          throw new Error(
+
+            "AI did not return image data"
+
+          );
+
         }
 
 
         // =========================
-        // BASE64 → BINARY
+        // BASE64 TO BINARY
         // =========================
 
         const binaryString =
-          atob(aiResult.image);
+
+          atob(
+            aiResult.image
+          );
 
 
         const bytes =
+
           new Uint8Array(
+
             binaryString.length
+
           );
 
 
         for (
+
           let i = 0;
+
           i < binaryString.length;
+
           i++
+
         ) {
 
           bytes[i] =
+
             binaryString.charCodeAt(i);
 
         }
 
 
         // =========================
-        // RETURN JPEG IMAGE
+        // RETURN IMAGE
         // =========================
 
         return new Response(
+
           bytes,
+
           {
-            headers: {
-              "Content-Type": "image/jpeg",
-              "Cache-Control": "no-store"
+
+            headers:
+
+            {
+
+              "Content-Type":
+              "image/jpeg",
+
+              "Cache-Control":
+              "no-store"
+
             }
+
           }
+
         );
 
 
-      } catch (error) {
+      }
+
+
+      catch (error) {
+
 
         console.error(
+
           "AI Generation Error:",
+
           error
+
         );
 
 
         return Response.json(
+
           {
-            success: false,
+
+            success:
+            false,
+
 
             error:
+
               "AI Error: " +
+
               (
+
                 error.message ||
+
                 "Unknown error"
+
               )
+
           },
+
+
           {
-            status: 500
+
+            status:
+            500
+
           }
+
         );
 
+
       }
+
 
     }
 
@@ -177,7 +282,11 @@ No text.
     // STATIC WEBSITE
     // =========================
 
-    return env.ASSETS.fetch(request);
+    return env.ASSETS.fetch(
+      request
+    );
+
 
   }
+
 };
