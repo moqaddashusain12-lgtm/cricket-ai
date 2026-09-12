@@ -5,13 +5,14 @@ export default {
     const url = new URL(request.url);
 
 
-    // =========================
+    // =====================================
     // AI IMAGE GENERATION API
-    // =========================
+    // =====================================
 
     if (url.pathname === "/api/generate-image") {
 
 
+      // Only POST requests allowed
       if (request.method !== "POST") {
 
         return Response.json(
@@ -29,6 +30,11 @@ export default {
 
       try {
 
+
+        // =====================================
+        // CHECK WORKERS AI BINDING
+        // =====================================
+
         if (!env.AI) {
 
           throw new Error(
@@ -37,6 +43,10 @@ export default {
 
         }
 
+
+        // =====================================
+        // GET FORM DATA
+        // =====================================
 
         const body = await request.json();
 
@@ -49,12 +59,12 @@ export default {
           body.team || "India";
 
 
-        const pose =
-          body.pose || "Batting";
-
-
         const style =
           body.style || "Realistic";
+
+
+        const pose =
+          body.pose || "Batting";
 
 
         const jersey =
@@ -62,56 +72,57 @@ export default {
 
 
         const stadium =
-          body.stadium ||
-          "Large International Cricket Stadium";
+          body.stadium || "Modern International Cricket Stadium";
 
 
         const matchTime =
-          body.matchTime ||
-          "Day Match";
+          body.matchTime || "Day Match";
 
 
         const tournament =
-          body.tournament ||
-          "International Cricket Match";
+          body.tournament || "T20 Cricket Match";
 
 
-        // =========================
+        // =====================================
         // AI PROMPT
-        // =========================
+        // =====================================
 
         const prompt = `
 ${style} professional cricket sports photography.
 
-A professional cricket player.
+Create an exciting high-quality image of a professional cricket player.
 
-Player description: ${player}.
+Player name: ${player}.
 
-Playing for ${team}.
+The player represents: ${team}.
 
-Jersey number ${jersey}.
+Player pose and action: ${pose}.
 
-Player pose: ${pose}.
+Jersey number: ${jersey}.
 
 Tournament: ${tournament}.
 
 Match time: ${matchTime}.
 
-Stadium: ${stadium}.
+Stadium type: ${stadium}.
 
-Wearing a professional ${team} cricket uniform.
+The player is wearing a professional ${team} cricket uniform.
 
 Professional cricket equipment.
 
-Inside a large international cricket stadium.
+The player is performing the action: ${pose}.
 
-Exciting cricket atmosphere.
+A large professional cricket stadium.
 
-Dramatic stadium lights.
+Exciting international cricket atmosphere.
 
-Cinematic composition.
+Dramatic stadium lighting.
+
+Cinematic sports composition.
 
 Highly detailed.
+
+Sharp focus.
 
 Professional sports photography.
 
@@ -119,67 +130,118 @@ High quality.
 
 No watermark.
 
+No logo.
+
 No text.
+
 `;
 
 
-        // =========================
-        // GENERATE IMAGE
-        // =========================
+        // =====================================
+        // GENERATE IMAGE WITH WORKERS AI
+        // =====================================
 
         const aiResult = await env.AI.run(
 
           "@cf/black-forest-labs/flux-1-schnell",
 
           {
+
             prompt: prompt,
+
             steps: 4
+
           }
 
         );
 
 
-        // =========================
-        // RETURN IMAGE
-        // =========================
+        // =====================================
+        // CHECK AI RESPONSE
+        // =====================================
+
+        if (!aiResult || !aiResult.image) {
+
+          throw new Error(
+            "AI did not return image data"
+          );
+
+        }
+
+
+        // =====================================
+        // RETURN GENERATED IMAGE
+        // IMPORTANT:
+        // Keeping the old working format
+        // =====================================
 
         return new Response(
+
           aiResult.image,
+
           {
+
             headers: {
+
               "Content-Type": "image/jpeg",
+
               "Cache-Control": "no-store"
+
             }
+
           }
+
         );
 
 
       }
+
 
       catch (error) {
 
-        console.error(error);
 
-        return Response.json(
-          {
-            success: false,
-            error: "AI Error: " + error.message
-          },
-          {
-            status: 500
-          }
+        console.error(
+          "AI Generation Error:",
+          error
         );
 
+
+        return Response.json(
+
+          {
+
+            success: false,
+
+            error:
+              "AI Error: " +
+              (
+                error.message ||
+                "Unknown error"
+              )
+
+          },
+
+          {
+
+            status: 500
+
+          }
+
+        );
+
+
       }
+
 
     }
 
 
-    // =========================
+    // =====================================
     // STATIC WEBSITE
-    // =========================
+    // =====================================
 
     return env.ASSETS.fetch(request);
+
 
   }
 
