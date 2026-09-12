@@ -29,11 +29,6 @@ export default {
 
       try {
 
-
-        // =========================
-        // CHECK AI BINDING
-        // =========================
-
         if (!env.AI) {
 
           throw new Error(
@@ -42,10 +37,6 @@ export default {
 
         }
 
-
-        // =========================
-        // GET DATA
-        // =========================
 
         const body = await request.json();
 
@@ -65,10 +56,6 @@ export default {
         const style =
           body.style || "Realistic";
 
-
-        // =========================
-        // ADVANCED OPTIONS
-        // =========================
 
         const jersey =
           body.jersey || "18";
@@ -94,55 +81,45 @@ export default {
         // =========================
 
         const prompt = `
-
-Create a high quality ${style} cricket image.
+${style} professional cricket sports photography.
 
 A professional cricket player.
 
 Player description: ${player}.
 
-The player represents ${team}.
+Playing for ${team}.
 
-Jersey number: ${jersey}.
+Jersey number ${jersey}.
 
-Player action and pose:
+Player pose: ${pose}.
 
-${pose}.
+Tournament: ${tournament}.
 
-Tournament:
+Match time: ${matchTime}.
 
-${tournament}.
+Stadium: ${stadium}.
 
-Match time:
-
-${matchTime}.
-
-Location:
-
-${stadium}.
-
-Professional ${team} cricket uniform.
+Wearing a professional ${team} cricket uniform.
 
 Professional cricket equipment.
 
-Large exciting cricket atmosphere.
+Inside a large international cricket stadium.
 
-Dynamic sports composition.
+Exciting cricket atmosphere.
 
-Cinematic lighting.
+Dramatic stadium lights.
 
-High detail.
+Cinematic composition.
 
-Sharp focus.
+Highly detailed.
 
-Professional quality.
+Professional sports photography.
+
+High quality.
 
 No watermark.
 
-No logo.
-
 No text.
-
 `;
 
 
@@ -163,36 +140,17 @@ No text.
 
 
         // =========================
-        // CHECK RESPONSE
-        // =========================
-
-        if (!aiResult) {
-
-          throw new Error(
-            "AI did not return a response"
-          );
-
-        }
-
-
-        // =========================
-        // RETURN AI IMAGE
+        // RETURN IMAGE
         // =========================
 
         return new Response(
-
           aiResult.image,
-
           {
             headers: {
-
               "Content-Type": "image/jpeg",
-
               "Cache-Control": "no-store"
-
             }
           }
-
         );
 
 
@@ -200,32 +158,17 @@ No text.
 
       catch (error) {
 
-
-        console.error(
-          "AI Generation Error:",
-          error
-        );
-
+        console.error(error);
 
         return Response.json(
-
           {
             success: false,
-
-            error:
-              "AI Error: " +
-              (
-                error.message ||
-                "Unknown error"
-              )
+            error: "AI Error: " + error.message
           },
-
           {
             status: 500
           }
-
         );
-
 
       }
 
