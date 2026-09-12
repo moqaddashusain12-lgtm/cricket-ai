@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="hi">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta name="viewport"
@@ -14,200 +16,663 @@
       box-sizing: border-box;
     }
 
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f2f5f9;
+      background:
+        linear-gradient(
+          135deg,
+          #eef7f1,
+          #f4f7fb
+        );
       color: #222;
     }
 
+
+    /* =========================
+       HEADER
+    ========================= */
+
     header {
-      background: linear-gradient(135deg, #0b6b35, #138a4b);
+
+      background:
+        linear-gradient(
+          135deg,
+          #063b20,
+          #08783c,
+          #0ca34f
+        );
+
       color: white;
+
       text-align: center;
-      padding: 30px 15px;
+
+      padding:
+        45px
+        20px;
+
+      box-shadow:
+        0 5px 20px
+        rgba(0,0,0,0.15);
+
     }
+
+
+    .logo {
+
+      font-size: 50px;
+
+      margin-bottom: 10px;
+
+    }
+
 
     header h1 {
+
       margin: 0;
-      font-size: 28px;
+
+      font-size: 32px;
+
     }
+
 
     header p {
-      margin-top: 10px;
-      font-size: 16px;
+
+      margin-top: 12px;
+
+      font-size: 17px;
+
+      opacity: 0.95;
+
     }
+
+
+    .badge {
+
+      display: inline-block;
+
+      margin-top: 15px;
+
+      padding:
+        8px
+        16px;
+
+      border-radius: 30px;
+
+      background:
+        rgba(255,255,255,0.18);
+
+      font-size: 13px;
+
+    }
+
+
+
+    /* =========================
+       CONTAINER
+    ========================= */
 
     .container {
-      max-width: 750px;
-      margin: 25px auto;
-      padding: 20px;
+
+      max-width: 850px;
+
+      margin:
+        30px
+        auto;
+
+      padding:
+        15px;
+
     }
+
+
+
+    /* =========================
+       CARD
+    ========================= */
 
     .card {
+
       background: white;
-      border-radius: 15px;
-      padding: 25px;
+
+      border-radius: 20px;
+
+      padding: 28px;
+
       margin-bottom: 25px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+
+      box-shadow:
+        0 10px 35px
+        rgba(0,0,0,0.08);
+
+      border:
+        1px solid
+        rgba(0,0,0,0.04);
+
     }
+
 
     h2 {
+
       margin-top: 0;
-      color: #0b6b35;
-      font-size: 22px;
+
+      color: #08783c;
+
+      font-size: 23px;
+
+      border-bottom:
+        2px solid
+        #e7f2ea;
+
+      padding-bottom: 12px;
+
     }
 
+
+
+    /* =========================
+       FORM
+    ========================= */
+
     label {
+
       display: block;
+
       font-weight: bold;
+
       margin-top: 18px;
-      margin-bottom: 7px;
+
+      margin-bottom: 8px;
+
+      color: #333;
+
     }
+
 
     input,
     select {
+
       width: 100%;
-      padding: 13px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+
+      padding: 14px;
+
+      border:
+        1px solid
+        #d8d8d8;
+
+      border-radius: 10px;
+
       font-size: 16px;
+
       background: white;
+
+      transition: 0.2s;
+
     }
+
+
+    input:focus,
+    select:focus {
+
+      outline: none;
+
+      border-color: #0ca34f;
+
+      box-shadow:
+        0 0 0 3px
+        rgba(12,163,79,0.12);
+
+    }
+
+
+
+    /* =========================
+       BUTTON
+    ========================= */
 
     button {
+
       width: 100%;
+
       padding: 15px;
+
       border: none;
-      border-radius: 10px;
-      font-size: 17px;
+
+      border-radius: 12px;
+
+      font-size: 16px;
+
       font-weight: bold;
+
       cursor: pointer;
-      margin-top: 20px;
-      transition: 0.2s;
+
+      margin-top: 18px;
+
+      transition:
+        transform 0.2s,
+        opacity 0.2s;
+
     }
+
 
     button:hover {
-      transform: scale(1.02);
+
+      transform:
+        translateY(-2px);
+
+      opacity: 0.95;
+
     }
+
+
+    button:disabled {
+
+      opacity: 0.6;
+
+      cursor: not-allowed;
+
+    }
+
 
     #generateBtn {
-      background: #0b6b35;
+
+      background:
+        linear-gradient(
+          135deg,
+          #08783c,
+          #0ca34f
+        );
+
       color: white;
+
+      font-size: 18px;
+
+      box-shadow:
+        0 5px 15px
+        rgba(12,163,79,0.25);
+
     }
 
-    #againBtn {
-      background: #1565c0;
-      color: white;
-      display: none;
-    }
 
     #downloadBtn {
-      background: #f57c00;
+
+      background:
+        linear-gradient(
+          135deg,
+          #e86e00,
+          #ff9800
+        );
+
       color: white;
+
       display: none;
+
     }
+
 
     #shareBtn {
-      background: #6a1b9a;
+
+      background:
+        linear-gradient(
+          135deg,
+          #5b1688,
+          #8e24aa
+        );
+
       color: white;
+
       display: none;
+
     }
 
-    /* NEWS BUTTONS */
 
-    .facebook-btn {
-      background: #1877f2;
+    #againBtn {
+
+      background:
+        linear-gradient(
+          135deg,
+          #1257a6,
+          #1976d2
+        );
+
       color: white;
-      margin-top: 10px;
+
+      display: none;
+
     }
+
 
     .copy-btn {
-      background: #00897b;
+
+      background:
+        linear-gradient(
+          135deg,
+          #00796b,
+          #009688
+        );
+
       color: white;
-      margin-top: 10px;
+
     }
+
+
+    .facebook-btn {
+
+      background:
+        linear-gradient(
+          135deg,
+          #0d5ec9,
+          #1877f2
+        );
+
+      color: white;
+
+    }
+
+
+
+    /* =========================
+       LOADING
+    ========================= */
 
     #loading {
+
       display: none;
+
       text-align: center;
-      margin-top: 20px;
-      padding: 15px;
-      background: #e8f5e9;
-      border-radius: 10px;
-      color: #0b6b35;
+
+      margin-top: 22px;
+
+      padding: 20px;
+
+      background: #eaf7ef;
+
+      border-radius: 14px;
+
+      color: #08783c;
+
       font-weight: bold;
+
     }
 
+
     .spinner {
-      width: 35px;
-      height: 35px;
-      border: 4px solid #c8e6c9;
-      border-top: 4px solid #0b6b35;
+
+      width: 42px;
+
+      height: 42px;
+
+      border:
+        5px solid
+        #c9ead5;
+
+      border-top:
+        5px solid
+        #08783c;
+
       border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 10px;
+
+      animation:
+        spin 1s
+        linear
+        infinite;
+
+      margin:
+        0
+        auto
+        12px;
+
     }
+
 
     @keyframes spin {
 
       0% {
-        transform: rotate(0deg);
+
+        transform:
+          rotate(0deg);
+
       }
 
       100% {
-        transform: rotate(360deg);
+
+        transform:
+          rotate(360deg);
+
       }
 
     }
 
+
+
+    /* =========================
+       ERROR
+    ========================= */
+
     #error {
+
       display: none;
-      background: #ffebee;
-      color: #c62828;
-      padding: 15px;
-      border-radius: 10px;
+
       margin-top: 20px;
+
+      padding: 15px;
+
+      border-radius: 12px;
+
+      background: #ffebee;
+
+      color: #c62828;
+
+      font-weight: bold;
+
     }
+
+
+
+    /* =========================
+       RESULT
+    ========================= */
 
     #result {
+
       display: none;
+
       text-align: center;
-      margin-top: 20px;
+
     }
+
 
     #generatedImage {
+
       width: 100%;
-      max-width: 600px;
-      border-radius: 12px;
-      margin-top: 15px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+
+      max-width: 650px;
+
+      border-radius: 16px;
+
+      margin-top: 18px;
+
+      box-shadow:
+        0 10px 30px
+        rgba(0,0,0,0.18);
+
     }
+
 
     #details {
-      margin-top: 12px;
-      padding: 12px;
-      background: #f1f8f4;
-      border-radius: 10px;
+
+      margin-top: 18px;
+
+      padding: 15px;
+
+      border-radius: 12px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #edf8f0,
+          #f5fbf7
+        );
+
       font-size: 15px;
+
+      line-height: 1.7;
+
+      border:
+        1px solid
+        #d8eee0;
+
     }
 
-    .news a {
-      display: block;
-      padding: 15px;
-      margin-top: 12px;
-      background: #f5f5f5;
-      border-radius: 10px;
-      text-decoration: none;
-      color: #0b6b35;
-      font-weight: bold;
+
+
+    /* =========================
+       NEWS
+    ========================= */
+
+    .news-item {
+
+      margin-top: 25px;
+
+      padding: 18px;
+
+      border-radius: 15px;
+
+      background:
+        #f8faf9;
+
+      border:
+        1px solid
+        #edf0ee;
+
     }
+
+
+    .news-item h3 {
+
+      margin-top: 0;
+
+      color: #08783c;
+
+    }
+
+
+    .news-item p {
+
+      color: #555;
+
+      line-height: 1.6;
+
+    }
+
+
+    .news-link {
+
+      display: block;
+
+      padding: 14px;
+
+      margin-top: 12px;
+
+      border-radius: 10px;
+
+      background: white;
+
+      text-decoration: none;
+
+      color: #08783c;
+
+      font-weight: bold;
+
+      border:
+        1px solid
+        #dce9e0;
+
+    }
+
+
+    .news-link:hover {
+
+      background: #edf8f0;
+
+    }
+
+
+
+    /* =========================
+       FOOTER
+    ========================= */
 
     footer {
+
+      margin-top: 40px;
+
+      padding:
+        30px
+        20px;
+
       text-align: center;
-      padding: 25px;
-      color: #666;
+
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          #063b20,
+          #08783c
+        );
+
       font-size: 14px;
+
+    }
+
+
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+
+      header {
+
+        padding:
+          35px
+          15px;
+
+      }
+
+
+      header h1 {
+
+        font-size: 25px;
+
+      }
+
+
+      .logo {
+
+        font-size: 40px;
+
+      }
+
+
+      .card {
+
+        padding: 20px;
+
+        border-radius: 16px;
+
+      }
+
+
+      h2 {
+
+        font-size: 20px;
+
+      }
+
     }
 
   </style>
@@ -218,11 +683,27 @@
 <body>
 
 
+<!-- =========================
+     HEADER
+========================= -->
+
 <header>
 
-  <h1>🏏 Cricket AI Image Generator</h1>
+  <div class="logo">
+    🏏
+  </div>
 
-  <p>AI से अपना Cricket Player बनाएं</p>
+  <h1>
+    Cricket AI Image Generator
+  </h1>
+
+  <p>
+    AI से अपना Professional Cricket Player बनाएं
+  </p>
+
+  <div class="badge">
+    ✨ Powered by Cloudflare Workers AI
+  </div>
 
 </header>
 
@@ -231,14 +712,21 @@
 <div class="container">
 
 
-  <!-- FORM -->
+  <!-- =========================
+       FORM
+  ========================= -->
 
   <div class="card">
 
-    <h2>✨ Create Your Cricket Player</h2>
+
+    <h2>
+      ✨ Create Your Cricket Player
+    </h2>
 
 
-    <label>👤 Player Name</label>
+    <label>
+      👤 Player Name
+    </label>
 
     <input
       type="text"
@@ -248,46 +736,100 @@
     >
 
 
-    <label>🌍 Team</label>
+
+    <label>
+      🌍 Team
+    </label>
 
     <select id="team">
 
-      <option value="India">🇮🇳 India</option>
-      <option value="Australia">🇦🇺 Australia</option>
-      <option value="England">🏴 England</option>
-      <option value="Pakistan">🇵🇰 Pakistan</option>
-      <option value="South Africa">🇿🇦 South Africa</option>
-      <option value="New Zealand">🇳🇿 New Zealand</option>
+      <option value="India">
+        🇮🇳 India
+      </option>
+
+      <option value="Australia">
+        🇦🇺 Australia
+      </option>
+
+      <option value="England">
+        🏴 England
+      </option>
+
+      <option value="Pakistan">
+        🇵🇰 Pakistan
+      </option>
+
+      <option value="South Africa">
+        🇿🇦 South Africa
+      </option>
+
+      <option value="New Zealand">
+        🇳🇿 New Zealand
+      </option>
 
     </select>
 
 
-    <label>🏏 Player Pose</label>
+
+    <label>
+      🏏 Player Pose
+    </label>
 
     <select id="pose">
 
-      <option value="Batting">🏏 Batting</option>
-      <option value="Bowling">⚡ Bowling</option>
-      <option value="Celebrating">🎉 Celebrating</option>
-      <option value="Fielding">🧤 Fielding</option>
-      <option value="Running">🏃 Running</option>
+      <option value="Batting">
+        🏏 Batting
+      </option>
+
+      <option value="Bowling">
+        ⚡ Bowling
+      </option>
+
+      <option value="Celebrating">
+        🎉 Celebrating
+      </option>
+
+      <option value="Fielding">
+        🧤 Fielding
+      </option>
+
+      <option value="Running">
+        🏃 Running
+      </option>
 
     </select>
 
 
-    <label>🎨 Image Style</label>
+
+    <label>
+      🎨 Image Style
+    </label>
 
     <select id="style">
 
-      <option value="Realistic">📸 Realistic</option>
-      <option value="Cinematic">🎬 Cinematic</option>
-      <option value="Digital Art">🎨 Digital Art</option>
-      <option value="Sports Poster">📰 Sports Poster</option>
+      <option value="Realistic">
+        📸 Realistic
+      </option>
+
+      <option value="Cinematic">
+        🎬 Cinematic
+      </option>
+
+      <option value="Digital Art">
+        🎨 Digital Art
+      </option>
+
+      <option value="Sports Poster">
+        📰 Sports Poster
+      </option>
 
     </select>
 
 
-    <label>👕 Jersey Number</label>
+
+    <label>
+      👕 Jersey Number
+    </label>
 
     <input
       type="number"
@@ -298,7 +840,10 @@
     >
 
 
-    <label>🏟️ Stadium Type</label>
+
+    <label>
+      🏟️ Stadium Type
+    </label>
 
     <select id="stadium">
 
@@ -321,7 +866,10 @@
     </select>
 
 
-    <label>🌞🌙 Match Time</label>
+
+    <label>
+      🌞🌙 Match Time
+    </label>
 
     <select id="matchTime">
 
@@ -340,7 +888,10 @@
     </select>
 
 
-    <label>🏆 Tournament</label>
+
+    <label>
+      🏆 Tournament
+    </label>
 
     <select id="tournament">
 
@@ -367,9 +918,13 @@
     </select>
 
 
+
     <button id="generateBtn">
+
       ✨ Generate Cricket Image
+
     </button>
+
 
 
     <!-- LOADING -->
@@ -380,11 +935,12 @@
 
       🏏 AI आपके Cricket Player की Image बना रहा है...
 
-      <br>
+      <br><br>
 
       ⏳ कृपया इंतज़ार करें
 
     </div>
+
 
 
     <!-- ERROR -->
@@ -396,12 +952,19 @@
 
 
 
-  <!-- RESULT -->
+  <!-- =========================
+       RESULT
+  ========================= -->
 
-  <div class="card" id="result">
+  <div
+    class="card"
+    id="result"
+  >
 
 
-    <h2>🎨 Generated Cricket Image</h2>
+    <h2>
+      🎨 Your Generated Cricket Player
+    </h2>
 
 
     <img
@@ -413,18 +976,27 @@
     <div id="details"></div>
 
 
+
     <button id="downloadBtn">
+
       ⬇️ Download Image
+
     </button>
+
 
 
     <button id="shareBtn">
+
       📤 Share Image
+
     </button>
 
 
+
     <button id="againBtn">
+
       🔄 Generate Again
+
     </button>
 
 
@@ -432,81 +1004,122 @@
 
 
 
-  <!-- NEWS -->
+  <!-- =========================
+       NEWS
+  ========================= -->
 
-  <div class="card news">
+  <div class="card">
 
 
-    <h2>📰 Cricket News</h2>
+    <h2>
+      📰 Cricket News & Updates
+    </h2>
+
 
 
     <!-- CRICINFO -->
 
-    <h3>🏏 Latest Cricket News</h3>
-
-    <p>
-      ताज़ा क्रिकेट समाचार देखें।
-    </p>
+    <div class="news-item">
 
 
-    <a
-      href="https://www.espncricinfo.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Cricinfo News →
-    </a>
+      <h3>
+        🏏 Latest Cricket News
+      </h3>
 
 
-    <button
-      class="copy-btn"
-      onclick="copyNewsCaption('cricinfo')"
-    >
-      📋 Cricinfo Caption Copy करें
-    </button>
+      <p>
+        ताज़ा क्रिकेट समाचार और अपडेट देखें।
+      </p>
 
 
-    <button
-      class="facebook-btn"
-      onclick="shareNewsOnFacebook('https://www.espncricinfo.com/')"
-    >
-      👍 Cricinfo Facebook पर Share करें
-    </button>
+      <a
+        class="news-link"
+        href="https://www.espncricinfo.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+
+        📰 Cricinfo News देखें →
+
+      </a>
+
+
+
+      <button
+        class="copy-btn"
+        onclick="copyNewsCaption('cricinfo')"
+      >
+
+        📋 Caption Copy करें
+
+      </button>
+
+
+
+      <button
+        class="facebook-btn"
+        onclick="shareNewsOnFacebook('https://www.espncricinfo.com/')"
+      >
+
+        👍 Facebook पर Share करें
+
+      </button>
+
+
+    </div>
 
 
 
     <!-- ICC -->
 
-    <h3>🏆 Official Cricket Updates</h3>
-
-    <p>
-      International Cricket के official updates।
-    </p>
+    <div class="news-item">
 
 
-    <a
-      href="https://www.icc-cricket.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      ICC Cricket →
-    </a>
+      <h3>
+        🏆 Official Cricket Updates
+      </h3>
 
 
-    <button
-      class="copy-btn"
-      onclick="copyNewsCaption('icc')"
-    >
-      📋 ICC Caption Copy करें
-    </button>
+      <p>
+        International Cricket के official updates देखें।
+      </p>
 
 
-    <button
-      class="facebook-btn"
-      onclick="shareNewsOnFacebook('https://www.icc-cricket.com/')"
-    >
-      👍 ICC Facebook पर Share करें
-    </button>
+      <a
+        class="news-link"
+        href="https://www.icc-cricket.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+
+        🏆 ICC Cricket Updates →
+
+      </a>
+
+
+
+      <button
+        class="copy-btn"
+        onclick="copyNewsCaption('icc')"
+      >
+
+        📋 Caption Copy करें
+
+      </button>
+
+
+
+      <button
+        class="facebook-btn"
+        onclick="shareNewsOnFacebook('https://www.icc-cricket.com/')"
+      >
+
+        👍 Facebook पर Share करें
+
+      </button>
+
+
+    </div>
 
 
   </div>
@@ -516,11 +1129,21 @@
 
 
 
+<!-- =========================
+     FOOTER
+========================= -->
+
 <footer>
 
-  🏏 Cricket AI Generator
+  <strong>
+    🏏 Cricket AI Image Generator
+  </strong>
 
-  <br>
+  <br><br>
+
+  Create • Generate • Download • Share
+
+  <br><br>
 
   Powered by Cloudflare Workers AI
 
@@ -568,9 +1191,9 @@
 
 
 
-  // =============================
-  // GENERATE IMAGE
-  // =============================
+  /* =========================
+     GENERATE IMAGE
+  ========================= */
 
   async function generateImage() {
 
@@ -620,16 +1243,24 @@
 
 
 
-    errorBox.style.display = "none";
+    errorBox.style.display =
+      "none";
 
-    result.style.display = "none";
 
-    loading.style.display = "block";
+    result.style.display =
+      "none";
 
-    generateBtn.disabled = true;
+
+    loading.style.display =
+      "block";
+
+
+    generateBtn.disabled =
+      true;
+
 
     generateBtn.innerText =
-      "⏳ Generating...";
+      "⏳ AI Image बना रहा है...";
 
 
 
@@ -642,31 +1273,47 @@
 
         {
 
-          method: "POST",
+          method:
+            "POST",
+
 
           headers: {
-            "Content-Type": "application/json"
+
+            "Content-Type":
+              "application/json"
+
           },
 
-          body: JSON.stringify({
 
-            player: player,
+          body:
 
-            team: team,
+            JSON.stringify({
 
-            pose: pose,
+              player:
+                player,
 
-            style: style,
+              team:
+                team,
 
-            jersey: jersey,
+              pose:
+                pose,
 
-            stadium: stadium,
+              style:
+                style,
 
-            matchTime: matchTime,
+              jersey:
+                jersey,
 
-            tournament: tournament
+              stadium:
+                stadium,
 
-          })
+              matchTime:
+                matchTime,
+
+              tournament:
+                tournament
+
+            })
 
         }
 
@@ -684,8 +1331,11 @@
         throw new Error(
 
           "Server Error (" +
+
           response.status +
+
           "): " +
+
           errorText
 
         );
@@ -699,10 +1349,16 @@
 
 
 
-      if (imageBlob.size === 0) {
+      if (
+
+        imageBlob.size === 0
+
+      ) {
 
         throw new Error(
+
           "AI ने image data नहीं भेजा।"
+
         );
 
       }
@@ -710,7 +1366,10 @@
 
 
       const imageUrl =
-        URL.createObjectURL(imageBlob);
+
+        URL.createObjectURL(
+          imageBlob
+        );
 
 
 
@@ -721,11 +1380,25 @@
 
       details.innerHTML =
 
-        "🏏 " + player +
-        " | 🌍 " + team +
-        " | 👕 #" + jersey +
-        " | 🏏 " + pose +
-        " | 🏆 " + tournament;
+        "🏏 " +
+
+        player +
+
+        " | 🌍 " +
+
+        team +
+
+        " | 👕 #" +
+
+        jersey +
+
+        " | 🏏 " +
+
+        pose +
+
+        " | 🏆 " +
+
+        tournament;
 
 
 
@@ -746,14 +1419,24 @@
 
 
 
-      setTimeout(function () {
+      setTimeout(
 
-        result.scrollIntoView({
-          behavior: "smooth"
-        });
+        function () {
 
-      }, 200);
 
+          result.scrollIntoView({
+
+            behavior:
+              "smooth"
+
+          });
+
+
+        },
+
+        200
+
+      );
 
 
     }
@@ -768,9 +1451,11 @@
       showError(
 
         error.message ||
+
         "Image generate करने में समस्या हुई।"
 
       );
+
 
     }
 
@@ -789,6 +1474,7 @@
       generateBtn.innerText =
         "✨ Generate Cricket Image";
 
+
     }
 
 
@@ -796,38 +1482,45 @@
 
 
 
-  // =============================
-  // SHOW ERROR
-  // =============================
+  /* =========================
+     SHOW ERROR
+  ========================= */
 
   function showError(message) {
 
 
     errorBox.innerText =
-      "❌ Error: " + message;
+
+      "❌ Error: " +
+
+      message;
 
 
     errorBox.style.display =
       "block";
 
+
   }
 
 
 
-  // =============================
-  // GENERATE BUTTON
-  // =============================
+  /* =========================
+     GENERATE BUTTON
+  ========================= */
 
   generateBtn.addEventListener(
+
     "click",
+
     generateImage
+
   );
 
 
 
-  // =============================
-  // GENERATE AGAIN
-  // =============================
+  /* =========================
+     GENERATE AGAIN
+  ========================= */
 
   againBtn.addEventListener(
 
@@ -842,9 +1535,11 @@
 
       window.scrollTo({
 
-        top: 0,
+        top:
+          0,
 
-        behavior: "smooth"
+        behavior:
+          "smooth"
 
       });
 
@@ -858,9 +1553,9 @@
 
 
 
-  // =============================
-  // DOWNLOAD IMAGE
-  // =============================
+  /* =========================
+     DOWNLOAD IMAGE
+  ========================= */
 
   downloadBtn.addEventListener(
 
@@ -878,16 +1573,25 @@
 
 
       link.download =
+
         "cricket-ai-" +
+
         Date.now() +
+
         ".jpg";
 
 
-      document.body.appendChild(link);
+      document.body.appendChild(
+        link
+      );
+
 
       link.click();
 
-      document.body.removeChild(link);
+
+      document.body.removeChild(
+        link
+      );
 
 
     }
@@ -896,9 +1600,9 @@
 
 
 
-  // =============================
-  // SHARE IMAGE
-  // =============================
+  /* =========================
+     SHARE IMAGE
+  ========================= */
 
   shareBtn.addEventListener(
 
@@ -910,11 +1614,20 @@
       try {
 
 
-        if (navigator.share) {
+        if (
+
+          navigator.share
+
+        ) {
 
 
           const response =
-            await fetch(generatedImage.src);
+
+            await fetch(
+
+              generatedImage.src
+
+            );
 
 
           const blob =
@@ -924,12 +1637,19 @@
           const file =
             new File(
 
-              [blob],
+              [
+
+                blob
+
+              ],
 
               "cricket-ai-player.jpg",
 
               {
-                type: "image/jpeg"
+
+                type:
+                  "image/jpeg"
+
               }
 
             );
@@ -940,11 +1660,18 @@
             title:
               "My AI Cricket Player",
 
+
             text:
               "🏏 मैंने AI से अपना Cricket Player बनाया!",
 
+
             files:
-              [file]
+
+              [
+
+                file
+
+              ]
 
           });
 
@@ -956,8 +1683,11 @@
 
 
           alert(
+
             "आपके browser में Share feature उपलब्ध नहीं है।"
+
           );
+
 
         }
 
@@ -969,7 +1699,9 @@
 
 
         console.log(
+
           "Share cancelled or failed"
+
         );
 
 
@@ -982,22 +1714,29 @@
 
 
 
-  // =============================
-  // COPY NEWS CAPTION
-  // =============================
+  /* =========================
+     COPY NEWS CAPTION
+  ========================= */
 
   function copyNewsCaption(type) {
 
 
-    let caption = "";
+    let caption =
+      "";
 
 
-    if (type === "cricinfo") {
+    if (
+
+      type === "cricinfo"
+
+    ) {
 
 
-      caption = `🏏 ताज़ा क्रिकेट समाचार!
+      caption =
 
-क्रिकेट की नई अपडेट और पूरी खबर जानने के लिए नीचे दिए गए Original Source पर जाएं। 👇
+`🏏 ताज़ा क्रिकेट समाचार!
+
+क्रिकेट की नई अपडेट और पूरी जानकारी के लिए नीचे दिए गए Original Source पर जाएं। 👇
 
 🔗 पूरी खबर देखें:
 https://www.espncricinfo.com/`;
@@ -1006,10 +1745,16 @@ https://www.espncricinfo.com/`;
     }
 
 
-    else if (type === "icc") {
+    else if (
+
+      type === "icc"
+
+    ) {
 
 
-      caption = `🏏 Official Cricket Update!
+      caption =
+
+`🏏 Official Cricket Update!
 
 International Cricket की ताज़ा official जानकारी के लिए नीचे दिए गए Original Source पर जाएं। 👇
 
@@ -1021,24 +1766,48 @@ https://www.icc-cricket.com/`;
 
 
 
-    if (navigator.clipboard) {
+    if (
+
+      navigator.clipboard
+
+    ) {
 
 
-      navigator.clipboard.writeText(caption)
+      navigator.clipboard.writeText(
 
-        .then(function () {
+        caption
+
+      )
+
+      .then(
+
+        function () {
+
 
           alert(
+
             "✅ Caption Copy हो गया! अब Facebook में Paste करें।"
+
           );
 
-        })
 
-        .catch(function () {
+        }
 
-          fallbackCopyCaption(caption);
+      )
 
-        });
+      .catch(
+
+        function () {
+
+
+          fallbackCopyCaption(
+            caption
+          );
+
+
+        }
+
+      );
 
 
     }
@@ -1046,7 +1815,11 @@ https://www.icc-cricket.com/`;
 
     else {
 
-      fallbackCopyCaption(caption);
+
+      fallbackCopyCaption(
+        caption
+      );
+
 
     }
 
@@ -1055,15 +1828,18 @@ https://www.icc-cricket.com/`;
 
 
 
-  // =============================
-  // FALLBACK COPY
-  // =============================
+  /* =========================
+     FALLBACK COPY
+  ========================= */
 
   function fallbackCopyCaption(text) {
 
 
     const textarea =
-      document.createElement("textarea");
+
+      document.createElement(
+        "textarea"
+      );
 
 
     textarea.value =
@@ -1078,7 +1854,9 @@ https://www.icc-cricket.com/`;
       "0";
 
 
-    document.body.appendChild(textarea);
+    document.body.appendChild(
+      textarea
+    );
 
 
     textarea.select();
@@ -1086,34 +1864,47 @@ https://www.icc-cricket.com/`;
 
     try {
 
-      document.execCommand("copy");
+
+      document.execCommand(
+        "copy"
+      );
+
 
       alert(
+
         "✅ Caption Copy हो गया! अब Facebook में Paste करें।"
+
       );
+
 
     }
 
 
     catch (error) {
 
+
       alert(
+
         "❌ Caption Copy नहीं हो सका।"
+
       );
+
 
     }
 
 
-    document.body.removeChild(textarea);
+    document.body.removeChild(
+      textarea
+    );
 
 
   }
 
 
 
-  // =============================
-  // FACEBOOK NEWS SHARE
-  // =============================
+  /* =========================
+     FACEBOOK SHARE
+  ========================= */
 
   function shareNewsOnFacebook(newsUrl) {
 
@@ -1122,7 +1913,9 @@ https://www.icc-cricket.com/`;
 
       "https://www.facebook.com/sharer/sharer.php?u=" +
 
-      encodeURIComponent(newsUrl);
+      encodeURIComponent(
+        newsUrl
+      );
 
 
 
