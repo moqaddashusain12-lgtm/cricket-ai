@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="hi">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>Cricket AI Image Generator</title>
 
 <style>
+
 * {
   box-sizing: border-box;
 }
@@ -21,7 +26,7 @@ body {
 header {
   padding: 30px 15px;
   text-align: center;
-  background: linear-gradient(135deg, #0b57d0, #174ea6);
+  background: linear-gradient(135deg,#0b57d0,#174ea6);
   color: white;
 }
 
@@ -104,7 +109,7 @@ button:disabled {
 
 .news-card {
   background: white;
-  padding: 16px;
+  padding: 18px;
   border-radius: 12px;
   margin-top: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,.08);
@@ -115,10 +120,20 @@ button:disabled {
   line-height: 1.5;
 }
 
+.news-card p {
+  line-height: 1.5;
+  color: #555;
+}
+
 .news-card a {
-  color: #0b57d0;
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #0b57d0;
+  color: white;
   font-weight: bold;
   text-decoration: none;
+  border-radius: 8px;
 }
 
 footer {
@@ -126,351 +141,366 @@ footer {
   padding: 30px;
   color: #666;
 }
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <header>
-  <h1>🏏 Cricket AI Image Generator</h1>
-  <p>AI से अपना Cricket Player बनाएं</p>
+
+<h1>🏏 Cricket AI Image Generator</h1>
+
+<p>AI से अपना Cricket Player बनाएं</p>
+
 </header>
+
 
 
 <div class="container">
 
-  <div class="generator">
 
-    <label>Player Name</label>
-
-    <input
-      type="text"
-      id="player"
-      placeholder="जैसे Virat Kohli"
-    >
+<div class="generator">
 
 
-    <label>Team</label>
+<label>Player Name</label>
 
-    <input
-      type="text"
-      id="team"
-      placeholder="जैसे India"
-    >
-
-
-    <label>Image Style</label>
-
-    <select id="style">
-
-      <option value="Realistic">
-        Realistic
-      </option>
-
-      <option value="Cinematic">
-        Cinematic
-      </option>
-
-      <option value="Digital Art">
-        Digital Art
-      </option>
-
-      <option value="Cartoon">
-        Cartoon
-      </option>
-
-    </select>
+<input
+type="text"
+id="player"
+placeholder="जैसे Virat Kohli"
+>
 
 
-    <button id="generateBtn">
-      ✨ Generate Cricket Image
-    </button>
+<label>Team</label>
+
+<input
+type="text"
+id="team"
+placeholder="जैसे India"
+>
 
 
-    <div id="result"></div>
+<label>Image Style</label>
 
-  </div>
+<select id="style">
+
+<option value="Realistic">
+Realistic
+</option>
+
+<option value="Cinematic">
+Cinematic
+</option>
+
+<option value="Digital Art">
+Digital Art
+</option>
+
+<option value="Cartoon">
+Cartoon
+</option>
+
+</select>
 
 
-  <h2 class="news-title">
-    📰 Latest Cricket News
-  </h2>
+<button id="generateBtn">
+
+✨ Generate Cricket Image
+
+</button>
 
 
-  <div id="news">
-    <p>⏳ Latest Cricket News loading...</p>
-  </div>
+<div id="result"></div>
 
 
 </div>
 
 
+
+<h2 class="news-title">
+
+📰 Cricket News
+
+</h2>
+
+
+
+<div class="news-card">
+
+<h3>
+
+🏏 Latest Cricket News
+
+</h3>
+
+<p>
+
+ताज़ा क्रिकेट समाचार देखने के लिए
+Cricinfo पर जाएँ।
+
+</p>
+
+<a
+href="https://www.cricinfo.com/"
+target="_blank"
+rel="noopener noreferrer"
+>
+
+Cricinfo News →
+
+</a>
+
+</div>
+
+
+
+<div class="news-card">
+
+<h3>
+
+🏆 Official Cricket Updates
+
+</h3>
+
+<p>
+
+International Cricket, tournaments और
+official cricket updates देखें।
+
+</p>
+
+<a
+href="https://www.icc-cricket.com/"
+target="_blank"
+rel="noopener noreferrer"
+>
+
+ICC Cricket →
+
+</a>
+
+</div>
+
+
+
+</div>
+
+
+
 <footer>
-  🏏 Cricket AI Generator
+
+🏏 Cricket AI Generator
+
 </footer>
+
 
 
 <script>
 
+
 const generateBtn =
-  document.getElementById("generateBtn");
+document.getElementById("generateBtn");
+
 
 const result =
-  document.getElementById("result");
+document.getElementById("result");
 
 
-// =========================
-// AI IMAGE GENERATION
-// =========================
 
 generateBtn.addEventListener(
-  "click",
-  async function () {
 
-    const player =
-      document
-        .getElementById("player")
-        .value
-        .trim();
+"click",
+
+async function () {
 
 
-    const team =
-      document
-        .getElementById("team")
-        .value
-        .trim();
+const player =
+document
+.getElementById("player")
+.value
+.trim();
 
 
-    const style =
-      document
-        .getElementById("style")
-        .value;
+const team =
+document
+.getElementById("team")
+.value
+.trim();
 
 
-    if (!player || !team) {
-
-      alert(
-        "कृपया Player Name और Team भरें"
-      );
-
-      return;
-
-    }
+const style =
+document
+.getElementById("style")
+.value;
 
 
-    generateBtn.disabled = true;
 
-    generateBtn.innerText =
-      "⏳ AI Image बनाई जा रही है...";
+if (!player || !team) {
 
-
-    result.innerHTML =
-      "<p>🏏 कृपया इंतजार करें...</p>";
-
-
-    try {
-
-      const response =
-        await fetch(
-          "/api/generate-image",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body:
-              JSON.stringify({
-                player: player,
-                team: team,
-                style: style
-              })
-
-          }
-        );
-
-
-      const data =
-        await response.json();
-
-
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-
-        throw new Error(
-          data.error ||
-          "Image generate नहीं हुई"
-        );
-
-      }
-
-
-      if (!data.image) {
-
-        throw new Error(
-          "Image data नहीं मिली"
-        );
-
-      }
-
-
-      result.innerHTML = "";
-
-
-      const heading =
-        document.createElement("h2");
-
-      heading.textContent =
-        "🎨 Generated Cricket Image";
-
-
-      const image =
-        document.createElement("img");
-
-      image.src =
-        data.image;
-
-      image.alt =
-        "Generated Cricket Player";
-
-
-      result.appendChild(heading);
-
-      result.appendChild(image);
-
-
-    } catch (error) {
-
-      result.innerHTML =
-        "<p class='error'>❌ " +
-        error.message +
-        "</p>";
-
-    }
-
-
-    generateBtn.disabled = false;
-
-    generateBtn.innerText =
-      "✨ Generate Cricket Image";
-
-  }
+alert(
+"कृपया Player Name और Team भरें"
 );
 
-
-// =========================
-// LATEST CRICKET NEWS
-// =========================
-
-async function loadNews() {
-
-  const newsDiv =
-    document.getElementById("news");
-
-
-  try {
-
-    const response =
-      await fetch("/api/news");
-
-
-    const data =
-      await response.json();
-
-
-    if (
-      !response.ok ||
-      !data.success
-    ) {
-
-      throw new Error(
-        data.error ||
-        "News load नहीं हुई"
-      );
-
-    }
-
-
-    if (
-      !data.news ||
-      data.news.length === 0
-    ) {
-
-      throw new Error(
-        "कोई News उपलब्ध नहीं है"
-      );
-
-    }
-
-
-    newsDiv.innerHTML = "";
-
-
-    data.news.forEach(
-      function (item) {
-
-        const card =
-          document.createElement("div");
-
-        card.className =
-          "news-card";
-
-
-        const title =
-          document.createElement("h3");
-
-        title.textContent =
-          item.title;
-
-
-        const link =
-          document.createElement("a");
-
-        link.href =
-          item.link;
-
-        link.target =
-          "_blank";
-
-        link.rel =
-          "noopener noreferrer";
-
-        link.textContent =
-          "पूरी खबर पढ़ें →";
-
-
-        card.appendChild(title);
-
-        card.appendChild(link);
-
-
-        newsDiv.appendChild(card);
-
-      }
-    );
-
-
-  } catch (error) {
-
-    newsDiv.innerHTML =
-      "<p class='error'>⚠️ " +
-      error.message +
-      "</p>";
-
-  }
+return;
 
 }
 
 
-// Website खुलते ही News load करें
 
-loadNews();
+generateBtn.disabled = true;
+
+
+generateBtn.innerText =
+"⏳ AI Image बनाई जा रही है...";
+
+
+result.innerHTML =
+"<p>🏏 कृपया इंतजार करें...</p>";
+
+
+
+try {
+
+
+const response =
+await fetch(
+
+"/api/generate-image",
+
+{
+
+method: "POST",
+
+headers: {
+
+"Content-Type":
+"application/json"
+
+},
+
+body:
+
+JSON.stringify({
+
+player: player,
+
+team: team,
+
+style: style
+
+})
+
+}
+
+);
+
+
+
+const data =
+await response.json();
+
+
+
+if (
+
+!response.ok ||
+
+!data.success
+
+) {
+
+throw new Error(
+
+data.error ||
+
+"Image generate नहीं हुई"
+
+);
+
+}
+
+
+
+if (!data.image) {
+
+throw new Error(
+"Image data नहीं मिली"
+);
+
+}
+
+
+
+result.innerHTML = "";
+
+
+
+const heading =
+document.createElement("h2");
+
+
+heading.textContent =
+"🎨 Generated Cricket Image";
+
+
+
+const image =
+document.createElement("img");
+
+
+image.src =
+data.image;
+
+
+image.alt =
+"Generated Cricket Player";
+
+
+
+result.appendChild(heading);
+
+
+result.appendChild(image);
+
+
+
+}
+
+catch (error) {
+
+
+result.innerHTML =
+
+"<p class='error'>❌ " +
+
+error.message +
+
+"</p>";
+
+
+}
+
+
+
+generateBtn.disabled = false;
+
+
+generateBtn.innerText =
+"✨ Generate Cricket Image";
+
+
+}
+
+);
+
 
 </script>
 
+
 </body>
+
 </html>
