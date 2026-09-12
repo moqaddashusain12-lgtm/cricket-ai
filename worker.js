@@ -23,26 +23,18 @@ export default {
 
       }
 
-
       try {
 
-        const body =
-          await request.json();
-
+        const body = await request.json();
 
         const player =
-          body.player ||
-          "Cricket Player";
-
+          body.player || "Cricket Player";
 
         const team =
-          body.team ||
-          "India";
-
+          body.team || "India";
 
         const style =
-          body.style ||
-          "Realistic";
+          body.style || "Realistic";
 
 
         const prompt = `
@@ -72,55 +64,39 @@ High quality.
 `;
 
 
-        const aiResult =
-          await env.AI.run(
-
-            "@cf/black-forest-labs/flux-1-schnell",
-
-            {
-              prompt: prompt,
-              steps: 4
-            }
-
-          );
+        const aiResult = await env.AI.run(
+          "@cf/black-forest-labs/flux-1-schnell",
+          {
+            prompt: prompt,
+            steps: 4
+          }
+        );
 
 
-        // AI image को सीधे वापस भेजें
+        // =========================
+        // RETURN AI IMAGE
+        // =========================
 
         return new Response(
-          aiResult,
+          aiResult.image,
           {
             headers: {
-
-              "Content-Type":
-                "image/jpeg"
-
+              "Content-Type": "image/jpeg"
             }
           }
         );
 
 
-      }
-
-      catch (error) {
+      } catch (error) {
 
         return Response.json(
-
           {
-
             success: false,
-
-            error:
-              error.message
-
+            error: "AI Error: " + error.message
           },
-
           {
-
             status: 500
-
           }
-
         );
 
       }
@@ -129,7 +105,7 @@ High quality.
 
 
     // =========================
-    // WEBSITE FILES
+    // STATIC WEBSITE
     // =========================
 
     return env.ASSETS.fetch(request);
