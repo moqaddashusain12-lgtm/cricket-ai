@@ -1,32 +1,42 @@
 export default {
   async fetch(request, env) {
+
     const url = new URL(request.url);
 
     // =========================
-    // AI IMAGE GENERATOR
+    // AI IMAGE API
     // =========================
 
     if (url.pathname === "/api/generate-image") {
 
       if (request.method !== "POST") {
+
         return Response.json(
           {
             success: false,
             error: "Only POST requests are allowed"
           },
-          { status: 405 }
+          {
+            status: 405
+          }
         );
+
       }
+
 
       try {
 
-        const body = await request.json();
+        const body =
+          await request.json();
+
 
         const player =
           body.player || "Cricket Player";
 
+
         const team =
           body.team || "India";
+
 
         const style =
           body.style || "Realistic";
@@ -37,11 +47,11 @@ ${style} professional cricket sports photography.
 
 A professional cricket player.
 
-Player description: ${player}
+Player description: ${player}.
 
-Playing for: ${team}
+Playing for ${team}.
 
-The player is wearing a professional cricket uniform.
+Wearing a professional cricket uniform.
 
 Holding a cricket bat.
 
@@ -59,142 +69,84 @@ High quality.
 `;
 
 
-        const aiResult = await env.AI.run(
-          "@cf/black-forest-labs/flux-1-schnell",
-          {
-            prompt: prompt,
-            steps: 4
-          }
-        );
+        const aiResult =
+          await env.AI.run(
+
+            "@cf/black-forest-labs/flux-1-schnell",
+
+            {
+              prompt: prompt,
+              steps: 4
+            }
+
+          );
+
+
+        // AI image को ArrayBuffer से Base64 में बदलना
+
+        const imageBuffer =
+          await new Response(aiResult).arrayBuffer();
+
+
+        const bytes =
+          new Uint8Array(imageBuffer);
+
+
+        let binary = "";
+
+
+        for (
+          let i = 0;
+          i < bytes.length;
+          i++
+        ) {
+
+          binary +=
+            String.fromCharCode(bytes[i]);
+
+        }
+
+
+        const base64 =
+          btoa(binary);
 
 
         const imageUrl =
           "data:image/jpeg;base64," +
-          aiResult.image;
+          base64;
 
 
         return Response.json({
+
           success: true,
+
           image: imageUrl
+
         });
 
-
-      } catch (error) {
-
-        return Response.json(
-          {
-            success: false,
-            error: error.message
-          },
-          { status: 500 }
-        );
 
       }
 
-    }
+      catch (error) {
 
+        return Response.json(
 
-    // =========================
-    // CRICKET NEWS API
-    // =========================
+          {
 
-    if (url.pathname === "/api/news") {
+            success: false,
 
-      try {
+            error:
+              "AI Error: " +
+              error.message
 
-        // अलग-अलग Google News RSS sources
-        const rssSources = [
+          },
 
-          "https://news.google.com/rss/search?q=cricket&hl=en-IN&gl=IN&ceid=IN:en",
+          {
 
-          "https://news.google.com/rss/search?q=India+cricket&hl=en-IN&gl=IN&ceid=IN:en",
-
-          "https://news.google.com/rss/search?q=ICC+cricket&hl=en-IN&gl=IN&ceid=IN:en"
-
-        ];
-
-
-        let xml = null;
-        let lastError = "";
-
-
-        // पहला working source खोजें
-        for (const rssUrl of rssSources) {
-
-          try {
-
-            const response =
-              await fetch(rssUrl);
-
-            if (response.ok) {
-
-              const text =
-                await response.text();
-
-              if (text.includes("<item>")) {
-
-                xml = text;
-                break;
-
-              }
-
-            } else {
-
-              lastError =
-                "News source error: " +
-                response.status;
-
-            }
-
-          } catch (error) {
-
-            lastError =
-              error.message;
+            status: 500
 
           }
 
-        }
-
-
-        if (!xml) {
-
-          throw new Error(
-            lastError ||
-            "News अभी उपलब्ध नहीं है"
-          );
-
-        }
-
-
-        const news =
-          parseRSS(xml);
-
-
-        if (news.length === 0) {
-
-          throw new Error(
-            "कोई Cricket News नहीं मिली"
-          );
-
-        }
-
-
-        return Response.json({
-          success: true,
-          news: news
-        });
-
-
-      } catch (error) {
-
-        return Response.json(
-          {
-            success: false,
-            error:
-              "News load नहीं हो सकी: " +
-              error.message
-          },
-          { status: 500 }
         );
 
       }
@@ -211,93 +163,3 @@ High quality.
   }
 
 };
-
-
-// =========================
-// RSS PARSER
-// =========================
-
-function parseRSS(xml) {
-
-  const news = [];
-
-  const itemRegex =
-    /<item>([\s\S]*?)<\/item>/gi;
-
-  let match;
-
-
-  while (
-    (match = itemRegex.exec(xml)) !== null
-    &&
-    news.length < 8
-  ) {
-
-    const item = match[1];
-
-
-    const titleMatch =
-      item.match(
-        /<title>([\s\S]*?)<\/title>/i
-      );
-
-
-    const linkMatch =
-      item.match(
-        /<link>([\s\S]*?)<\/link>/i
-      );
-
-
-    if (
-      titleMatch &&
-      linkMatch
-    ) {
-
-      const title =
-        cleanText(titleMatch[1]);
-
-
-      const link =
-        cleanText(linkMatch[1]);
-
-
-      if (
-        title &&
-        link
-      ) {
-
-        news.push({
-          title: title,
-          link: link
-        });
-
-      }
-
-    }
-
-  }
-
-
-  return news;
-
-}
-
-
-// =========================
-// CLEAN RSS TEXT
-// =========================
-
-function cleanText(text) {
-
-  return String(text)
-
-    .replace(/<!\[CDATA\[/g, "")
-    .replace(/\]\]>/g, "")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .trim();
-
-}
