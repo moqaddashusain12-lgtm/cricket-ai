@@ -12,7 +12,6 @@ export default {
     if (url.pathname === "/api/generate-image") {
 
 
-      // Only POST requests allowed
       if (request.method !== "POST") {
 
         return Response.json(
@@ -32,7 +31,7 @@ export default {
 
 
         // =====================================
-        // CHECK WORKERS AI BINDING
+        // CHECK AI BINDING
         // =====================================
 
         if (!env.AI) {
@@ -72,15 +71,18 @@ export default {
 
 
         const stadium =
-          body.stadium || "Modern International Cricket Stadium";
+          body.stadium ||
+          "Modern Cricket Stadium";
 
 
         const matchTime =
-          body.matchTime || "Day Match";
+          body.matchTime ||
+          "Day Match";
 
 
         const tournament =
-          body.tournament || "T20 Cricket Match";
+          body.tournament ||
+          "T20 Match";
 
 
         // =====================================
@@ -88,15 +90,15 @@ export default {
         // =====================================
 
         const prompt = `
-${style} professional cricket sports photography.
+Create a high quality ${style} professional cricket image.
 
-Create an exciting high-quality image of a professional cricket player.
+A professional cricket player.
 
 Player name: ${player}.
 
-The player represents: ${team}.
+The player represents ${team}.
 
-Player pose and action: ${pose}.
+Player pose: ${pose}.
 
 Jersey number: ${jersey}.
 
@@ -104,41 +106,34 @@ Tournament: ${tournament}.
 
 Match time: ${matchTime}.
 
-Stadium type: ${stadium}.
+Stadium: ${stadium}.
 
-The player is wearing a professional ${team} cricket uniform.
+Professional ${team} cricket uniform.
 
 Professional cricket equipment.
 
-The player is performing the action: ${pose}.
+Exciting cricket atmosphere.
 
-A large professional cricket stadium.
-
-Exciting international cricket atmosphere.
+Cinematic sports photography.
 
 Dramatic stadium lighting.
 
-Cinematic sports composition.
+Dynamic composition.
 
 Highly detailed.
 
 Sharp focus.
 
-Professional sports photography.
-
 High quality.
 
 No watermark.
 
-No logo.
-
 No text.
-
 `;
 
 
         // =====================================
-        // GENERATE IMAGE WITH WORKERS AI
+        // GENERATE IMAGE
         // =====================================
 
         const aiResult = await env.AI.run(
@@ -157,7 +152,7 @@ No text.
 
 
         // =====================================
-        // CHECK AI RESPONSE
+        // CHECK IMAGE
         // =====================================
 
         if (!aiResult || !aiResult.image) {
@@ -170,22 +165,37 @@ No text.
 
 
         // =====================================
-        // RETURN GENERATED IMAGE
-        // IMPORTANT:
-        // Keeping the old working format
+        // BASE64 → BINARY
+        // =====================================
+
+        const binaryString =
+          atob(aiResult.image);
+
+
+        const bytes =
+          Uint8Array.from(
+            binaryString,
+            char => char.charCodeAt(0)
+          );
+
+
+        // =====================================
+        // RETURN VALID JPEG IMAGE
         // =====================================
 
         return new Response(
 
-          aiResult.image,
+          bytes,
 
           {
 
             headers: {
 
-              "Content-Type": "image/jpeg",
+              "Content-Type":
+                "image/jpeg",
 
-              "Cache-Control": "no-store"
+              "Cache-Control":
+                "no-store"
 
             }
 
@@ -213,7 +223,9 @@ No text.
             success: false,
 
             error:
+
               "AI Error: " +
+
               (
                 error.message ||
                 "Unknown error"
