@@ -114,6 +114,20 @@
       display: none;
     }
 
+    /* NEWS BUTTONS */
+
+    .facebook-btn {
+      background: #1877f2;
+      color: white;
+      margin-top: 10px;
+    }
+
+    .copy-btn {
+      background: #00897b;
+      color: white;
+      margin-top: 10px;
+    }
+
     #loading {
       display: none;
       text-align: center;
@@ -234,25 +248,18 @@
     >
 
 
-
     <label>🌍 Team</label>
 
     <select id="team">
 
       <option value="India">🇮🇳 India</option>
-
       <option value="Australia">🇦🇺 Australia</option>
-
       <option value="England">🏴 England</option>
-
       <option value="Pakistan">🇵🇰 Pakistan</option>
-
       <option value="South Africa">🇿🇦 South Africa</option>
-
       <option value="New Zealand">🇳🇿 New Zealand</option>
 
     </select>
-
 
 
     <label>🏏 Player Pose</label>
@@ -260,17 +267,12 @@
     <select id="pose">
 
       <option value="Batting">🏏 Batting</option>
-
       <option value="Bowling">⚡ Bowling</option>
-
       <option value="Celebrating">🎉 Celebrating</option>
-
       <option value="Fielding">🧤 Fielding</option>
-
       <option value="Running">🏃 Running</option>
 
     </select>
-
 
 
     <label>🎨 Image Style</label>
@@ -278,15 +280,11 @@
     <select id="style">
 
       <option value="Realistic">📸 Realistic</option>
-
       <option value="Cinematic">🎬 Cinematic</option>
-
       <option value="Digital Art">🎨 Digital Art</option>
-
       <option value="Sports Poster">📰 Sports Poster</option>
 
     </select>
-
 
 
     <label>👕 Jersey Number</label>
@@ -298,7 +296,6 @@
       min="0"
       max="999"
     >
-
 
 
     <label>🏟️ Stadium Type</label>
@@ -324,7 +321,6 @@
     </select>
 
 
-
     <label>🌞🌙 Match Time</label>
 
     <select id="matchTime">
@@ -342,7 +338,6 @@
       </option>
 
     </select>
-
 
 
     <label>🏆 Tournament</label>
@@ -372,13 +367,9 @@
     </select>
 
 
-
     <button id="generateBtn">
-
       ✨ Generate Cricket Image
-
     </button>
-
 
 
     <!-- LOADING -->
@@ -396,7 +387,6 @@
     </div>
 
 
-
     <!-- ERROR -->
 
     <div id="error"></div>
@@ -408,10 +398,7 @@
 
   <!-- RESULT -->
 
-  <div
-    class="card"
-    id="result"
-  >
+  <div class="card" id="result">
 
 
     <h2>🎨 Generated Cricket Image</h2>
@@ -426,27 +413,18 @@
     <div id="details"></div>
 
 
-
     <button id="downloadBtn">
-
       ⬇️ Download Image
-
     </button>
-
 
 
     <button id="shareBtn">
-
       📤 Share Image
-
     </button>
 
 
-
     <button id="againBtn">
-
       🔄 Generate Again
-
     </button>
 
 
@@ -462,6 +440,8 @@
     <h2>📰 Cricket News</h2>
 
 
+    <!-- CRICINFO -->
+
     <h3>🏏 Latest Cricket News</h3>
 
     <p>
@@ -472,13 +452,30 @@
     <a
       href="https://www.espncricinfo.com/"
       target="_blank"
+      rel="noopener noreferrer"
     >
-
       Cricinfo News →
-
     </a>
 
 
+    <button
+      class="copy-btn"
+      onclick="copyNewsCaption('cricinfo')"
+    >
+      📋 Cricinfo Caption Copy करें
+    </button>
+
+
+    <button
+      class="facebook-btn"
+      onclick="shareNewsOnFacebook('https://www.espncricinfo.com/')"
+    >
+      👍 Cricinfo Facebook पर Share करें
+    </button>
+
+
+
+    <!-- ICC -->
 
     <h3>🏆 Official Cricket Updates</h3>
 
@@ -490,11 +487,26 @@
     <a
       href="https://www.icc-cricket.com/"
       target="_blank"
+      rel="noopener noreferrer"
     >
-
       ICC Cricket →
-
     </a>
+
+
+    <button
+      class="copy-btn"
+      onclick="copyNewsCaption('icc')"
+    >
+      📋 ICC Caption Copy करें
+    </button>
+
+
+    <button
+      class="facebook-btn"
+      onclick="shareNewsOnFacebook('https://www.icc-cricket.com/')"
+    >
+      👍 ICC Facebook पर Share करें
+    </button>
 
 
   </div>
@@ -564,57 +576,37 @@
 
 
     const player =
-      document
-        .getElementById("player")
-        .value;
+      document.getElementById("player").value;
 
 
     const team =
-      document
-        .getElementById("team")
-        .value;
+      document.getElementById("team").value;
 
 
     const pose =
-      document
-        .getElementById("pose")
-        .value;
+      document.getElementById("pose").value;
 
 
     const style =
-      document
-        .getElementById("style")
-        .value;
+      document.getElementById("style").value;
 
 
     const jersey =
-      document
-        .getElementById("jersey")
-        .value;
+      document.getElementById("jersey").value;
 
 
     const stadium =
-      document
-        .getElementById("stadium")
-        .value;
+      document.getElementById("stadium").value;
 
 
     const matchTime =
-      document
-        .getElementById("matchTime")
-        .value;
+      document.getElementById("matchTime").value;
 
 
     const tournament =
-      document
-        .getElementById("tournament")
-        .value;
+      document.getElementById("tournament").value;
 
 
-
-    // =============================
-    // VALIDATE NAME
-    // =============================
 
     if (!player.trim()) {
 
@@ -628,25 +620,13 @@
 
 
 
-    // =============================
-    // RESET UI
-    // =============================
+    errorBox.style.display = "none";
 
-    errorBox.style.display =
-      "none";
+    result.style.display = "none";
 
+    loading.style.display = "block";
 
-    result.style.display =
-      "none";
-
-
-    loading.style.display =
-      "block";
-
-
-    generateBtn.disabled =
-      true;
-
+    generateBtn.disabled = true;
 
     generateBtn.innerText =
       "⏳ Generating...";
@@ -656,72 +636,43 @@
     try {
 
 
-      // =============================
-      // API CALL
-      // =============================
+      const response = await fetch(
 
-      const response =
+        "/api/generate-image",
 
-        await fetch(
+        {
 
-          "/api/generate-image",
+          method: "POST",
 
-          {
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-            method:
-              "POST",
+          body: JSON.stringify({
 
-            headers:
-              {
+            player: player,
 
-                "Content-Type":
-                  "application/json"
+            team: team,
 
-              },
+            pose: pose,
 
-            body:
+            style: style,
 
-              JSON.stringify(
+            jersey: jersey,
 
-                {
+            stadium: stadium,
 
-                  player:
-                    player,
+            matchTime: matchTime,
 
-                  team:
-                    team,
+            tournament: tournament
 
-                  pose:
-                    pose,
+          })
 
-                  style:
-                    style,
+        }
 
-                  jersey:
-                    jersey,
-
-                  stadium:
-                    stadium,
-
-                  matchTime:
-                    matchTime,
-
-                  tournament:
-                    tournament
-
-                }
-
-              )
-
-          }
-
-        );
+      );
 
 
-
-      // =============================
-      // CHECK ERROR
-      // =============================
 
       if (!response.ok) {
 
@@ -733,11 +684,8 @@
         throw new Error(
 
           "Server Error (" +
-
           response.status +
-
           "): " +
-
           errorText
 
         );
@@ -746,20 +694,12 @@
 
 
 
-      // =============================
-      // IMAGE BLOB
-      // =============================
-
       const imageBlob =
         await response.blob();
 
 
 
-      if (
-
-        imageBlob.size === 0
-
-      ) {
+      if (imageBlob.size === 0) {
 
         throw new Error(
           "AI ने image data नहीं भेजा।"
@@ -769,15 +709,8 @@
 
 
 
-      // =============================
-      // CREATE IMAGE URL
-      // =============================
-
       const imageUrl =
-
-        URL.createObjectURL(
-          imageBlob
-        );
+        URL.createObjectURL(imageBlob);
 
 
 
@@ -786,37 +719,15 @@
 
 
 
-      // =============================
-      // IMAGE DETAILS
-      // =============================
-
       details.innerHTML =
 
-        "🏏 " +
-
-        player +
-
-        " | 🌍 " +
-
-        team +
-
-        " | 👕 #" +
-
-        jersey +
-
-        " | 🏏 " +
-
-        pose +
-
-        " | 🏆 " +
-
-        tournament;
+        "🏏 " + player +
+        " | 🌍 " + team +
+        " | 👕 #" + jersey +
+        " | 🏏 " + pose +
+        " | 🏆 " + tournament;
 
 
-
-      // =============================
-      // SHOW RESULT
-      // =============================
 
       result.style.display =
         "block";
@@ -834,28 +745,14 @@
         "block";
 
 
-      // Scroll to image
 
-      setTimeout(
+      setTimeout(function () {
 
-        function () {
+        result.scrollIntoView({
+          behavior: "smooth"
+        });
 
-          result.scrollIntoView(
-
-            {
-
-              behavior:
-                "smooth"
-
-            }
-
-          );
-
-        },
-
-        200
-
-      );
+      }, 200);
 
 
 
@@ -871,7 +768,6 @@
       showError(
 
         error.message ||
-
         "Image generate करने में समस्या हुई।"
 
       );
@@ -908,8 +804,7 @@
 
 
     errorBox.innerText =
-      "❌ Error: " +
-      message;
+      "❌ Error: " + message;
 
 
     errorBox.style.display =
@@ -924,11 +819,8 @@
   // =============================
 
   generateBtn.addEventListener(
-
     "click",
-
     generateImage
-
   );
 
 
@@ -948,19 +840,13 @@
         "none";
 
 
-      window.scrollTo(
+      window.scrollTo({
 
-        {
+        top: 0,
 
-          top:
-            0,
+        behavior: "smooth"
 
-          behavior:
-            "smooth"
-
-        }
-
-      );
+      });
 
 
       generateImage();
@@ -993,23 +879,15 @@
 
       link.download =
         "cricket-ai-" +
-
         Date.now() +
-
         ".jpg";
 
 
-      document.body.appendChild(
-        link
-      );
-
+      document.body.appendChild(link);
 
       link.click();
 
-
-      document.body.removeChild(
-        link
-      );
+      document.body.removeChild(link);
 
 
     }
@@ -1032,20 +910,11 @@
       try {
 
 
-        if (
-
-          navigator.share
-
-        ) {
+        if (navigator.share) {
 
 
           const response =
-
-            await fetch(
-
-              generatedImage.src
-
-            );
+            await fetch(generatedImage.src);
 
 
           const blob =
@@ -1055,44 +924,29 @@
           const file =
             new File(
 
-              [
-
-                blob
-
-              ],
+              [blob],
 
               "cricket-ai-player.jpg",
 
               {
-
-                type:
-                  "image/jpeg"
-
+                type: "image/jpeg"
               }
 
             );
 
 
-          await navigator.share(
+          await navigator.share({
 
-            {
+            title:
+              "My AI Cricket Player",
 
-              title:
-                "My AI Cricket Player",
+            text:
+              "🏏 मैंने AI से अपना Cricket Player बनाया!",
 
-              text:
-                "🏏 मैंने AI से अपना Cricket Player बनाया!",
+            files:
+              [file]
 
-              files:
-                [
-
-                  file
-
-                ]
-
-            }
-
-          );
+          });
 
 
         }
@@ -1102,9 +956,7 @@
 
 
           alert(
-
             "आपके browser में Share feature उपलब्ध नहीं है।"
-
           );
 
         }
@@ -1129,9 +981,168 @@
   );
 
 
+
+  // =============================
+  // COPY NEWS CAPTION
+  // =============================
+
+  function copyNewsCaption(type) {
+
+
+    let caption = "";
+
+
+    if (type === "cricinfo") {
+
+
+      caption = `🏏 ताज़ा क्रिकेट समाचार!
+
+क्रिकेट की नई अपडेट और पूरी खबर जानने के लिए नीचे दिए गए Original Source पर जाएं। 👇
+
+🔗 पूरी खबर देखें:
+https://www.espncricinfo.com/`;
+
+
+    }
+
+
+    else if (type === "icc") {
+
+
+      caption = `🏏 Official Cricket Update!
+
+International Cricket की ताज़ा official जानकारी के लिए नीचे दिए गए Original Source पर जाएं। 👇
+
+🔗 पूरी जानकारी देखें:
+https://www.icc-cricket.com/`;
+
+
+    }
+
+
+
+    if (navigator.clipboard) {
+
+
+      navigator.clipboard.writeText(caption)
+
+        .then(function () {
+
+          alert(
+            "✅ Caption Copy हो गया! अब Facebook में Paste करें।"
+          );
+
+        })
+
+        .catch(function () {
+
+          fallbackCopyCaption(caption);
+
+        });
+
+
+    }
+
+
+    else {
+
+      fallbackCopyCaption(caption);
+
+    }
+
+
+  }
+
+
+
+  // =============================
+  // FALLBACK COPY
+  // =============================
+
+  function fallbackCopyCaption(text) {
+
+
+    const textarea =
+      document.createElement("textarea");
+
+
+    textarea.value =
+      text;
+
+
+    textarea.style.position =
+      "fixed";
+
+
+    textarea.style.opacity =
+      "0";
+
+
+    document.body.appendChild(textarea);
+
+
+    textarea.select();
+
+
+    try {
+
+      document.execCommand("copy");
+
+      alert(
+        "✅ Caption Copy हो गया! अब Facebook में Paste करें।"
+      );
+
+    }
+
+
+    catch (error) {
+
+      alert(
+        "❌ Caption Copy नहीं हो सका।"
+      );
+
+    }
+
+
+    document.body.removeChild(textarea);
+
+
+  }
+
+
+
+  // =============================
+  // FACEBOOK NEWS SHARE
+  // =============================
+
+  function shareNewsOnFacebook(newsUrl) {
+
+
+    const facebookShareUrl =
+
+      "https://www.facebook.com/sharer/sharer.php?u=" +
+
+      encodeURIComponent(newsUrl);
+
+
+
+    window.open(
+
+      facebookShareUrl,
+
+      "_blank",
+
+      "width=600,height=500"
+
+    );
+
+
+  }
+
+
 </script>
 
 
 </body>
 
-        </html>  
+  </html>
