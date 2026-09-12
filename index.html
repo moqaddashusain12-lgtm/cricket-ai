@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="hi">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Cricket AI & News</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -53,7 +59,8 @@
       font-weight: bold;
     }
 
-    input, select {
+    input,
+    select {
       width: 100%;
       padding: 14px;
       border-radius: 10px;
@@ -74,6 +81,11 @@
       color: white;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     #result {
       display: none;
       margin-top: 20px;
@@ -83,17 +95,31 @@
       background: #064e3b;
     }
 
-    .emoji {
-      font-size: 80px;
+    #generatedImage {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 15px;
+      margin-top: 15px;
     }
 
-    .news-title {
-      margin-top: 10px;
-      font-size: 24px;
+    #loading {
+      display: none;
+      margin-top: 15px;
+      text-align: center;
+      color: #facc15;
+    }
+
+    #error {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #7f1d1d;
+      color: white;
     }
 
     .news-card {
-      background: #162033;
+      background: #0f172a;
       padding: 18px;
       margin-top: 15px;
       border-radius: 14px;
@@ -123,100 +149,173 @@
       padding: 25px;
       color: #94a3b8;
     }
+
   </style>
+
 </head>
+
 
 <body>
 
 <header>
+
   <h1>🏏 Cricket AI</h1>
-  <p>AI Cricket Images & Latest Cricket News</p>
+
+  <p>
+    AI Cricket Images & Latest Cricket News
+  </p>
+
 </header>
 
+
 <div class="container">
+
 
   <!-- AI GENERATOR -->
 
   <div class="card">
 
-    <h2>✨ Cricket AI Image Generator</h2>
+    <h2>
+      ✨ Cricket AI Image Generator
+    </h2>
 
-    <label>Player Name</label>
+
+    <label>
+      Player Name
+    </label>
 
     <input
       type="text"
       id="player"
-      placeholder="जैसे: Virat Kohli">
+      placeholder="जैसे: Virat Kohli"
+    >
 
-    <label>Team</label>
+
+    <label>
+      Team
+    </label>
 
     <input
       type="text"
       id="team"
-      placeholder="जैसे: India">
+      placeholder="जैसे: India"
+    >
 
-    <label>Image Style</label>
+
+    <label>
+      Image Style
+    </label>
 
     <select id="style">
-      <option>Realistic</option>
-      <option>Digital Art</option>
-      <option>Anime</option>
-      <option>Poster Style</option>
+
+      <option>
+        Realistic
+      </option>
+
+      <option>
+        Digital Art
+      </option>
+
+      <option>
+        Anime
+      </option>
+
+      <option>
+        Poster Style
+      </option>
+
     </select>
 
-    <button onclick="generateImage()">
+
+    <button
+      id="generateButton"
+      onclick="generateImage()"
+    >
+
       ✨ Generate Cricket Image
+
     </button>
+
+
+    <div id="loading">
+
+      🎨 AI Image बनाई जा रही है...
+
+      <br><br>
+
+      कृपया इंतजार करें।
+
+    </div>
+
+
+    <div id="error">
+
+    </div>
+
 
     <div id="result">
 
-      <div class="emoji">🏏</div>
-
-      <h2 id="resultPlayer">
-        Cricket Player
+      <h2>
+        🎨 Generated Cricket Image
       </h2>
 
+
+      <img
+        id="generatedImage"
+        alt="Generated Cricket Player"
+      >
+
+
+      <h3 id="resultPlayer">
+
+      </h3>
+
+
       <p id="resultTeam">
-        International Team
+
       </p>
+
 
       <p id="resultStyle">
-        Realistic
+
       </p>
 
+
     </div>
+
 
   </div>
 
 
-  <!-- NEWS SECTION -->
+
+  <!-- NEWS -->
 
   <div class="card">
 
-    <h2>📰 Latest Cricket News</h2>
+    <h2>
+      📰 Cricket News
+    </h2>
 
 
     <div class="news-card">
 
       <h3>
-        🏏 ईशान किशन का शानदार प्रदर्शन
+        🏏 Latest Cricket News
       </h3>
 
       <p>
-        ईशान किशन ने दलीप ट्रॉफी में शानदार बल्लेबाजी करते हुए
-        क्रिकेट प्रशंसकों का ध्यान आकर्षित किया।
+        ताज़ा क्रिकेट समाचार देखने के लिए
+        नीचे दिए गए विश्वसनीय स्रोत खोलें।
       </p>
 
-      <p>
-        📅 2026 &nbsp; | &nbsp; 🏏 Duleep Trophy
-      </p>
 
       <a
         class="news-link"
-        href="https://www.abplive.com/sports/cricket/ishan-kishan-smashed-a-century-in-the-final-of-2026-duleep-trophy-scoring-his-10th-century-3185206/amp"
-        target="_blank">
+        href="https://www.cricinfo.com/"
+        target="_blank"
+      >
 
-        Read Full News →
+        Cricinfo News →
 
       </a>
 
@@ -226,72 +325,253 @@
     <div class="news-card">
 
       <h3>
-        🏆 क्रिकेट की ताज़ा खबरें
+        🏆 International Cricket
       </h3>
 
       <p>
-        यहाँ भविष्य में IPL, International Cricket,
-        World Cup और अन्य क्रिकेट की खबरें दिखाई जाएँगी।
+        International Cricket, tournaments और
+        official cricket updates देखें।
       </p>
+
+
+      <a
+        class="news-link"
+        href="https://www.icc-cricket.com/"
+        target="_blank"
+      >
+
+        ICC Cricket →
+
+      </a>
 
     </div>
 
+
   </div>
+
 
 </div>
 
 
+
 <footer>
+
   © 2026 Cricket AI
+
 </footer>
+
 
 
 <script>
 
-function generateImage() {
 
-  let player =
-    document.getElementById("player").value;
-
-  let team =
-    document.getElementById("team").value;
-
-  let style =
-    document.getElementById("style").value;
+async function generateImage() {
 
 
-  if (player === "") {
-    player = "Cricket Player";
+  const player =
+    document
+      .getElementById("player")
+      .value
+      .trim()
+    ||
+    "Cricket Player";
+
+
+  const team =
+    document
+      .getElementById("team")
+      .value
+      .trim()
+    ||
+    "India";
+
+
+  const style =
+    document
+      .getElementById("style")
+      .value;
+
+
+  const button =
+    document.getElementById(
+      "generateButton"
+    );
+
+
+  const loading =
+    document.getElementById(
+      "loading"
+    );
+
+
+  const errorBox =
+    document.getElementById(
+      "error"
+    );
+
+
+  const result =
+    document.getElementById(
+      "result"
+    );
+
+
+  // पुराने Result छुपाएं
+
+  result.style.display =
+    "none";
+
+
+  errorBox.style.display =
+    "none";
+
+
+  loading.style.display =
+    "block";
+
+
+  button.disabled =
+    true;
+
+
+  button.innerText =
+    "⏳ Generating...";
+
+
+  try {
+
+
+    const response =
+      await fetch(
+        "/api/generate-image",
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json"
+
+          },
+
+
+          body:
+            JSON.stringify({
+
+              player:
+                player,
+
+              team:
+                team,
+
+              style:
+                style
+
+            })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (
+      !data.success
+    ) {
+
+      throw new Error(
+
+        data.error ||
+        "Image generate नहीं हो सकी"
+
+      );
+
+    }
+
+
+    document
+      .getElementById(
+        "generatedImage"
+      )
+      .src =
+        data.image;
+
+
+    document
+      .getElementById(
+        "resultPlayer"
+      )
+      .innerText =
+        player;
+
+
+    document
+      .getElementById(
+        "resultTeam"
+      )
+      .innerText =
+        "Team: " +
+        team;
+
+
+    document
+      .getElementById(
+        "resultStyle"
+      )
+      .innerText =
+        "Style: " +
+        style;
+
+
+    result.style.display =
+      "block";
+
+
   }
 
 
-  if (team === "") {
-    team = "International Team";
+  catch (error) {
+
+
+    errorBox.innerText =
+      "❌ Error: " +
+      error.message;
+
+
+    errorBox.style.display =
+      "block";
+
+
   }
 
 
-  document.getElementById(
-    "resultPlayer"
-  ).innerText = player;
+  finally {
 
 
-  document.getElementById(
-    "resultTeam"
-  ).innerText = team;
+    loading.style.display =
+      "none";
 
 
-  document.getElementById(
-    "resultStyle"
-  ).innerText = style;
+    button.disabled =
+      false;
 
 
-  document.getElementById(
-    "result"
-  ).style.display = "block";
+    button.innerText =
+      "✨ Generate Cricket Image";
+
+
+  }
+
 
 }
 
+
 </script>
 
+
 </body>
-        </html>
+
+</html>
