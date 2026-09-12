@@ -3,13 +3,12 @@ export default {
 
     const url = new URL(request.url);
 
-    // =============================
+    // =========================
     // AI IMAGE GENERATION API
-    // =============================
+    // =========================
 
     if (url.pathname === "/api/generate-image") {
 
-      // POST request जरूरी है
       if (request.method !== "POST") {
         return Response.json(
           {
@@ -24,16 +23,10 @@ export default {
 
       try {
 
-        // Check AI Binding
+        // AI binding check
         if (!env.AI) {
-          return Response.json(
-            {
-              success: false,
-              error: "Workers AI binding 'AI' नहीं मिली"
-            },
-            {
-              status: 500
-            }
+          throw new Error(
+            "Workers AI binding 'AI' not found"
           );
         }
 
@@ -51,9 +44,9 @@ export default {
           body.style || "Realistic";
 
 
-        // =============================
+        // =========================
         // AI PROMPT
-        // =============================
+        // =========================
 
         const prompt = `
 ${style} professional cricket sports photography.
@@ -86,11 +79,11 @@ No text.
 `;
 
 
-        // =============================
-        // GENERATE IMAGE WITH AI
-        // =============================
+        // =========================
+        // GENERATE IMAGE
+        // =========================
 
-        const image = await env.AI.run(
+        const aiResult = await env.AI.run(
           "@cf/black-forest-labs/flux-1-schnell",
           {
             prompt: prompt,
@@ -99,12 +92,49 @@ No text.
         );
 
 
-        // =============================
-        // RETURN IMAGE
-        // =============================
+        // =========================
+        // CHECK IMAGE
+        // =========================
+
+        if (!aiResult || !aiResult.image) {
+          throw new Error(
+            "AI ने image data वापस नहीं दिया"
+          );
+        }
+
+
+        // =========================
+        // BASE64 → BINARY
+        // =========================
+
+        const binaryString =
+          atob(aiResult.image);
+
+
+        const bytes =
+          new Uint8Array(
+            binaryString.length
+          );
+
+
+        for (
+          let i = 0;
+          i < binaryString.length;
+          i++
+        ) {
+
+          bytes[i] =
+            binaryString.charCodeAt(i);
+
+        }
+
+
+        // =========================
+        // RETURN JPEG IMAGE
+        // =========================
 
         return new Response(
-          image,
+          bytes,
           {
             headers: {
               "Content-Type": "image/jpeg",
@@ -116,14 +146,22 @@ No text.
 
       } catch (error) {
 
-        console.error("AI Generation Error:", error);
+        console.error(
+          "AI Generation Error:",
+          error
+        );
+
 
         return Response.json(
           {
             success: false,
+
             error:
               "AI Error: " +
-              (error.message || "Unknown error")
+              (
+                error.message ||
+                "Unknown error"
+              )
           },
           {
             status: 500
@@ -135,9 +173,9 @@ No text.
     }
 
 
-    // =============================
+    // =========================
     // STATIC WEBSITE
-    // =============================
+    // =========================
 
     return env.ASSETS.fetch(request);
 
