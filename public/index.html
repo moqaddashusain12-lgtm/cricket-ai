@@ -26,7 +26,7 @@ body {
 header {
   padding: 30px 15px;
   text-align: center;
-  background: linear-gradient(135deg,#0b57d0,#174ea6);
+  background: linear-gradient(135deg, #0b57d0, #174ea6);
   color: white;
 }
 
@@ -82,6 +82,10 @@ button {
   cursor: pointer;
 }
 
+button:hover {
+  opacity: 0.9;
+}
+
 button:disabled {
   opacity: .6;
   cursor: not-allowed;
@@ -99,8 +103,15 @@ button:disabled {
   box-shadow: 0 3px 15px rgba(0,0,0,.15);
 }
 
+.download-btn {
+  display: none;
+  margin-top: 15px;
+  background: #16a34a;
+}
+
 .error {
   color: #c62828;
+  font-weight: bold;
 }
 
 .news-title {
@@ -217,6 +228,16 @@ Cartoon
 <div id="result"></div>
 
 
+<button
+id="downloadBtn"
+class="download-btn"
+>
+
+⬇️ Download Image
+
+</button>
+
+
 </div>
 
 
@@ -286,7 +307,6 @@ ICC Cricket →
 </div>
 
 
-
 </div>
 
 
@@ -308,6 +328,17 @@ document.getElementById("generateBtn");
 
 const result =
 document.getElementById("result");
+
+
+const downloadBtn =
+document.getElementById("downloadBtn");
+
+
+// Image data यहां store होगी
+
+let generatedImageData = null;
+
+let generatedPlayerName = "cricket-player";
 
 
 
@@ -348,6 +379,16 @@ alert(
 return;
 
 }
+
+
+
+// पुराना Download button छुपाएं
+
+downloadBtn.style.display =
+"none";
+
+
+generatedImageData = null;
 
 
 
@@ -435,6 +476,17 @@ throw new Error(
 
 
 
+// Image data save करें
+
+generatedImageData =
+data.image;
+
+
+generatedPlayerName =
+player;
+
+
+
 result.innerHTML = "";
 
 
@@ -468,6 +520,12 @@ result.appendChild(image);
 
 
 
+// Download button दिखाएं
+
+downloadBtn.style.display =
+"block";
+
+
 }
 
 catch (error) {
@@ -485,12 +543,76 @@ error.message +
 }
 
 
+finally {
+
 
 generateBtn.disabled = false;
 
 
 generateBtn.innerText =
 "✨ Generate Cricket Image";
+
+
+}
+
+
+}
+
+);
+
+
+
+// =========================
+// DOWNLOAD IMAGE
+// =========================
+
+
+downloadBtn.addEventListener(
+
+"click",
+
+function () {
+
+
+if (!generatedImageData) {
+
+alert(
+"पहले Image Generate करें"
+);
+
+return;
+
+}
+
+
+
+const link =
+document.createElement("a");
+
+
+link.href =
+generatedImageData;
+
+
+link.download =
+
+generatedPlayerName
+
+.replace(/\s+/g, "-")
+
+.toLowerCase()
+
++ "-cricket-ai.jpg";
+
+
+
+document.body.appendChild(link);
+
+
+link.click();
+
+
+document.body.removeChild(link);
 
 
 }
