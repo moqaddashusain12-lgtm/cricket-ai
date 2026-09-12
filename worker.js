@@ -12,6 +12,7 @@ export default {
     if (url.pathname === "/api/generate-image") {
 
 
+      // केवल POST request की अनुमति
       if (request.method !== "POST") {
 
         return Response.json(
@@ -44,62 +45,94 @@ export default {
 
 
         // =========================
-        // GET DATA
+        // GET REQUEST DATA
         // =========================
 
-        const body =
-          await request.json();
+        const body = await request.json();
 
 
         const player =
-          body.player ||
-          "Cricket Player";
+          body.player || "Cricket Player";
 
 
         const team =
-          body.team ||
-          "India";
+          body.team || "India";
 
 
         const pose =
-          body.pose ||
-          "Batting";
+          body.pose || "Batting";
 
 
         const style =
-          body.style ||
-          "Realistic";
+          body.style || "Realistic";
 
 
         // =========================
-        // AI PROMPT
+        // NEW ADVANCED OPTIONS
+        // =========================
+
+        const jersey =
+          body.jersey || "18";
+
+
+        const stadium =
+          body.stadium ||
+          "Large International Cricket Stadium";
+
+
+        const matchTime =
+          body.matchTime ||
+          "Day Match";
+
+
+        const tournament =
+          body.tournament ||
+          "International Cricket Match";
+
+
+        // =========================
+        // AI IMAGE PROMPT
         // =========================
 
         const prompt = `
 
-Create a high quality ${style} cricket image.
-
-A professional cricket player.
+Create a high quality ${style} image of a professional cricket player.
 
 Player name: ${player}.
 
-The player represents ${team}.
+The player represents the ${team} cricket team.
+
+Jersey number: ${jersey}.
 
 Player action and pose:
 
 ${pose}.
 
-Professional cricket uniform.
+Tournament:
+
+${tournament}.
+
+Match time:
+
+${matchTime}.
+
+Location:
+
+${stadium}.
+
+The player is wearing a professional ${team} cricket uniform.
+
+The jersey clearly displays the number ${jersey}.
 
 Professional cricket equipment.
 
-Large international cricket stadium.
-
-Dramatic stadium lighting.
+Realistic cricket environment.
 
 Exciting professional cricket atmosphere.
 
 Dynamic sports composition.
+
+Cinematic stadium lighting.
 
 High detail.
 
@@ -120,81 +153,41 @@ No text.
         // GENERATE IMAGE
         // =========================
 
-        const aiResult =
+        const aiResult = await env.AI.run(
 
-          await env.AI.run(
+          "@cf/black-forest-labs/flux-1-schnell",
 
-            "@cf/black-forest-labs/flux-1-schnell",
+          {
 
-            {
+            prompt: prompt,
 
-              prompt:
-              prompt,
+            steps: 4
 
-              steps:
-              4
+          }
 
-            }
-
-          );
+        );
 
 
         // =========================
         // CHECK AI RESPONSE
         // =========================
 
-        if (
-
-          !aiResult ||
-
-          !aiResult.image
-
-        ) {
+        if (!aiResult) {
 
           throw new Error(
-
-            "AI did not return image data"
-
+            "AI did not return a response"
           );
 
         }
 
 
-        // =========================
-        // BASE64 TO BINARY
-        // =========================
+        /*
+          Workers AI image models may return
+          the image directly as binary data.
 
-        const binaryString =
-
-          atob(
-            aiResult.image
-          );
-
-
-        const bytes =
-
-          new Uint8Array(
-
-            binaryString.length
-
-          );
-
-
-        for (
-
-          let i = 0;
-
-          i < binaryString.length;
-
-          i++
-
-        ) {
-
-          bytes[i] =
-
-            binaryString.charCodeAt(i);
-
-        }
+          इसलिए पुराने base64 conversion
+          को force नहीं करेंगे।
+        */
 
 
         // =========================
@@ -203,19 +196,15 @@ No text.
 
         return new Response(
 
-          bytes,
+          aiResult,
 
           {
 
-            headers:
+            headers: {
 
-            {
+              "Content-Type": "image/jpeg",
 
-              "Content-Type":
-              "image/jpeg",
-
-              "Cache-Control":
-              "no-store"
+              "Cache-Control": "no-store"
 
             }
 
@@ -226,16 +215,12 @@ No text.
 
       }
 
-
       catch (error) {
 
 
         console.error(
-
           "AI Generation Error:",
-
           error
-
         );
 
 
@@ -243,29 +228,22 @@ No text.
 
           {
 
-            success:
-            false,
-
+            success: false,
 
             error:
 
               "AI Error: " +
 
               (
-
                 error.message ||
-
                 "Unknown error"
-
               )
 
           },
 
-
           {
 
-            status:
-            500
+            status: 500
 
           }
 
@@ -282,9 +260,7 @@ No text.
     // STATIC WEBSITE
     // =========================
 
-    return env.ASSETS.fetch(
-      request
-    );
+    return env.ASSETS.fetch(request);
 
 
   }
