@@ -4,7 +4,7 @@ export default {
     const url = new URL(request.url);
 
     // =========================
-    // AI IMAGE API
+    // AI IMAGE GENERATION API
     // =========================
 
     if (url.pathname === "/api/generate-image") {
@@ -31,15 +31,18 @@ export default {
 
 
         const player =
-          body.player || "Cricket Player";
+          body.player ||
+          "Cricket Player";
 
 
         const team =
-          body.team || "India";
+          body.team ||
+          "India";
 
 
         const style =
-          body.style || "Realistic";
+          body.style ||
+          "Realistic";
 
 
         const prompt = `
@@ -82,47 +85,19 @@ High quality.
           );
 
 
-        // AI image को ArrayBuffer से Base64 में बदलना
+        // AI image को सीधे वापस भेजें
 
-        const imageBuffer =
-          await new Response(aiResult).arrayBuffer();
+        return new Response(
+          aiResult,
+          {
+            headers: {
 
+              "Content-Type":
+                "image/jpeg"
 
-        const bytes =
-          new Uint8Array(imageBuffer);
-
-
-        let binary = "";
-
-
-        for (
-          let i = 0;
-          i < bytes.length;
-          i++
-        ) {
-
-          binary +=
-            String.fromCharCode(bytes[i]);
-
-        }
-
-
-        const base64 =
-          btoa(binary);
-
-
-        const imageUrl =
-          "data:image/jpeg;base64," +
-          base64;
-
-
-        return Response.json({
-
-          success: true,
-
-          image: imageUrl
-
-        });
+            }
+          }
+        );
 
 
       }
@@ -136,7 +111,6 @@ High quality.
             success: false,
 
             error:
-              "AI Error: " +
               error.message
 
           },
@@ -155,7 +129,7 @@ High quality.
 
 
     // =========================
-    // STATIC WEBSITE
+    // WEBSITE FILES
     // =========================
 
     return env.ASSETS.fetch(request);
