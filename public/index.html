@@ -1,17 +1,11 @@
 <!DOCTYPE html>
 <html lang="hi">
-
 <head>
-
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Cricket Short - AI Cricket Player & Poster Generator</title>
-
+  <title>Cricket Short - AI Cricket Generator</title>
 
   <style>
 
@@ -19,901 +13,312 @@
       box-sizing: border-box;
     }
 
-
     html {
       scroll-behavior: smooth;
     }
 
-
     body {
-
       margin: 0;
-
-      font-family:
-        Arial,
-        sans-serif;
-
-      background:
-        #f2f5f9;
-
-      color:
-        #222;
-
+      font-family: Arial, sans-serif;
+      background: #f2f5f9;
+      color: #222;
     }
-
-
-
-    /* =========================
-       HEADER
-    ========================= */
 
     header {
-
-      background:
-        linear-gradient(
-          135deg,
-          #063b20,
-          #0b6b35,
-          #138a4b
-        );
-
-      color:
-        white;
-
-      text-align:
-        center;
-
-      padding:
-        35px 15px;
-
+      background: linear-gradient(135deg, #063b20, #0b6b35, #138a4b);
+      color: white;
+      text-align: center;
+      padding: 35px 15px;
     }
-
 
     header h1 {
-
-      margin:
-        0;
-
-      font-size:
-        34px;
-
+      margin: 0;
+      font-size: 34px;
     }
-
 
     header p {
-
-      margin:
-        12px 0 0;
-
-      font-size:
-        18px;
-
-      opacity:
-        .95;
-
+      margin: 12px 0 0;
+      font-size: 17px;
     }
-
-
-
-    /* =========================
-       NAVIGATION
-    ========================= */
 
     .nav {
-
-      display:
-        flex;
-
-      justify-content:
-        center;
-
-      align-items:
-        center;
-
-      flex-wrap:
-        wrap;
-
-      gap:
-        12px;
-
-      margin-top:
-        25px;
-
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 25px;
     }
-
 
     .nav button {
-
-      width:
-        auto;
-
-      margin:
-        0;
-
-      padding:
-        14px 24px;
-
-      border:
-        none;
-
-      border-radius:
-        30px;
-
-      background:
-        rgba(255,255,255,.18);
-
-      color:
-        white;
-
-      font-size:
-        17px;
-
-      font-weight:
-        bold;
-
-      cursor:
-        pointer;
-
-      backdrop-filter:
-        blur(8px);
-
+      width: auto;
+      margin: 0;
+      padding: 12px 18px;
+      background: rgba(255,255,255,.18);
+      color: white;
+      border-radius: 30px;
     }
-
 
     .nav button:hover {
-
-      background:
-        rgba(255,255,255,.30);
-
-      transform:
-        scale(1.03);
-
+      background: rgba(255,255,255,.30);
     }
-
-
-
-    /* =========================
-       CONTAINER
-    ========================= */
 
     .container {
-
-      max-width:
-        850px;
-
-      margin:
-        30px auto;
-
-      padding:
-        15px;
-
+      max-width: 850px;
+      margin: 30px auto;
+      padding: 15px;
     }
-
-
-
-    /* =========================
-       CARD
-    ========================= */
 
     .card {
-
-      background:
-        white;
-
-      border-radius:
-        20px;
-
-      padding:
-        25px;
-
-      margin-bottom:
-        30px;
-
-      box-shadow:
-        0 8px 30px
-        rgba(0,0,0,.10);
-
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.10);
     }
-
 
     h2 {
-
-      margin-top:
-        0;
-
-      text-align:
-        center;
-
-      color:
-        #0b6b35;
-
-      font-size:
-        28px;
-
+      margin-top: 0;
+      text-align: center;
+      color: #0b6b35;
+      font-size: 27px;
     }
-
-
-
-    /* =========================
-       FORM
-    ========================= */
 
     label {
-
-      display:
-        block;
-
-      font-weight:
-        bold;
-
-      font-size:
-        17px;
-
-      margin-top:
-        20px;
-
-      margin-bottom:
-        8px;
-
+      display: block;
+      font-weight: bold;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      font-size: 16px;
     }
-
 
     input,
     select {
-
-      width:
-        100%;
-
-      padding:
-        15px;
-
-      border:
-        1px solid #ccc;
-
-      border-radius:
-        12px;
-
-      font-size:
-        17px;
-
-      background:
-        white;
-
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      background: white;
     }
-
 
     input:focus,
     select:focus {
-
-      outline:
-        none;
-
-      border-color:
-        #0b6b35;
-
-      box-shadow:
-        0 0 0 3px
-        rgba(11,107,53,.10);
-
+      outline: none;
+      border-color: #0b6b35;
     }
-
-
-
-    /* =========================
-       BUTTON
-    ========================= */
 
     button {
-
-      width:
-        100%;
-
-      padding:
-        16px;
-
-      border:
-        none;
-
-      border-radius:
-        12px;
-
-      font-size:
-        18px;
-
-      font-weight:
-        bold;
-
-      cursor:
-        pointer;
-
-      margin-top:
-        20px;
-
-      transition:
-        .2s;
-
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: .2s;
     }
-
 
     button:hover {
-
-      transform:
-        scale(1.01);
-
+      transform: scale(1.01);
     }
-
 
     button:disabled {
-
-      opacity:
-        .6;
-
-      cursor:
-        not-allowed;
-
+      opacity: .6;
+      cursor: not-allowed;
     }
-
-
 
     #generateBtn {
-
-      background:
-        linear-gradient(
-          135deg,
-          #087f3f,
-          #0b6b35
-        );
-
-      color:
-        white;
-
+      background: #0b6b35;
+      color: white;
     }
 
+    #downloadBtn,
+    #downloadPosterBtn,
+    #downloadCardBtn {
+      background: #f57c00;
+      color: white;
+    }
+
+    #shareBtn,
+    #sharePosterBtn,
+    #shareCardBtn {
+      background: #6a1b9a;
+      color: white;
+    }
 
     #againBtn {
-
-      background:
-        #1565c0;
-
-      color:
-        white;
-
-      display:
-        none;
-
+      background: #1565c0;
+      color: white;
     }
-
-
-    #downloadBtn {
-
-      background:
-        linear-gradient(
-          135deg,
-          #ff9800,
-          #ef6c00
-        );
-
-      color:
-        white;
-
-      display:
-        none;
-
-    }
-
-
-    #shareBtn {
-
-      background:
-        linear-gradient(
-          135deg,
-          #7b1fa2,
-          #5e1680
-        );
-
-      color:
-        white;
-
-      display:
-        none;
-
-    }
-
-
-
-    /* =========================
-       LOADING
-    ========================= */
-
-    #loading {
-
-      display:
-        none;
-
-      text-align:
-        center;
-
-      margin-top:
-        20px;
-
-      padding:
-        20px;
-
-      background:
-        #e8f5e9;
-
-      border-radius:
-        12px;
-
-      color:
-        #0b6b35;
-
-      font-weight:
-        bold;
-
-    }
-
-
-    .spinner {
-
-      width:
-        40px;
-
-      height:
-        40px;
-
-      border:
-        4px solid #c8e6c9;
-
-      border-top:
-        4px solid #0b6b35;
-
-      border-radius:
-        50%;
-
-      animation:
-        spin 1s linear infinite;
-
-      margin:
-        0 auto 12px;
-
-    }
-
-
-    @keyframes spin {
-
-      0% {
-
-        transform:
-          rotate(0deg);
-
-      }
-
-
-      100% {
-
-        transform:
-          rotate(360deg);
-
-      }
-
-    }
-
-
-
-    /* =========================
-       ERROR
-    ========================= */
-
-    #error {
-
-      display:
-        none;
-
-      background:
-        #ffebee;
-
-      color:
-        #c62828;
-
-      padding:
-        15px;
-
-      border-radius:
-        10px;
-
-      margin-top:
-        20px;
-
-      font-weight:
-        bold;
-
-    }
-
-
-
-    /* =========================
-       RESULT
-    ========================= */
-
-    #result {
-
-      display:
-        none;
-
-      text-align:
-        center;
-
-    }
-
-
-    #generatedImage {
-
-      width:
-        100%;
-
-      max-width:
-        650px;
-
-      border-radius:
-        15px;
-
-      margin-top:
-        15px;
-
-      box-shadow:
-        0 8px 25px
-        rgba(0,0,0,.18);
-
-    }
-
-
-    #details {
-
-      margin-top:
-        15px;
-
-      padding:
-        15px;
-
-      background:
-        #f1f8f4;
-
-      border-radius:
-        12px;
-
-      font-size:
-        15px;
-
-      line-height:
-        1.7;
-
-    }
-
-
-
-    /* =========================
-       POSTER
-    ========================= */
-
-    #posterSection {
-
-      display:
-        none;
-
-    }
-
-
-    .posterPreview {
-
-      margin-top:
-        25px;
-
-      text-align:
-        center;
-
-    }
-
-
-    #posterCanvas {
-
-      width:
-        100%;
-
-      max-width:
-        650px;
-
-      border-radius:
-        18px;
-
-      box-shadow:
-        0 8px 30px
-        rgba(0,0,0,.20);
-
-    }
-
-
-    #posterButtons {
-
-      display:
-        none;
-
-    }
-
 
     #generatePosterBtn {
-
-      background:
-        linear-gradient(
-          135deg,
-          #d32f2f,
-          #ff5722
-        );
-
-      color:
-        white;
-
+      background: #d32f2f;
+      color: white;
     }
 
-
-    #downloadPosterBtn {
-
-      background:
-        linear-gradient(
-          135deg,
-          #ff9800,
-          #f57c00
-        );
-
-      color:
-        white;
-
+    #generateCardBtn {
+      background: #0b6b35;
+      color: white;
     }
 
-
-    #sharePosterBtn {
-
-      background:
-        linear-gradient(
-          135deg,
-          #7b1fa2,
-          #512da8
-        );
-
-      color:
-        white;
-
+    #loading {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+      padding: 18px;
+      background: #e8f5e9;
+      color: #0b6b35;
+      border-radius: 12px;
+      font-weight: bold;
     }
 
-
-
-    /* =========================
-       NEWS
-    ========================= */
-
-    .news {
-
-      display:
-        none;
-
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 4px solid #c8e6c9;
+      border-top: 4px solid #0b6b35;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
     }
 
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    #error {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    #result {
+      display: none;
+      text-align: center;
+    }
+
+    #generatedImage {
+      width: 100%;
+      max-width: 650px;
+      border-radius: 15px;
+      margin-top: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,.18);
+    }
+
+    #details {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f1f8f4;
+      border-radius: 12px;
+      line-height: 1.7;
+    }
+
+    #posterSection,
+    #playerCardSection,
+    #newsSection {
+      display: none;
+    }
+
+    #posterCanvas,
+    #playerCardCanvas {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 18px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.25);
+      margin-top: 20px;
+    }
+
+    #posterButtons,
+    #cardButtons {
+      display: none;
+    }
+
+    .canvasBox {
+      text-align: center;
+    }
 
     .news a {
-
-      display:
-        block;
-
-      padding:
-        16px;
-
-      margin-top:
-        15px;
-
-      background:
-        #f5f5f5;
-
-      border-radius:
-        12px;
-
-      text-decoration:
-        none;
-
-      color:
-        #0b6b35;
-
-      font-weight:
-        bold;
-
-      transition:
-        .2s;
-
+      display: block;
+      padding: 16px;
+      margin-top: 12px;
+      background: #f5f5f5;
+      border-radius: 12px;
+      color: #0b6b35;
+      text-decoration: none;
+      font-weight: bold;
     }
-
 
     .news a:hover {
-
-      background:
-        #e8f5e9;
-
-      transform:
-        scale(1.01);
-
+      background: #e8f5e9;
     }
-
-
-
-    /* =========================
-       FOOTER
-    ========================= */
 
     footer {
-
-      background:
-        #063b20;
-
-      color:
-        white;
-
-      text-align:
-        center;
-
-      padding:
-        30px 15px;
-
-      margin-top:
-        40px;
-
-      line-height:
-        1.8;
-
+      background: #063b20;
+      color: white;
+      text-align: center;
+      padding: 30px 15px;
+      line-height: 1.8;
     }
 
-
-
-    /* =========================
-       MOBILE
-    ========================= */
-
-    @media
-    (max-width: 600px) {
-
-
-      header {
-
-        padding:
-          28px 12px;
-
-      }
-
+    @media (max-width: 600px) {
 
       header h1 {
-
-        font-size:
-          27px;
-
+        font-size: 27px;
       }
-
-
-      header p {
-
-        font-size:
-          16px;
-
-      }
-
-
-      .nav {
-
-        gap:
-          10px;
-
-      }
-
-
-      .nav button {
-
-        font-size:
-          16px;
-
-        padding:
-          13px 18px;
-
-      }
-
 
       .card {
-
-        padding:
-          18px;
-
-        border-radius:
-          18px;
-
+        padding: 18px;
       }
 
-
-      h2 {
-
-        font-size:
-          25px;
-
-      }
-
-
-      input,
-      select {
-
-        font-size:
-          16px;
-
+      .nav button {
+        padding: 11px 14px;
+        font-size: 14px;
       }
 
     }
-
 
   </style>
 
 </head>
 
 
-
 <body>
 
 
-
-<!-- =========================
-     HEADER
-========================= -->
-
 <header>
 
-
-  <h1>
-    🏏 Cricket Short
-  </h1>
-
+  <h1>🏏 Cricket Short</h1>
 
   <p>
-    AI Cricket Player • Poster Generator
+    AI Cricket Player • Poster • Player Card Generator
   </p>
-
 
 
   <div class="nav">
 
-
-    <button
-      onclick="showPlayer()"
-    >
-
+    <button onclick="showPlayer()">
       🏏 AI Player
-
     </button>
 
-
-
-    <button
-      onclick="showPoster()"
-    >
-
+    <button onclick="showPoster()">
       🎨 Poster
-
     </button>
 
+    <button onclick="showPlayerCard()">
+      🃏 Player Card
+    </button>
 
-
-    <button
-      onclick="showNews()"
-    >
-
+    <button onclick="showNews()">
       📰 News
-
     </button>
-
 
   </div>
-
 
 </header>
 
@@ -922,474 +327,203 @@
 <div class="container">
 
 
-
-<!-- ==================================
+<!-- =========================
      AI PLAYER GENERATOR
-================================== -->
+========================= -->
 
-<div
-  class="card"
-  id="playerSection"
->
+<div class="card" id="playerSection">
 
-
-  <h2>
-    ✨ Create Your Cricket Player
-  </h2>
+  <h2>✨ Create Your Cricket Player</h2>
 
 
-
-  <label>
-    👤 Player Name
-  </label>
-
+  <label>👤 Player Name</label>
 
   <input
-
     type="text"
-
     id="player"
-
     value="Virat Kohli"
-
     placeholder="Player Name"
-
   >
 
 
-
-  <label>
-    🌍 Team
-  </label>
-
+  <label>🌍 Team</label>
 
   <select id="team">
 
-
-    <option value="India">
-      🇮🇳 India
-    </option>
-
-
-    <option value="Australia">
-      🇦🇺 Australia
-    </option>
-
-
-    <option value="England">
-      🏴 England
-    </option>
-
-
-    <option value="Pakistan">
-      🇵🇰 Pakistan
-    </option>
-
-
-    <option value="South Africa">
-      🇿🇦 South Africa
-    </option>
-
-
-    <option value="New Zealand">
-      🇳🇿 New Zealand
-    </option>
-
+    <option value="India">🇮🇳 India</option>
+    <option value="Australia">🇦🇺 Australia</option>
+    <option value="England">🏴 England</option>
+    <option value="Pakistan">🇵🇰 Pakistan</option>
+    <option value="South Africa">🇿🇦 South Africa</option>
+    <option value="New Zealand">🇳🇿 New Zealand</option>
 
   </select>
 
 
-
-  <label>
-    🏏 Player Pose
-  </label>
-
+  <label>🏏 Player Pose</label>
 
   <select id="pose">
 
-
-    <option value="Batting">
-      🏏 Batting
-    </option>
-
-
-    <option value="Bowling">
-      ⚡ Bowling
-    </option>
-
-
-    <option value="Celebrating">
-      🎉 Celebrating
-    </option>
-
-
-    <option value="Fielding">
-      🧤 Fielding
-    </option>
-
-
-    <option value="Running">
-      🏃 Running
-    </option>
-
+    <option value="Batting">🏏 Batting</option>
+    <option value="Bowling">⚡ Bowling</option>
+    <option value="Celebrating">🎉 Celebrating</option>
+    <option value="Fielding">🧤 Fielding</option>
+    <option value="Running">🏃 Running</option>
 
   </select>
 
 
-
-  <label>
-    👨‍🏏 Player Type
-  </label>
-
+  <label>👨‍🏏 Player Type</label>
 
   <select id="playerType">
 
-
-    <option value="Batsman">
-      🏏 Batsman
-    </option>
-
-
-    <option value="Bowler">
-      ⚡ Bowler
-    </option>
-
-
-    <option value="All Rounder">
-      💪 All Rounder
-    </option>
-
-
-    <option value="Wicket Keeper">
-      🧤 Wicket Keeper
-    </option>
-
+    <option value="Batsman">🏏 Batsman</option>
+    <option value="Bowler">⚡ Bowler</option>
+    <option value="All Rounder">💪 All Rounder</option>
+    <option value="Wicket Keeper">🧤 Wicket Keeper</option>
 
   </select>
 
 
-
-  <label>
-    ✋ Playing Hand
-  </label>
-
+  <label>✋ Playing Hand</label>
 
   <select id="playingHand">
 
-
-    <option value="Right-handed">
-      👉 Right-handed
-    </option>
-
-
-    <option value="Left-handed">
-      👈 Left-handed
-    </option>
-
+    <option value="Right-handed">👉 Right-handed</option>
+    <option value="Left-handed">👈 Left-handed</option>
 
   </select>
 
 
-
-  <label>
-    🎨 Image Style
-  </label>
-
+  <label>🎨 Image Style</label>
 
   <select id="style">
 
-
-    <option value="Realistic">
-      📸 Realistic
-    </option>
-
-
-    <option value="Cinematic">
-      🎬 Cinematic
-    </option>
-
-
-    <option value="Digital Art">
-      🎨 Digital Art
-    </option>
-
-
-    <option value="Sports Poster">
-      📰 Sports Poster
-    </option>
-
+    <option value="Realistic">📸 Realistic</option>
+    <option value="Cinematic">🎬 Cinematic</option>
+    <option value="Digital Art">🎨 Digital Art</option>
+    <option value="Sports Poster">📰 Sports Poster</option>
 
   </select>
 
 
-
-  <label>
-    👕 Jersey Color
-  </label>
-
+  <label>👕 Jersey Color</label>
 
   <select id="jerseyColor">
 
-
-    <option value="Blue">
-      🔵 Blue
-    </option>
-
-
-    <option value="Green">
-      🟢 Green
-    </option>
-
-
-    <option value="Yellow">
-      🟡 Yellow
-    </option>
-
-
-    <option value="Red">
-      🔴 Red
-    </option>
-
-
-    <option value="Black">
-      ⚫ Black
-    </option>
-
+    <option value="Blue">🔵 Blue</option>
+    <option value="Green">🟢 Green</option>
+    <option value="Yellow">🟡 Yellow</option>
+    <option value="Red">🔴 Red</option>
+    <option value="Black">⚫ Black</option>
 
   </select>
 
 
-
-  <label>
-    🔢 Jersey Number
-  </label>
-
+  <label>🔢 Jersey Number</label>
 
   <input
-
     type="number"
-
     id="jersey"
-
     value="18"
-
     min="0"
-
     max="999"
-
   >
 
 
-
-  <label>
-    🏟️ Stadium Type
-  </label>
-
+  <label>🏟️ Stadium Type</label>
 
   <select id="stadium">
 
-
-    <option
-      value="International Cricket Stadium"
-    >
-
+    <option value="International Cricket Stadium">
       🏟️ International Stadium
-
     </option>
 
-
-    <option
-      value="Modern Cricket Stadium"
-    >
-
+    <option value="Modern Cricket Stadium">
       🏙️ Modern Stadium
-
     </option>
 
-
-    <option
-      value="Night Cricket Stadium"
-    >
-
+    <option value="Night Cricket Stadium">
       🌙 Night Stadium
-
     </option>
 
-
-    <option
-      value="Packed Cricket Stadium"
-    >
-
+    <option value="Packed Cricket Stadium">
       👥 Packed Stadium
-
     </option>
-
 
   </select>
 
 
-
-  <label>
-    🌦️ Weather
-  </label>
-
+  <label>🌦️ Weather</label>
 
   <select id="weather">
 
-
-    <option value="Sunny">
-      ☀️ Sunny
-    </option>
-
-
-    <option value="Cloudy">
-      ☁️ Cloudy
-    </option>
-
-
-    <option value="Rainy">
-      🌧️ Rainy
-    </option>
-
-
-    <option value="Foggy">
-      🌫️ Foggy
-    </option>
-
+    <option value="Sunny">☀️ Sunny</option>
+    <option value="Cloudy">☁️ Cloudy</option>
+    <option value="Rainy">🌧️ Rainy</option>
+    <option value="Foggy">🌫️ Foggy</option>
 
   </select>
 
 
-
-  <label>
-    🌞🌙 Match Time
-  </label>
-
+  <label>🌞🌙 Match Time</label>
 
   <select id="matchTime">
 
-
-    <option value="Day Match">
-      🌞 Day Match
-    </option>
-
-
-    <option value="Night Match">
-      🌙 Night Match
-    </option>
-
-
-    <option value="Sunset Match">
-      🌅 Sunset Match
-    </option>
-
+    <option value="Day Match">🌞 Day Match</option>
+    <option value="Night Match">🌙 Night Match</option>
+    <option value="Sunset Match">🌅 Sunset Match</option>
 
   </select>
 
 
-
-  <label>
-    📸 Camera Angle
-  </label>
-
+  <label>📸 Camera Angle</label>
 
   <select id="cameraAngle">
 
-
-    <option value="Front View">
-      📸 Front View
-    </option>
-
-
-    <option value="Side View">
-      ↔️ Side View
-    </option>
-
-
-    <option value="Low Angle">
-      ⬆️ Low Angle
-    </option>
-
-
-    <option value="Action Shot">
-      ⚡ Action Shot
-    </option>
-
+    <option value="Front View">📸 Front View</option>
+    <option value="Side View">↔️ Side View</option>
+    <option value="Low Angle">⬆️ Low Angle</option>
+    <option value="Action Shot">⚡ Action Shot</option>
 
   </select>
 
 
-
-  <label>
-    🏆 Tournament
-  </label>
-
+  <label>🏆 Tournament</label>
 
   <select id="tournament">
 
-
-    <option
-      value="International Cricket Match"
-    >
-
+    <option value="International Cricket Match">
       🏏 International Match
-
     </option>
 
-
-    <option
-      value="T20 Match"
-    >
-
+    <option value="T20 Match">
       ⚡ T20 Match
-
     </option>
 
-
-    <option
-      value="ODI Match"
-    >
-
+    <option value="ODI Match">
       🏆 ODI Match
-
     </option>
 
-
-    <option
-      value="World Cup Match"
-    >
-
+    <option value="World Cup Match">
       🌍 World Cup
-
     </option>
 
-
-    <option
-      value="IPL Match"
-    >
-
+    <option value="IPL Match">
       🔥 IPL Match
-
     </option>
-
 
   </select>
 
 
-
   <button id="generateBtn">
-
     ✨ Generate Cricket Image
-
   </button>
-
 
 
   <div id="loading">
 
-
     <div class="spinner"></div>
-
 
     🏏 AI आपके Cricket Player की Image बना रहा है...
 
@@ -1397,9 +531,7 @@
 
     ⏳ कृपया इंतज़ार करें
 
-
   </div>
-
 
 
   <div id="error"></div>
@@ -1409,56 +541,36 @@
 
 
 
-<!-- ==================================
-     IMAGE RESULT
-================================== -->
+<!-- =========================
+     AI IMAGE RESULT
+========================= -->
 
-<div
-  class="card"
-  id="result"
->
+<div class="card" id="result">
 
-
-  <h2>
-    🎨 Generated Cricket Image
-  </h2>
-
+  <h2>🎨 Generated Cricket Image</h2>
 
 
   <img
-
     id="generatedImage"
-
     alt="Generated Cricket Player"
-
   >
-
 
 
   <div id="details"></div>
 
 
-
   <button id="downloadBtn">
-
     ⬇️ Download Image
-
   </button>
-
 
 
   <button id="shareBtn">
-
     📤 Share Image
-
   </button>
 
 
-
   <button id="againBtn">
-
     🔄 Generate Again
-
   </button>
 
 
@@ -1466,194 +578,223 @@
 
 
 
-<!-- ==================================
+<!-- =========================
      POSTER GENERATOR
-================================== -->
+========================= -->
 
-<div
-  class="card"
-  id="posterSection"
->
+<div class="card" id="posterSection">
 
-
-  <h2>
-    🏏🎨 Cricket Poster Generator
-  </h2>
+  <h2>🎨 Cricket Poster Generator</h2>
 
 
-
-  <label>
-    👤 Player Name
-  </label>
-
+  <label>👤 Player Name</label>
 
   <input
-
     type="text"
-
     id="posterPlayer"
-
     value="VIRAT KOHLI"
-
-    placeholder="Player Name"
-
   >
 
 
-
-  <label>
-    🌍 Team
-  </label>
-
+  <label>🌍 Team</label>
 
   <input
-
     type="text"
-
     id="posterTeam"
-
     value="INDIA"
-
-    placeholder="Team Name"
-
   >
 
 
-
-  <label>
-    ⚔️ Match
-  </label>
-
+  <label>⚔️ Match</label>
 
   <input
-
     type="text"
-
     id="posterMatch"
-
     value="INDIA VS AUSTRALIA"
-
-    placeholder="INDIA VS AUSTRALIA"
-
   >
 
 
-
-  <label>
-    🏆 Tournament
-  </label>
-
+  <label>🏆 Tournament</label>
 
   <input
-
     type="text"
-
     id="posterTournament"
-
     value="INTERNATIONAL CRICKET"
-
-    placeholder="Tournament"
-
   >
 
 
-
-  <label>
-    📅 Match Status
-  </label>
-
+  <label>📅 Match Status</label>
 
   <select id="posterStatus">
 
-
-    <option value="COMING SOON">
-      🔥 Coming Soon
-    </option>
-
-
-    <option value="MATCH DAY">
-      🏏 Match Day
-    </option>
-
-
-    <option value="LIVE NOW">
-      🔴 Live Now
-    </option>
-
-
-    <option value="FINAL">
-      🏆 Final
-    </option>
-
+    <option value="COMING SOON">🔥 Coming Soon</option>
+    <option value="MATCH DAY">🏏 Match Day</option>
+    <option value="LIVE NOW">🔴 Live Now</option>
+    <option value="FINAL">🏆 Final</option>
 
   </select>
 
 
-
-  <label>
-    🏟️ Stadium
-  </label>
-
+  <label>🏟️ Stadium</label>
 
   <input
-
     type="text"
-
     id="posterStadium"
-
     value="International Cricket Stadium"
-
-    placeholder="Stadium Name"
-
   >
 
 
-
   <button id="generatePosterBtn">
-
     🎨 Generate Cricket Poster
-
   </button>
 
 
-
-  <div class="posterPreview">
-
+  <div class="canvasBox">
 
     <canvas
-
       id="posterCanvas"
-
       width="1080"
-
       height="1350"
-
-    >
-
-    </canvas>
-
+    ></canvas>
 
   </div>
 
 
-
   <div id="posterButtons">
 
-
     <button id="downloadPosterBtn">
-
       ⬇️ Download Poster
-
     </button>
-
-
 
     <button id="sharePosterBtn">
-
       📤 Share Poster
-
     </button>
 
+  </div>
+
+</div>
+
+
+
+<!-- =========================
+     PLAYER CARD GENERATOR
+========================= -->
+
+<div class="card" id="playerCardSection">
+
+  <h2>🃏 Cricket Player Card Generator</h2>
+
+
+  <label>👤 Player Name</label>
+
+  <input
+    type="text"
+    id="cardPlayer"
+    value="VIRAT KOHLI"
+  >
+
+
+  <label>🌍 Team</label>
+
+  <input
+    type="text"
+    id="cardTeam"
+    value="INDIA"
+  >
+
+
+  <label>🏏 Player Type</label>
+
+  <select id="cardType">
+
+    <option value="Batsman">
+      🏏 Batsman
+    </option>
+
+    <option value="Bowler">
+      ⚡ Bowler
+    </option>
+
+    <option value="All Rounder">
+      💪 All Rounder
+    </option>
+
+    <option value="Wicket Keeper">
+      🧤 Wicket Keeper
+    </option>
+
+  </select>
+
+
+  <label>👕 Jersey Number</label>
+
+  <input
+    type="number"
+    id="cardJersey"
+    value="18"
+    min="0"
+    max="999"
+  >
+
+
+  <label>🏏 Batting Rating (0-100)</label>
+
+  <input
+    type="number"
+    id="battingRating"
+    value="95"
+    min="0"
+    max="100"
+  >
+
+
+  <label>⚡ Bowling Rating (0-100)</label>
+
+  <input
+    type="number"
+    id="bowlingRating"
+    value="40"
+    min="0"
+    max="100"
+  >
+
+
+  <label>🧤 Fielding Rating (0-100)</label>
+
+  <input
+    type="number"
+    id="fieldingRating"
+    value="90"
+    min="0"
+    max="100"
+  >
+
+
+  <button id="generateCardBtn">
+    🃏 Generate Player Card
+  </button>
+
+
+  <div class="canvasBox">
+
+    <canvas
+      id="playerCardCanvas"
+      width="900"
+      height="1200"
+    ></canvas>
+
+  </div>
+
+
+  <div id="cardButtons">
+
+    <button id="downloadCardBtn">
+      ⬇️ Download Player Card
+    </button>
+
+    <button id="shareCardBtn">
+      📤 Share Player Card
+    </button>
 
   </div>
 
@@ -1662,111 +803,67 @@
 
 
 
-<!-- ==================================
+<!-- =========================
      NEWS
-================================== -->
+========================= -->
 
-<div
-  class="card news"
-  id="newsSection"
->
+<div class="card news" id="newsSection">
 
-
-  <h2>
-    📰 Cricket News & Updates
-  </h2>
+  <h2>📰 Cricket News & Updates</h2>
 
 
-
-  <h3>
-    🏏 Latest Cricket News
-  </h3>
-
+  <h3>🏏 Latest Cricket News</h3>
 
   <p>
     ताज़ा क्रिकेट समाचार और अपडेट देखें।
   </p>
 
 
-
   <a
-
     href="https://www.espncricinfo.com/"
-
     target="_blank"
-
     rel="noopener"
-
   >
-
     📰 Cricinfo News देखें →
-
   </a>
 
 
-
-  <h3>
-    🏆 Official Cricket Updates
-  </h3>
-
+  <h3>🏆 Official Cricket Updates</h3>
 
   <p>
     International Cricket के official updates देखें।
   </p>
 
 
-
   <a
-
     href="https://www.icc-cricket.com/"
-
     target="_blank"
-
     rel="noopener"
-
   >
-
     🏆 ICC Cricket Updates →
-
   </a>
 
 
+</div>
+
 
 </div>
 
 
-
-</div>
-
-
-
-<!-- ==================================
-     FOOTER
-================================== -->
 
 <footer>
 
-
-  <h2
-    style="
-      color:white;
-      margin-bottom:10px;
-    "
-  >
-
+  <strong style="font-size:22px;">
     🏏 Cricket Short
-
-  </h2>
-
-
-  Create • Generate • Download • Share
-
+  </strong>
 
   <br>
 
+  Create • Generate • Download • Share
+
+  <br>
 
   ✨ Powered by Cloudflare Workers AI
-
 
 </footer>
 
@@ -1775,696 +872,406 @@
 <script>
 
 
-
-/* =====================================
-   ELEMENTS
-===================================== */
-
-
-const generateBtn =
-  document.getElementById(
-    "generateBtn"
-  );
-
-
-const againBtn =
-  document.getElementById(
-    "againBtn"
-  );
-
-
-const downloadBtn =
-  document.getElementById(
-    "downloadBtn"
-  );
-
-
-const shareBtn =
-  document.getElementById(
-    "shareBtn"
-  );
-
-
-const loading =
-  document.getElementById(
-    "loading"
-  );
-
-
-const errorBox =
-  document.getElementById(
-    "error"
-  );
-
-
-const result =
-  document.getElementById(
-    "result"
-  );
-
-
-const generatedImage =
-  document.getElementById(
-    "generatedImage"
-  );
-
-
-const details =
-  document.getElementById(
-    "details"
-  );
-
-
-
-/* =====================================
+/* =========================
    NAVIGATION
-===================================== */
-
+========================= */
 
 function showPlayer() {
 
-
   document
-    .getElementById(
-      "playerSection"
-    )
-    .scrollIntoView(
-      {
-        behavior:
-          "smooth"
-      }
-    );
-
+    .getElementById("playerSection")
+    .scrollIntoView({
+      behavior: "smooth"
+    });
 
 }
 
 
 function showPoster() {
 
-
-  document
-    .getElementById(
+  const section =
+    document.getElementById(
       "posterSection"
-    )
-    .style.display =
-      "block";
-
-
-  document
-    .getElementById(
-      "posterSection"
-    )
-    .scrollIntoView(
-      {
-        behavior:
-          "smooth"
-      }
     );
 
+  section.style.display = "block";
+
+  section.scrollIntoView({
+    behavior: "smooth"
+  });
+
+}
+
+
+function showPlayerCard() {
+
+  const section =
+    document.getElementById(
+      "playerCardSection"
+    );
+
+  section.style.display = "block";
+
+  section.scrollIntoView({
+    behavior: "smooth"
+  });
 
 }
 
 
 function showNews() {
 
-
-  const news =
+  const section =
     document.getElementById(
       "newsSection"
     );
 
+  section.style.display = "block";
 
-  news.style.display =
-    "block";
-
-
-  news.scrollIntoView(
-    {
-      behavior:
-        "smooth"
-    }
-  );
-
+  section.scrollIntoView({
+    behavior: "smooth"
+  });
 
 }
 
 
 
-/* =====================================
-   GENERATE AI IMAGE
-===================================== */
+/* =========================
+   AI IMAGE GENERATOR
+========================= */
+
+const generateBtn =
+  document.getElementById("generateBtn");
+
+const againBtn =
+  document.getElementById("againBtn");
+
+const downloadBtn =
+  document.getElementById("downloadBtn");
+
+const shareBtn =
+  document.getElementById("shareBtn");
+
+const loading =
+  document.getElementById("loading");
+
+const errorBox =
+  document.getElementById("error");
+
+const result =
+  document.getElementById("result");
+
+const generatedImage =
+  document.getElementById("generatedImage");
+
+const details =
+  document.getElementById("details");
 
 
 async function generateImage() {
 
-
   const player =
-    document
-      .getElementById("player")
-      .value
-      .trim();
-
+    document.getElementById("player").value.trim();
 
   const team =
-    document
-      .getElementById("team")
-      .value;
-
+    document.getElementById("team").value;
 
   const pose =
-    document
-      .getElementById("pose")
-      .value;
-
+    document.getElementById("pose").value;
 
   const playerType =
-    document
-      .getElementById("playerType")
-      .value;
-
+    document.getElementById("playerType").value;
 
   const playingHand =
-    document
-      .getElementById("playingHand")
-      .value;
-
+    document.getElementById("playingHand").value;
 
   const style =
-    document
-      .getElementById("style")
-      .value;
-
+    document.getElementById("style").value;
 
   const jerseyColor =
-    document
-      .getElementById("jerseyColor")
-      .value;
-
+    document.getElementById("jerseyColor").value;
 
   const jersey =
-    document
-      .getElementById("jersey")
-      .value;
-
+    document.getElementById("jersey").value;
 
   const stadium =
-    document
-      .getElementById("stadium")
-      .value;
-
+    document.getElementById("stadium").value;
 
   const weather =
-    document
-      .getElementById("weather")
-      .value;
-
+    document.getElementById("weather").value;
 
   const matchTime =
-    document
-      .getElementById("matchTime")
-      .value;
-
+    document.getElementById("matchTime").value;
 
   const cameraAngle =
-    document
-      .getElementById("cameraAngle")
-      .value;
-
+    document.getElementById("cameraAngle").value;
 
   const tournament =
-    document
-      .getElementById("tournament")
-      .value;
-
-
-
-  /* VALIDATION */
+    document.getElementById("tournament").value;
 
 
   if (!player) {
-
 
     showError(
       "कृपया Player Name लिखें।"
     );
 
-
     return;
-
 
   }
 
 
+  errorBox.style.display = "none";
+  result.style.display = "none";
+  loading.style.display = "block";
 
-  /* RESET */
-
-
-  errorBox.style.display =
-    "none";
-
-
-  result.style.display =
-    "none";
-
-
-  loading.style.display =
-    "block";
-
-
-  generateBtn.disabled =
-    true;
-
+  generateBtn.disabled = true;
 
   generateBtn.innerText =
     "⏳ Generating...";
 
 
-
   try {
 
-
     const response =
-
       await fetch(
 
         "/api/generate-image",
 
         {
 
-          method:
-            "POST",
+          method: "POST",
 
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-          headers:
-            {
+          body: JSON.stringify({
 
-              "Content-Type":
-                "application/json"
+            player: player,
 
-            },
+            team: team,
 
+            pose: pose,
 
-          body:
+            playerType: playerType,
 
-            JSON.stringify(
+            playingHand: playingHand,
 
-              {
+            style: style,
 
-                player:
-                  player,
+            jerseyColor: jerseyColor,
 
-                team:
-                  team,
+            jersey: jersey,
 
-                pose:
-                  pose,
+            stadium: stadium,
 
-                playerType:
-                  playerType,
+            weather: weather,
 
-                playingHand:
-                  playingHand,
+            matchTime: matchTime,
 
-                style:
-                  style,
+            cameraAngle: cameraAngle,
 
-                jerseyColor:
-                  jerseyColor,
+            tournament: tournament
 
-                jersey:
-                  jersey,
-
-                stadium:
-                  stadium,
-
-                weather:
-                  weather,
-
-                matchTime:
-                  matchTime,
-
-                cameraAngle:
-                  cameraAngle,
-
-                tournament:
-                  tournament
-
-              }
-
-            )
+          })
 
         }
 
       );
 
 
-
     if (!response.ok) {
-
 
       const errorText =
         await response.text();
 
-
       throw new Error(
-
         "Server Error (" +
-
         response.status +
-
         "): " +
-
         errorText
-
       );
 
-
     }
-
 
 
     const imageBlob =
       await response.blob();
 
 
-
-    if (
-      imageBlob.size === 0
-    ) {
-
+    if (!imageBlob.size) {
 
       throw new Error(
         "AI ने image data नहीं भेजा।"
       );
 
-
     }
 
 
-
     const imageUrl =
-
       URL.createObjectURL(
         imageBlob
       );
-
 
 
     generatedImage.src =
       imageUrl;
 
 
-
     details.innerHTML =
 
       "🏏 <b>" +
-
       player +
-
       "</b><br>" +
 
       "🌍 Team: " +
-
       team +
-
       "<br>" +
 
       "👨‍🏏 Type: " +
-
       playerType +
-
       "<br>" +
 
       "✋ Playing Hand: " +
-
       playingHand +
-
       "<br>" +
 
       "👕 Jersey: " +
-
       jerseyColor +
-
       " #" +
-
       jersey +
-
       "<br>" +
 
       "🏏 Pose: " +
-
       pose +
-
       "<br>" +
 
       "🏆 Tournament: " +
-
       tournament;
 
 
-
-    result.style.display =
-      "block";
+    result.style.display = "block";
 
 
-    downloadBtn.style.display =
-      "block";
+    setTimeout(() => {
 
+      result.scrollIntoView({
+        behavior: "smooth"
+      });
 
-    shareBtn.style.display =
-      "block";
-
-
-    againBtn.style.display =
-      "block";
-
-
-
-    setTimeout(
-
-      function () {
-
-
-        result.scrollIntoView(
-
-          {
-
-            behavior:
-              "smooth"
-
-          }
-
-        );
-
-
-      },
-
-      200
-
-    );
+    }, 200);
 
 
   }
 
-
   catch (error) {
 
-
-    console.error(
-      error
-    );
-
+    console.error(error);
 
     showError(
 
       error.message ||
-
       "Image generate करने में समस्या हुई।"
 
     );
 
-
   }
-
 
   finally {
 
+    loading.style.display = "none";
 
-    loading.style.display =
-      "none";
-
-
-    generateBtn.disabled =
-      false;
-
+    generateBtn.disabled = false;
 
     generateBtn.innerText =
       "✨ Generate Cricket Image";
 
-
   }
 
-
 }
-
-
-
-/* =====================================
-   ERROR
-===================================== */
 
 
 function showError(message) {
 
-
   errorBox.innerText =
-    "❌ Error: " +
-    message;
-
+    "❌ Error: " + message;
 
   errorBox.style.display =
     "block";
 
-
 }
 
 
-
-/* =====================================
-   GENERATE BUTTON
-===================================== */
-
-
 generateBtn.addEventListener(
-
   "click",
-
   generateImage
-
 );
-
-
-
-/* =====================================
-   GENERATE AGAIN
-===================================== */
 
 
 againBtn.addEventListener(
 
   "click",
 
-  function () {
+  function() {
 
+    result.style.display = "none";
 
-    result.style.display =
-      "none";
-
-
-    window.scrollTo(
-
-      {
-
-        top:
-          0,
-
-        behavior:
-          "smooth"
-
-      }
-
-    );
-
+    document
+      .getElementById("playerSection")
+      .scrollIntoView({
+        behavior: "smooth"
+      });
 
   }
 
 );
-
-
-
-/* =====================================
-   DOWNLOAD IMAGE
-===================================== */
 
 
 downloadBtn.addEventListener(
 
   "click",
 
-  function () {
-
+  function() {
 
     const link =
-      document.createElement(
-        "a"
-      );
-
+      document.createElement("a");
 
     link.href =
       generatedImage.src;
 
-
     link.download =
-      "cricket-ai-player-" +
-
+      "cricket-ai-" +
       Date.now() +
-
       ".png";
 
-
-    document.body.appendChild(
-      link
-    );
-
-
     link.click();
-
-
-    document.body.removeChild(
-      link
-    );
-
 
   }
 
 );
 
 
-
-/* =====================================
-   SHARE IMAGE
-===================================== */
-
-
 shareBtn.addEventListener(
 
   "click",
 
-  async function () {
-
+  async function() {
 
     try {
 
-
-      if (
-        !navigator.share
-      ) {
-
+      if (!navigator.share) {
 
         alert(
           "आपके browser में Share feature उपलब्ध नहीं है।"
         );
 
-
         return;
-
 
       }
 
 
-
       const response =
-
         await fetch(
           generatedImage.src
         );
@@ -2474,89 +1281,43 @@ shareBtn.addEventListener(
         await response.blob();
 
 
-
       const file =
         new File(
 
-          [
-
-            blob
-
-          ],
+          [blob],
 
           "cricket-ai-player.png",
 
           {
-
-            type:
-              blob.type ||
-              "image/png"
-
+            type: blob.type
           }
 
         );
 
 
+      await navigator.share({
 
-      if (
-        navigator.canShare &&
-        !navigator.canShare(
-          {
-            files:
-              [file]
-          }
-        )
-      ) {
+        title:
+          "My AI Cricket Player",
 
+        text:
+          "🏏 मैंने Cricket Short से अपना AI Cricket Player बनाया!",
 
-        alert(
-          "आपके browser में File Share उपलब्ध नहीं है।"
-        );
+        files:
+          [file]
 
-
-        return;
-
-
-      }
-
-
-
-      await navigator.share(
-
-        {
-
-          title:
-            "My AI Cricket Player",
-
-          text:
-            "🏏 मैंने Cricket Short से अपना AI Cricket Player बनाया!",
-
-          files:
-            [
-
-              file
-
-            ]
-
-        }
-
-      );
+      });
 
 
     }
 
-
-    catch (error) {
-
+    catch(error) {
 
       console.log(
-        "Share cancelled or failed",
-        error
+        "Share cancelled or failed"
       );
 
-
     }
-
 
   }
 
@@ -2564,162 +1325,152 @@ shareBtn.addEventListener(
 
 
 
-/* =====================================
+/* =========================
    POSTER GENERATOR
-===================================== */
-
+========================= */
 
 const posterCanvas =
   document.getElementById(
     "posterCanvas"
   );
 
-
 const ctx =
-  posterCanvas.getContext(
-    "2d"
+  posterCanvas.getContext("2d");
+
+
+function roundRect(
+  ctx,
+  x,
+  y,
+  width,
+  height,
+  radius
+) {
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x + radius,
+    y
   );
 
-
-const generatePosterBtn =
-  document.getElementById(
-    "generatePosterBtn"
+  ctx.lineTo(
+    x + width - radius,
+    y
   );
 
-
-const downloadPosterBtn =
-  document.getElementById(
-    "downloadPosterBtn"
+  ctx.quadraticCurveTo(
+    x + width,
+    y,
+    x + width,
+    y + radius
   );
 
-
-const sharePosterBtn =
-  document.getElementById(
-    "sharePosterBtn"
+  ctx.lineTo(
+    x + width,
+    y + height - radius
   );
 
-
-const posterButtons =
-  document.getElementById(
-    "posterButtons"
+  ctx.quadraticCurveTo(
+    x + width,
+    y + height,
+    x + width - radius,
+    y + height
   );
 
+  ctx.lineTo(
+    x + radius,
+    y + height
+  );
+
+  ctx.quadraticCurveTo(
+    x,
+    y + height,
+    x,
+    y + height - radius
+  );
+
+  ctx.lineTo(
+    x,
+    y + radius
+  );
+
+  ctx.quadraticCurveTo(
+    x,
+    y,
+    x + radius,
+    y
+  );
+
+  ctx.closePath();
+
+}
 
 
 function drawPoster() {
 
-
   const player =
-
     document
-      .getElementById(
-        "posterPlayer"
-      )
+      .getElementById("posterPlayer")
       .value
       .trim() ||
-
     "CRICKET PLAYER";
 
-
-
   const team =
-
     document
-      .getElementById(
-        "posterTeam"
-      )
+      .getElementById("posterTeam")
       .value
       .trim() ||
-
-    "INDIA";
-
-
+    "TEAM";
 
   const match =
-
     document
-      .getElementById(
-        "posterMatch"
-      )
+      .getElementById("posterMatch")
       .value
       .trim() ||
-
     "INDIA VS AUSTRALIA";
 
-
-
   const tournament =
-
     document
-      .getElementById(
-        "posterTournament"
-      )
+      .getElementById("posterTournament")
       .value
       .trim() ||
-
-    "INTERNATIONAL CRICKET";
-
-
+    "CRICKET MATCH";
 
   const status =
-
     document
-      .getElementById(
-        "posterStatus"
-      )
+      .getElementById("posterStatus")
       .value;
 
-
-
   const stadium =
-
     document
-      .getElementById(
-        "posterStadium"
-      )
+      .getElementById("posterStadium")
       .value
       .trim() ||
-
-    "International Cricket Stadium";
-
+    "CRICKET STADIUM";
 
 
-  const width =
+  const w =
     posterCanvas.width;
 
-
-  const height =
+  const h =
     posterCanvas.height;
 
 
-
-  /* BACKGROUND */
-
-
   const gradient =
-
     ctx.createLinearGradient(
-
-      0,
-      0,
-
-      width,
-      height
-
+      0, 0, w, h
     );
-
 
   gradient.addColorStop(
     0,
     "#061b30"
   );
 
-
   gradient.addColorStop(
     .5,
     "#0b3b63"
   );
-
 
   gradient.addColorStop(
     1,
@@ -2730,87 +1481,17 @@ function drawPoster() {
   ctx.fillStyle =
     gradient;
 
-
   ctx.fillRect(
-
-    0,
-    0,
-
-    width,
-    height
-
+    0, 0, w, h
   );
-
-
-
-  /* TOP GREEN LINE */
 
 
   ctx.fillStyle =
     "#0b6b35";
 
-
   ctx.fillRect(
-
-    0,
-    0,
-
-    width,
-    25
-
+    0, 0, w, 25
   );
-
-
-
-  /* LIGHT CIRCLE */
-
-
-  const radialGradient =
-
-    ctx.createRadialGradient(
-
-      width / 2,
-      height / 2,
-
-      20,
-
-      width / 2,
-      height / 2,
-
-      700
-
-    );
-
-
-  radialGradient.addColorStop(
-    0,
-    "rgba(30,144,255,.25)"
-  );
-
-
-  radialGradient.addColorStop(
-    1,
-    "rgba(0,0,0,0)"
-  );
-
-
-  ctx.fillStyle =
-    radialGradient;
-
-
-  ctx.fillRect(
-
-    0,
-    0,
-
-    width,
-    height
-
-  );
-
-
-
-  /* TITLE */
 
 
   ctx.textAlign =
@@ -2820,682 +1501,245 @@ function drawPoster() {
   ctx.fillStyle =
     "#ffffff";
 
-
   ctx.font =
     "bold 55px Arial";
 
-
   ctx.fillText(
-
-    "🏏 CRICKET SHORT",
-
-    width / 2,
-
+    "CRICKET SHORT",
+    w / 2,
     100
-
   );
-
-
-
-  /* TOURNAMENT */
 
 
   ctx.fillStyle =
     "#ffd54f";
 
-
   ctx.font =
-    "bold 40px Arial";
-
+    "bold 38px Arial";
 
   ctx.fillText(
-
     tournament.toUpperCase(),
-
-    width / 2,
-
+    w / 2,
     180
-
   );
-
-
-
-  /* PLAYER NAME */
 
 
   ctx.fillStyle =
     "#ffffff";
 
-
   ctx.font =
-    "bold 100px Arial";
+    "bold 75px Arial";
 
-
-  wrapText(
-
-    ctx,
-
+  ctx.fillText(
     player.toUpperCase(),
-
-    width / 2,
-
-    380,
-
-    900,
-
-    110
-
+    w / 2,
+    380
   );
-
-
-
-  /* TEAM */
 
 
   ctx.fillStyle =
     "#ffd54f";
 
-
   ctx.font =
-    "bold 55px Arial";
-
+    "bold 50px Arial";
 
   ctx.fillText(
-
     team.toUpperCase(),
-
-    width / 2,
-
-    560
-
+    w / 2,
+    500
   );
-
-
-
-  /* MATCH BOX */
 
 
   ctx.fillStyle =
     "rgba(0,0,0,.45)";
 
-
   roundRect(
-
     ctx,
-
     80,
-    650,
-
-    width - 160,
+    600,
+    w - 160,
     140,
-
-    30
-
+    25
   );
 
-
   ctx.fill();
-
 
 
   ctx.fillStyle =
     "#ffffff";
 
-
   ctx.font =
-    "bold 48px Arial";
-
+    "bold 45px Arial";
 
   ctx.fillText(
-
     match.toUpperCase(),
-
-    width / 2,
-
-    735
-
+    w / 2,
+    685
   );
 
 
-
-  /* STATUS */
-
-
   ctx.fillStyle =
-    "#ffcc00";
-
+    "#ffd54f";
 
   ctx.font =
     "bold 55px Arial";
 
-
   ctx.fillText(
-
     status,
-
-    width / 2,
-
-    880
-
+    w / 2,
+    850
   );
-
-
-
-  /* STADIUM */
 
 
   ctx.fillStyle =
     "#eeeeee";
 
-
   ctx.font =
-    "40px Arial";
-
+    "35px Arial";
 
   ctx.fillText(
-
-    "🏟️ " + stadium,
-
-    width / 2,
-
-    970
-
+    stadium,
+    w / 2,
+    950
   );
-
-
-
-  /* BOTTOM */
 
 
   ctx.fillStyle =
-    "rgba(0,0,0,.30)";
-
+    "rgba(0,0,0,.35)";
 
   ctx.fillRect(
-
     0,
-
-    height - 160,
-
-    width,
-
-    160
-
+    h - 150,
+    w,
+    150
   );
-
 
 
   ctx.fillStyle =
     "#ffffff";
 
-
   ctx.font =
-    "bold 42px Arial";
-
+    "bold 40px Arial";
 
   ctx.fillText(
-
     "CREATE • PLAY • WIN",
-
-    width / 2,
-
-    height - 75
-
+    w / 2,
+    h - 70
   );
 
 
-
-  posterButtons.style.display =
+  document
+    .getElementById("posterButtons")
+    .style.display =
     "block";
 
-
 }
 
 
+document
+  .getElementById("generatePosterBtn")
+  .addEventListener(
 
-/* =====================================
-   ROUND RECT
-===================================== */
+    "click",
 
+    function() {
 
-function roundRect(
-
-  ctx,
-
-  x,
-  y,
-
-  width,
-  height,
-
-  radius
-
-) {
-
-
-  ctx.beginPath();
-
-
-  ctx.moveTo(
-    x + radius,
-    y
-  );
-
-
-  ctx.lineTo(
-    x + width - radius,
-    y
-  );
-
-
-  ctx.quadraticCurveTo(
-    x + width,
-    y,
-
-    x + width,
-    y + radius
-  );
-
-
-  ctx.lineTo(
-    x + width,
-    y + height - radius
-  );
-
-
-  ctx.quadraticCurveTo(
-    x + width,
-    y + height,
-
-    x + width - radius,
-    y + height
-  );
-
-
-  ctx.lineTo(
-    x + radius,
-    y + height
-  );
-
-
-  ctx.quadraticCurveTo(
-    x,
-    y + height,
-
-    x,
-    y + height - radius
-  );
-
-
-  ctx.lineTo(
-    x,
-    y + radius
-  );
-
-
-  ctx.quadraticCurveTo(
-    x,
-    y,
-
-    x + radius,
-    y
-  );
-
-
-  ctx.closePath();
-
-
-}
-
-
-
-/* =====================================
-   WRAP TEXT
-===================================== */
-
-
-function wrapText(
-
-  context,
-
-  text,
-
-  centerX,
-
-  startY,
-
-  maxWidth,
-
-  lineHeight
-
-) {
-
-
-  const words =
-    text.split(" ");
-
-
-  let line =
-    "";
-
-
-  let y =
-    startY;
-
-
-
-  for (
-
-    let n = 0;
-
-    n < words.length;
-
-    n++
-
-  ) {
-
-
-    const testLine =
-
-      line +
-
-      words[n] +
-
-      " ";
-
-
-
-    const metrics =
-
-      context.measureText(
-        testLine
-      );
-
-
-
-    if (
-
-      metrics.width > maxWidth &&
-
-      n > 0
-
-    ) {
-
-
-      context.fillText(
-
-        line,
-
-        centerX,
-
-        y
-
-      );
-
-
-      line =
-        words[n] + " ";
-
-
-      y +=
-        lineHeight;
-
+      drawPoster();
 
     }
 
-
-    else {
-
-
-      line =
-        testLine;
-
-
-    }
-
-
-  }
-
-
-
-  context.fillText(
-
-    line,
-
-    centerX,
-
-    y
-
   );
 
 
-}
+document
+  .getElementById("downloadPosterBtn")
+  .addEventListener(
 
+    "click",
 
+    function() {
 
-/* =====================================
-   GENERATE POSTER
-===================================== */
+      const link =
+        document.createElement("a");
 
+      link.download =
+        "cricket-poster-" +
+        Date.now() +
+        ".png";
 
-generatePosterBtn.addEventListener(
-
-  "click",
-
-  function () {
-
-
-    drawPoster();
-
-
-    setTimeout(
-
-      function () {
-
-
-        posterCanvas.scrollIntoView(
-
-          {
-
-            behavior:
-              "smooth",
-
-            block:
-              "center"
-
-          }
-
+      link.href =
+        posterCanvas.toDataURL(
+          "image/png"
         );
 
+      link.click();
 
-      },
+    }
 
-      100
-
-    );
-
-
-  }
-
-);
+  );
 
 
+document
+  .getElementById("sharePosterBtn")
+  .addEventListener(
 
-/* =====================================
-   DOWNLOAD POSTER
-===================================== */
+    "click",
 
+    function() {
 
-downloadPosterBtn.addEventListener(
-
-  "click",
-
-  function () {
-
-
-    const link =
-      document.createElement(
-        "a"
-      );
-
-
-    link.download =
-      "cricket-poster-" +
-
-      Date.now() +
-
-      ".png";
-
-
-    link.href =
-      posterCanvas.toDataURL(
-        "image/png"
-      );
-
-
-    link.click();
-
-
-  }
-
-);
-
-
-
-/* =====================================
-   SHARE POSTER
-===================================== */
-
-
-sharePosterBtn.addEventListener(
-
-  "click",
-
-  async function () {
-
-
-    try {
-
-
-      if (
-        !navigator.share
-      ) {
-
+      if (!navigator.share) {
 
         alert(
           "आपके browser में Share feature उपलब्ध नहीं है।"
         );
 
-
         return;
-
 
       }
 
 
-
       posterCanvas.toBlob(
 
-        async function (
-          blob
-        ) {
-
-
-          const file =
-            new File(
-
-              [
-
-                blob
-
-              ],
-
-              "cricket-poster.png",
-
-              {
-
-                type:
-                  "image/png"
-
-              }
-
-            );
-
-
+        async function(blob) {
 
           try {
 
+            const file =
+              new File(
 
-            if (
+                [blob],
 
-              navigator.canShare &&
-
-              !navigator.canShare(
+                "cricket-poster.png",
 
                 {
-
-                  files:
-                    [
-
-                      file
-
-                    ]
-
+                  type: "image/png"
                 }
 
-              )
-
-            ) {
-
-
-              alert(
-                "आपका browser File Share support नहीं करता।"
               );
 
 
-              return;
+            await navigator.share({
 
+              title:
+                "Cricket Poster",
 
-            }
+              text:
+                "🏏 मैंने Cricket Short से Cricket Poster बनाया!",
 
+              files:
+                [file]
 
-
-            await navigator.share(
-
-              {
-
-                title:
-                  "My Cricket Poster",
-
-                text:
-                  "🏏 मैंने Cricket Short से अपना Cricket Poster बनाया!",
-
-                files:
-                  [
-
-                    file
-
-                  ]
-
-              }
-
-            );
-
+            });
 
           }
 
-
-          catch (error) {
-
+          catch(error) {
 
             console.log(
-              "Share cancelled",
-              error
+              "Share cancelled"
             );
 
-
           }
-
 
         },
 
@@ -3503,39 +1747,493 @@ sharePosterBtn.addEventListener(
 
       );
 
+    }
+
+  );
+
+
+
+/* =========================
+   PLAYER CARD GENERATOR
+========================= */
+
+const playerCardCanvas =
+  document.getElementById(
+    "playerCardCanvas"
+  );
+
+const cardCtx =
+  playerCardCanvas.getContext("2d");
+
+
+function drawRating(
+  label,
+  rating,
+  y
+) {
+
+  const w =
+    playerCardCanvas.width;
+
+  const barX =
+    100;
+
+  const barWidth =
+    550;
+
+  const barHeight =
+    30;
+
+
+  cardCtx.textAlign =
+    "left";
+
+  cardCtx.fillStyle =
+    "#ffffff";
+
+  cardCtx.font =
+    "bold 30px Arial";
+
+  cardCtx.fillText(
+    label,
+    barX,
+    y
+  );
+
+
+  cardCtx.fillStyle =
+    "rgba(255,255,255,.25)";
+
+  cardCtx.fillRect(
+    barX,
+    y + 20,
+    barWidth,
+    barHeight
+  );
+
+
+  cardCtx.fillStyle =
+    "#ffd54f";
+
+  cardCtx.fillRect(
+    barX,
+    y + 20,
+    barWidth * rating / 100,
+    barHeight
+  );
+
+
+  cardCtx.textAlign =
+    "right";
+
+  cardCtx.fillStyle =
+    "#ffffff";
+
+  cardCtx.font =
+    "bold 35px Arial";
+
+  cardCtx.fillText(
+    rating,
+    800,
+    y + 35
+  );
+
+}
+
+
+function generatePlayerCard() {
+
+  const player =
+    document
+      .getElementById("cardPlayer")
+      .value
+      .trim() ||
+    "CRICKET PLAYER";
+
+  const team =
+    document
+      .getElementById("cardTeam")
+      .value
+      .trim() ||
+    "TEAM";
+
+  const type =
+    document
+      .getElementById("cardType")
+      .value;
+
+  const jersey =
+    document
+      .getElementById("cardJersey")
+      .value;
+
+
+  const batting =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        Number(
+          document
+            .getElementById("battingRating")
+            .value
+        ) || 0
+      )
+    );
+
+
+  const bowling =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        Number(
+          document
+            .getElementById("bowlingRating")
+            .value
+        ) || 0
+      )
+    );
+
+
+  const fielding =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        Number(
+          document
+            .getElementById("fieldingRating")
+            .value
+        ) || 0
+      )
+    );
+
+
+  const w =
+    playerCardCanvas.width;
+
+  const h =
+    playerCardCanvas.height;
+
+
+  const gradient =
+    cardCtx.createLinearGradient(
+      0,
+      0,
+      w,
+      h
+    );
+
+
+  gradient.addColorStop(
+    0,
+    "#061b30"
+  );
+
+  gradient.addColorStop(
+    .5,
+    "#0b6b35"
+  );
+
+  gradient.addColorStop(
+    1,
+    "#07111f"
+  );
+
+
+  cardCtx.fillStyle =
+    gradient;
+
+  cardCtx.fillRect(
+    0,
+    0,
+    w,
+    h
+  );
+
+
+  cardCtx.strokeStyle =
+    "#ffd54f";
+
+  cardCtx.lineWidth =
+    14;
+
+  cardCtx.strokeRect(
+    20,
+    20,
+    w - 40,
+    h - 40
+  );
+
+
+  cardCtx.textAlign =
+    "center";
+
+
+  cardCtx.fillStyle =
+    "#ffffff";
+
+  cardCtx.font =
+    "bold 42px Arial";
+
+  cardCtx.fillText(
+    "CRICKET SHORT",
+    w / 2,
+    90
+  );
+
+
+  cardCtx.fillStyle =
+    "#ffd54f";
+
+  cardCtx.font =
+    "bold 50px Arial";
+
+  cardCtx.fillText(
+    "PLAYER CARD",
+    w / 2,
+    170
+  );
+
+
+  cardCtx.fillStyle =
+    "#ffffff";
+
+  cardCtx.font =
+    "bold 60px Arial";
+
+  cardCtx.fillText(
+    player.toUpperCase(),
+    w / 2,
+    290
+  );
+
+
+  cardCtx.fillStyle =
+    "#ffd54f";
+
+  cardCtx.font =
+    "bold 45px Arial";
+
+  cardCtx.fillText(
+    team.toUpperCase(),
+    w / 2,
+    390
+  );
+
+
+  cardCtx.fillStyle =
+    "#eeeeee";
+
+  cardCtx.font =
+    "35px Arial";
+
+  cardCtx.fillText(
+    type,
+    w / 2,
+    450
+  );
+
+
+  cardCtx.fillStyle =
+    "#ffffff";
+
+  cardCtx.font =
+    "bold 90px Arial";
+
+  cardCtx.fillText(
+    "#" + jersey,
+    w / 2,
+    600
+  );
+
+
+  cardCtx.fillStyle =
+    "#ffd54f";
+
+  cardCtx.font =
+    "bold 38px Arial";
+
+  cardCtx.fillText(
+    "PLAYER RATINGS",
+    w / 2,
+    700
+  );
+
+
+  drawRating(
+    "BATTING",
+    batting,
+    790
+  );
+
+  drawRating(
+    "BOWLING",
+    bowling,
+    890
+  );
+
+  drawRating(
+    "FIELDING",
+    fielding,
+    990
+  );
+
+
+  cardCtx.textAlign =
+    "center";
+
+  cardCtx.fillStyle =
+    "#ffffff";
+
+  cardCtx.font =
+    "bold 32px Arial";
+
+  cardCtx.fillText(
+    "CREATE • PLAY • WIN",
+    w / 2,
+    1130
+  );
+
+
+  document
+    .getElementById("cardButtons")
+    .style.display =
+    "block";
+
+}
+
+
+document
+  .getElementById("generateCardBtn")
+  .addEventListener(
+
+    "click",
+
+    function() {
+
+      generatePlayerCard();
 
     }
 
+  );
 
-    catch (error) {
+
+document
+  .getElementById("downloadCardBtn")
+  .addEventListener(
+
+    "click",
+
+    function() {
+
+      const link =
+        document.createElement("a");
+
+      link.download =
+        "cricket-player-card-" +
+        Date.now() +
+        ".png";
+
+      link.href =
+        playerCardCanvas.toDataURL(
+          "image/png"
+        );
+
+      link.click();
+
+    }
+
+  );
 
 
-      console.log(
-        error
+document
+  .getElementById("shareCardBtn")
+  .addEventListener(
+
+    "click",
+
+    function() {
+
+      if (!navigator.share) {
+
+        alert(
+          "आपके browser में Share feature उपलब्ध नहीं है।"
+        );
+
+        return;
+
+      }
+
+
+      playerCardCanvas.toBlob(
+
+        async function(blob) {
+
+          try {
+
+            const file =
+              new File(
+
+                [blob],
+
+                "cricket-player-card.png",
+
+                {
+                  type:
+                    "image/png"
+                }
+
+              );
+
+
+            await navigator.share({
+
+              title:
+                "Cricket Player Card",
+
+              text:
+                "🏏 मैंने Cricket Short से अपना Player Card बनाया!",
+
+              files:
+                [file]
+
+            });
+
+          }
+
+          catch(error) {
+
+            console.log(
+              "Share cancelled"
+            );
+
+          }
+
+        },
+
+        "image/png"
+
       );
 
-
     }
 
-
-  }
-
-);
+  );
 
 
-
-/* =====================================
-   INITIAL POSTER
-===================================== */
-
+/* =========================
+   INITIAL CANVAS DRAW
+========================= */
 
 drawPoster();
+
+generatePlayerCard();
 
 
 </script>
 
 
-
 </body>
 
-    </html>
+  </html>
