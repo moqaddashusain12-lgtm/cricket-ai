@@ -1,8 +1,122 @@
-        if (!env.AI) {export default {
+export default {
 
   async fetch(request, env) {
 
     const url = new URL(request.url);
+
+
+    // =====================================
+    // LIVE CRICKET SCORE API
+    // =====================================
+
+    if (url.pathname === "/api/live-score") {
+
+      if (request.method !== "GET") {
+
+        return Response.json(
+          {
+            success: false,
+            error: "Only GET requests are allowed"
+          },
+          {
+            status: 405
+          }
+        );
+
+      }
+
+
+      try {
+
+        // =====================================
+        // CHECK CRICKET API KEY
+        // =====================================
+
+        if (!env.CRICKET_API_KEY) {
+
+          throw new Error(
+            "CRICKET_API_KEY secret not found"
+          );
+
+        }
+
+
+        // =====================================
+        // CALL CRICKET DATA API
+        // =====================================
+
+        const apiUrl =
+          "https://api.cricapi.com/v1/currentMatches?apikey=" +
+          encodeURIComponent(env.CRICKET_API_KEY) +
+          "&offset=0";
+
+
+        const apiResponse =
+          await fetch(apiUrl);
+
+
+        // =====================================
+        // CHECK API RESPONSE
+        // =====================================
+
+        if (!apiResponse.ok) {
+
+          throw new Error(
+            "Cricket API returned HTTP " +
+            apiResponse.status
+          );
+
+        }
+
+
+        // =====================================
+        // GET JSON DATA
+        // =====================================
+
+        const data =
+          await apiResponse.json();
+
+
+        // =====================================
+        // RETURN LIVE SCORE DATA
+        // =====================================
+
+        return Response.json(
+          data,
+          {
+            headers: {
+              "Cache-Control":
+                "no-store"
+            }
+          }
+        );
+
+      }
+
+
+      catch (error) {
+
+        console.error(
+          "Live Score API Error:",
+          error
+        );
+
+
+        return Response.json(
+          {
+            success: false,
+            error:
+              error.message ||
+              "Unable to fetch live cricket score"
+          },
+          {
+            status: 500
+          }
+        );
+
+      }
+
+    }
 
 
     // =====================================
@@ -34,7 +148,7 @@
         // CHECK AI BINDING
         // =====================================
 
-
+        if (!env.AI) {
 
           throw new Error(
             "Workers AI binding 'AI' not found"
