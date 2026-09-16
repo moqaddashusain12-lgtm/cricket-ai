@@ -34,15 +34,22 @@ export default {
 
         if (!env.CRICKET_API_KEY) {
 
-          throw new Error(
-            "CRICKET_API_KEY secret not found"
+          return Response.json(
+            {
+              success: false,
+              error:
+                "CRICKET_API_KEY secret not found in Cloudflare"
+            },
+            {
+              status: 500
+            }
           );
 
         }
 
 
         // =====================================
-        // CALL CRICKET DATA API
+        // CRICKET DATA API
         // =====================================
 
         const apiUrl =
@@ -56,33 +63,75 @@ export default {
 
 
         // =====================================
-        // CHECK API RESPONSE
+        // READ API RESPONSE
+        // =====================================
+
+        const responseText =
+          await apiResponse.text();
+
+
+        // =====================================
+        // CHECK RESPONSE
         // =====================================
 
         if (!apiResponse.ok) {
 
-          throw new Error(
-            "Cricket API returned HTTP " +
-            apiResponse.status
+          return Response.json(
+            {
+              success: false,
+              error:
+                "Cricket API HTTP Error " +
+                apiResponse.status,
+              details: responseText
+            },
+            {
+              status: 502
+            }
           );
 
         }
 
 
         // =====================================
-        // GET JSON DATA
+        // CONVERT TO JSON
         // =====================================
 
-        const data =
-          await apiResponse.json();
+        let data;
+
+        try {
+
+          data =
+            JSON.parse(responseText);
+
+        }
+
+        catch (jsonError) {
+
+          return Response.json(
+            {
+              success: false,
+              error:
+                "Cricket API returned invalid JSON",
+              details:
+                responseText
+            },
+            {
+              status: 502
+            }
+          );
+
+        }
 
 
         // =====================================
-        // RETURN LIVE SCORE DATA
+        // RETURN LIVE SCORE
         // =====================================
 
         return Response.json(
-          data,
+          {
+            success: true,
+            data: data
+          },
           {
             headers: {
               "Cache-Control":
@@ -97,7 +146,7 @@ export default {
       catch (error) {
 
         console.error(
-          "Live Score API Error:",
+          "Live Score Error:",
           error
         );
 
@@ -106,8 +155,8 @@ export default {
           {
             success: false,
             error:
-              error.message ||
-              "Unable to fetch live cricket score"
+              error?.message ||
+              "Live score API failed"
           },
           {
             status: 500
@@ -161,27 +210,33 @@ export default {
         // GET FORM DATA
         // =====================================
 
-        const body = await request.json();
+        const body =
+          await request.json();
 
 
         const player =
-          body.player || "Cricket Player";
+          body.player ||
+          "Cricket Player";
 
 
         const team =
-          body.team || "India";
+          body.team ||
+          "India";
 
 
         const style =
-          body.style || "Realistic";
+          body.style ||
+          "Realistic";
 
 
         const pose =
-          body.pose || "Batting";
+          body.pose ||
+          "Batting";
 
 
         const jersey =
-          body.jersey || "18";
+          body.jersey ||
+          "18";
 
 
         const stadium =
@@ -250,26 +305,24 @@ No text.
         // GENERATE IMAGE
         // =====================================
 
-        const aiResult = await env.AI.run(
-
-          "@cf/black-forest-labs/flux-1-schnell",
-
-          {
-
-            prompt: prompt,
-
-            steps: 4
-
-          }
-
-        );
+        const aiResult =
+          await env.AI.run(
+            "@cf/black-forest-labs/flux-1-schnell",
+            {
+              prompt: prompt,
+              steps: 4
+            }
+          );
 
 
         // =====================================
         // CHECK IMAGE
         // =====================================
 
-        if (!aiResult || !aiResult.image) {
+        if (
+          !aiResult ||
+          !aiResult.image
+        ) {
 
           throw new Error(
             "AI did not return image data"
@@ -289,40 +342,32 @@ No text.
         const bytes =
           Uint8Array.from(
             binaryString,
-            char => char.charCodeAt(0)
+            char =>
+              char.charCodeAt(0)
           );
 
 
         // =====================================
-        // RETURN VALID JPEG IMAGE
+        // RETURN IMAGE
         // =====================================
 
         return new Response(
-
           bytes,
-
           {
-
             headers: {
-
               "Content-Type":
                 "image/jpeg",
 
               "Cache-Control":
                 "no-store"
-
             }
-
           }
-
         );
-
 
       }
 
 
       catch (error) {
-
 
         console.error(
           "AI Generation Error:",
@@ -331,33 +376,21 @@ No text.
 
 
         return Response.json(
-
           {
-
             success: false,
-
             error:
-
               "AI Error: " +
-
               (
                 error.message ||
                 "Unknown error"
               )
-
           },
-
           {
-
             status: 500
-
           }
-
         );
 
-
       }
-
 
     }
 
@@ -367,7 +400,6 @@ No text.
     // =====================================
 
     return env.ASSETS.fetch(request);
-
 
   }
 
