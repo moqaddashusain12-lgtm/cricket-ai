@@ -1,4 +1,4 @@
-export default {
+        if (!env.AI) {export default {
 
   async fetch(request, env) {
 
@@ -34,7 +34,7 @@ export default {
         // CHECK AI BINDING
         // =====================================
 
-        if (!env.AI) {
+
 
           throw new Error(
             "Workers AI binding 'AI' not found"
