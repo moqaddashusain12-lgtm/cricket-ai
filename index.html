@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Cricket AI Image Generator</title>
+  <title>Cricket AI - Live Score</title>
 
   <style>
     * {
@@ -135,28 +135,159 @@
       border-radius: 14px;
     }
 
+    /* =========================
+       LIVE SCORE DESIGN
+       ========================= */
+
+    .live-card {
+      background: #0f172a;
+      padding: 18px;
+      margin-top: 15px;
+      border-radius: 14px;
+      text-align: center;
+    }
+
+    .live-badge {
+      display: inline-block;
+      padding: 8px 15px;
+      border-radius: 20px;
+      background: #7f1d1d;
+      color: #fecaca;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .match-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .score {
+      font-size: 48px;
+      font-weight: 800;
+      margin: 12px 0;
+    }
+
+    .overs {
+      color: #cbd5e1;
+      font-size: 17px;
+    }
+
+    .players {
+      margin-top: 18px;
+      padding: 14px;
+      background: #1e293b;
+      border-radius: 12px;
+      font-size: 17px;
+    }
+
+    .score-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .score-box {
+      background: #1e293b;
+      padding: 13px;
+      border-radius: 10px;
+    }
+
+    .score-box small {
+      display: block;
+      color: #94a3b8;
+      margin-bottom: 5px;
+    }
+
+    .score-box strong {
+      font-size: 17px;
+    }
+
+    .broadcast-box {
+      display: none;
+      margin-top: 15px;
+      padding: 15px;
+      background: #172554;
+      border-radius: 12px;
+      text-align: left;
+      line-height: 1.6;
+      color: #dbeafe;
+    }
+
+    .api-status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #3f3f46;
+      color: #d4d4d8;
+      font-size: 13px;
+    }
+
     footer {
       text-align: center;
       padding: 25px;
       color: #94a3b8;
     }
+
+    @media (max-width: 500px) {
+
+      header h1 {
+        font-size: 24px;
+      }
+
+      .score {
+        font-size: 40px;
+      }
+
+      .match-title {
+        font-size: 17px;
+      }
+
+      .players {
+        font-size: 15px;
+      }
+    }
+
   </style>
 </head>
 
 <body>
 
+<!-- =========================
+     HEADER
+     ========================= -->
+
 <header>
-  <h1>🏏 Cricket AI Image Generator</h1>
-  <p>AI से अपना Cricket Player बनाएं</p>
+
+  <h1>
+    🏏 Cricket AI
+  </h1>
+
+  <p>
+    Cricket Image • News • Live Score
+  </p>
+
 </header>
+
 
 <div class="container">
 
+
+  <!-- =========================
+       AI IMAGE GENERATOR
+       ========================= -->
+
   <div class="card">
 
-    <h2>✨ Cricket AI Image Generator</h2>
+    <h2>
+      ✨ Cricket AI Image Generator
+    </h2>
 
-    <label for="player">Player Name</label>
+    <label for="player">
+      Player Name
+    </label>
+
     <input
       type="text"
       id="player"
@@ -164,7 +295,11 @@
       value="Sachin Tendulkar"
     >
 
-    <label for="team">Team</label>
+
+    <label for="team">
+      Team
+    </label>
+
     <input
       type="text"
       id="team"
@@ -172,38 +307,73 @@
       value="India"
     >
 
-    <label for="style">Image Style</label>
+
+    <label for="style">
+      Image Style
+    </label>
+
     <select id="style">
-      <option value="Realistic">Realistic</option>
-      <option value="Digital Art">Digital Art</option>
-      <option value="Anime">Anime</option>
-      <option value="Poster Style">Poster Style</option>
+
+      <option value="Realistic">
+        Realistic
+      </option>
+
+      <option value="Digital Art">
+        Digital Art
+      </option>
+
+      <option value="Anime">
+        Anime
+      </option>
+
+      <option value="Poster Style">
+        Poster Style
+      </option>
+
     </select>
 
-    <button id="generateButton" onclick="generateImage()">
+
+    <button
+      id="generateButton"
+      onclick="generateImage()"
+    >
       ✨ Generate Cricket Image
     </button>
 
+
     <div id="loading">
+
       🎨 AI Image बनाई जा रही है...
+
       <br><br>
+
       कृपया इंतजार करें।
+
     </div>
+
 
     <div id="error"></div>
 
+
     <div id="result">
 
-      <h2>🎨 Generated Cricket Image</h2>
+      <h2>
+        🎨 Generated Cricket Image
+      </h2>
+
 
       <img
         id="generatedImage"
         alt="Generated Cricket Player"
       >
 
+
       <h3 id="resultPlayer"></h3>
+
       <p id="resultTeam"></p>
+
       <p id="resultStyle"></p>
+
 
       <a
         id="downloadButton"
@@ -218,16 +388,28 @@
   </div>
 
 
+
+  <!-- =========================
+       CRICKET NEWS
+       ========================= -->
+
   <div class="card">
 
-    <h2>📰 Cricket News</h2>
+    <h2>
+      📰 Cricket News
+    </h2>
+
 
     <div class="news-card">
-      <h3>🏏 Latest Cricket News</h3>
+
+      <h3>
+        🏏 Latest Cricket News
+      </h3>
 
       <p>
         ताज़ा क्रिकेट समाचार देखने के लिए Cricinfo पर जाएँ।
       </p>
+
 
       <a
         class="news-link"
@@ -237,15 +419,21 @@
       >
         Cricinfo News →
       </a>
+
     </div>
 
 
+
     <div class="news-card">
-      <h3>🏆 Official Cricket Updates</h3>
+
+      <h3>
+        🏆 Official Cricket Updates
+      </h3>
 
       <p>
         International Cricket और official updates देखें।
       </p>
+
 
       <a
         class="news-link"
@@ -255,6 +443,207 @@
       >
         ICC Cricket →
       </a>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =========================
+       LIVE CRICKET SCORE
+       ========================= -->
+
+  <div class="card">
+
+    <h2>
+      🔴 Live Cricket Score
+    </h2>
+
+
+    <div class="live-card">
+
+
+      <div class="live-badge">
+        🔴 LIVE DEMO
+      </div>
+
+
+      <div class="match-title">
+        🇮🇳 INDIA vs AUSTRALIA 🇦🇺
+      </div>
+
+
+      <div
+        class="score"
+        id="liveScore"
+      >
+        187/4
+      </div>
+
+
+      <div
+        class="overs"
+        id="liveOvers"
+      >
+        28.3 Overs
+      </div>
+
+
+
+      <div class="players">
+
+        🏏
+
+        <strong id="batsman1">
+          KOHLI 72*
+        </strong>
+
+        &nbsp; | &nbsp;
+
+        <strong id="batsman2">
+          RAHUL 41*
+        </strong>
+
+      </div>
+
+
+
+      <div class="score-info">
+
+
+        <div class="score-box">
+
+          <small>
+            CRR
+          </small>
+
+          <strong id="crr">
+            6.56
+          </strong>
+
+        </div>
+
+
+        <div class="score-box">
+
+          <small>
+            TARGET
+          </small>
+
+          <strong id="target">
+            256
+          </strong>
+
+        </div>
+
+
+        <div class="score-box">
+
+          <small>
+            RRR
+          </small>
+
+          <strong id="rrr">
+            7.20
+          </strong>
+
+        </div>
+
+
+        <div class="score-box">
+
+          <small>
+            STATUS
+          </small>
+
+          <strong id="matchStatus">
+            Batting
+          </strong>
+
+        </div>
+
+
+      </div>
+
+
+
+      <!-- DEMO BUTTON -->
+
+      <button
+        onclick="demoNextBall()"
+      >
+        🔄 Demo Next Ball
+      </button>
+
+
+
+      <!-- BROADCAST BUTTON -->
+
+      <button
+        onclick="showBroadcastInfo()"
+        style="background:#2563eb;"
+      >
+        📡 Broadcast Setup
+      </button>
+
+
+
+      <div
+        id="broadcastInfo"
+        class="broadcast-box"
+      >
+
+        <strong>
+          📡 Broadcast जानकारी
+        </strong>
+
+        <br><br>
+
+        यह अभी Demo Score है।
+
+        <br><br>
+
+        अगले चरण में:
+
+        <br>
+
+        1️⃣ Real Cricket Score API
+
+        <br>
+
+        2️⃣ Automatic Score Update
+
+        <br>
+
+        3️⃣ Score Graphics
+
+        <br>
+
+        4️⃣ RTMP Streaming
+
+        <br>
+
+        5️⃣ YouTube / Facebook Broadcast
+
+        <br><br>
+
+        इसमें मैच का वीडियो या कैमरा जरूरी नहीं होगा।
+
+      </div>
+
+
+
+      <div class="api-status">
+
+        ⚙️ API Status:
+        <strong>
+          Demo Mode
+        </strong>
+
+      </div>
+
+
     </div>
 
   </div>
@@ -262,145 +651,202 @@
 </div>
 
 
+
+<!-- =========================
+     FOOTER
+     ========================= -->
+
 <footer>
-  © 2026 Cricket AI Generator
+
+  © 2026 Cricket AI
+
 </footer>
 
 
+
 <script>
+
+
+// =====================================================
+// AI IMAGE GENERATOR
+// =====================================================
 
 let currentImageUrl = null;
 
 
 async function generateImage() {
 
+
   const player =
-    document.getElementById("player").value.trim()
+    document
+      .getElementById("player")
+      .value
+      .trim()
     || "Cricket Player";
 
+
   const team =
-    document.getElementById("team").value.trim()
+    document
+      .getElementById("team")
+      .value
+      .trim()
     || "India";
 
+
   const style =
-    document.getElementById("style").value;
+    document
+      .getElementById("style")
+      .value;
 
 
   const button =
-    document.getElementById("generateButton");
+    document
+      .getElementById("generateButton");
+
 
   const loading =
-    document.getElementById("loading");
+    document
+      .getElementById("loading");
+
 
   const errorBox =
-    document.getElementById("error");
+    document
+      .getElementById("error");
+
 
   const result =
-    document.getElementById("result");
+    document
+      .getElementById("result");
+
 
   const generatedImage =
-    document.getElementById("generatedImage");
+    document
+      .getElementById("generatedImage");
+
 
   const downloadButton =
-    document.getElementById("downloadButton");
+    document
+      .getElementById("downloadButton");
 
 
-  result.style.display = "none";
-  errorBox.style.display = "none";
-  loading.style.display = "block";
+  result.style.display =
+    "none";
 
-  button.disabled = true;
-  button.innerText = "⏳ Generating Image...";
+
+  errorBox.style.display =
+    "none";
+
+
+  loading.style.display =
+    "block";
+
+
+  button.disabled =
+    true;
+
+
+  button.innerText =
+    "⏳ Generating Image...";
 
 
   try {
 
-    const response = await fetch(
-      "/api/generate-image",
-      {
-        method: "POST",
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+    const response =
+      await fetch(
+        "/api/generate-image",
+        {
+          method: "POST",
 
-        body: JSON.stringify({
-          player: player,
-          team: team,
-          style: style
-        })
-      }
-    );
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
+          body: JSON.stringify({
+            player: player,
+            team: team,
+            style: style
+          })
+        }
+      );
 
-    /* अगर Server Error आए */
 
     if (!response.ok) {
 
+
       const contentType =
-        response.headers.get("content-type") || "";
+        response.headers
+          .get("content-type")
+        || "";
+
 
       let errorMessage =
         "Image generate नहीं हो सकी";
 
 
       if (
-        contentType.includes("application/json")
+        contentType
+          .includes("application/json")
       ) {
+
 
         const errorData =
           await response.json();
 
+
         errorMessage =
-          errorData.error || errorMessage;
+          errorData.error
+          || errorMessage;
+
 
       } else {
 
+
         const errorText =
           await response.text();
+
 
         errorMessage =
           "Server Error (" +
           response.status +
           "): " +
-          errorText.substring(0, 300);
+          errorText.substring(
+            0,
+            300
+          );
+
       }
 
 
-      throw new Error(errorMessage);
-
-    }
-
-
-    /*
-      Image को JSON की तरह नहीं,
-      Blob की तरह पढ़ें
-    */
-
-    const imageBlob =
-      await response.blob();
-
-
-    /*
-      Check करें कि वास्तव में Image मिली है
-    */
-
-    if (
-      !imageBlob.type.startsWith("image/")
-    ) {
-
-      const text =
-        await imageBlob.text();
-
       throw new Error(
-        "Server ने Image की जगह यह भेजा: " +
-        text.substring(0, 300)
+        errorMessage
       );
 
     }
 
 
-    /* पुरानी Image URL हटाएं */
+    const imageBlob =
+      await response.blob();
+
+
+    if (
+      !imageBlob.type
+        .startsWith("image/")
+    ) {
+
+
+      const text =
+        await imageBlob.text();
+
+
+      throw new Error(
+        "Server ने Image की जगह यह भेजा: "
+        + text.substring(0, 300)
+      );
+
+    }
+
 
     if (currentImageUrl) {
 
@@ -411,10 +857,10 @@ async function generateImage() {
     }
 
 
-    /* नई Image URL बनाएं */
-
     currentImageUrl =
-      URL.createObjectURL(imageBlob);
+      URL.createObjectURL(
+        imageBlob
+      );
 
 
     generatedImage.src =
@@ -425,21 +871,27 @@ async function generateImage() {
       currentImageUrl;
 
 
-    document.getElementById(
-      "resultPlayer"
-    ).innerText =
+    document
+      .getElementById(
+        "resultPlayer"
+      )
+      .innerText =
       "🏏 Player: " + player;
 
 
-    document.getElementById(
-      "resultTeam"
-    ).innerText =
+    document
+      .getElementById(
+        "resultTeam"
+      )
+      .innerText =
       "🌍 Team: " + team;
 
 
-    document.getElementById(
-      "resultStyle"
-    ).innerText =
+    document
+      .getElementById(
+        "resultStyle"
+      )
+      .innerText =
       "🎨 Style: " + style;
 
 
@@ -455,25 +907,34 @@ async function generateImage() {
 
   }
 
+
   catch (error) {
+
 
     console.error(error);
 
+
     errorBox.innerText =
-      "❌ Error: " + error.message;
+      "❌ Error: " +
+      error.message;
+
 
     errorBox.style.display =
       "block";
 
   }
 
+
   finally {
+
 
     loading.style.display =
       "none";
 
+
     button.disabled =
       false;
+
 
     button.innerText =
       "✨ Generate Cricket Image";
@@ -482,7 +943,147 @@ async function generateImage() {
 
 }
 
+
+
+// =====================================================
+// LIVE SCORE DEMO
+// =====================================================
+
+let demoBall = 0;
+
+
+function demoNextBall() {
+
+
+  demoBall++;
+
+
+  const scores = [
+
+
+    {
+      score: "188/4",
+      overs: "28.4 Overs",
+      bat1: "KOHLI 73*",
+      bat2: "RAHUL 41*",
+      crr: "6.58"
+    },
+
+
+    {
+      score: "188/4",
+      overs: "28.5 Overs",
+      bat1: "KOHLI 73*",
+      bat2: "RAHUL 41*",
+      crr: "6.57"
+    },
+
+
+    {
+      score: "189/4",
+      overs: "29.0 Overs",
+      bat1: "KOHLI 73*",
+      bat2: "RAHUL 42*",
+      crr: "6.51"
+    },
+
+
+    {
+      score: "190/4",
+      overs: "29.1 Overs",
+      bat1: "KOHLI 74*",
+      bat2: "RAHUL 42*",
+      crr: "6.52"
+    }
+
+
+  ];
+
+
+  const s =
+    scores[
+      (demoBall - 1)
+      % scores.length
+    ];
+
+
+  document
+    .getElementById(
+      "liveScore"
+    )
+    .innerText =
+    s.score;
+
+
+  document
+    .getElementById(
+      "liveOvers"
+    )
+    .innerText =
+    s.overs;
+
+
+  document
+    .getElementById(
+      "batsman1"
+    )
+    .innerText =
+    s.bat1;
+
+
+  document
+    .getElementById(
+      "batsman2"
+    )
+    .innerText =
+    s.bat2;
+
+
+  document
+    .getElementById(
+      "crr"
+    )
+    .innerText =
+    s.crr;
+
+}
+
+
+
+// =====================================================
+// BROADCAST INFORMATION
+// =====================================================
+
+function showBroadcastInfo() {
+
+
+  const box =
+    document
+      .getElementById(
+        "broadcastInfo"
+      );
+
+
+  if (
+    box.style.display === "none"
+    ||
+    box.style.display === ""
+  ) {
+
+    box.style.display =
+      "block";
+
+  } else {
+
+    box.style.display =
+      "none";
+
+  }
+
+}
+
+
 </script>
 
 </body>
-        </html>
+  </html>
