@@ -27,28 +27,19 @@ export default {
           );
         }
 
-        /*
-         * CricketData eCricScore API
-         *
-         * यह API:
-         * - current live matches
-         * - recent matches
-         * - upcoming matches
-         *
-         * देती है।
-         *
-         * API key केवल Worker में रहेगी।
-         * Browser को API key वापस नहीं भेजी जाएगी।
-         */
+        // ==========================================
+        // CricketData Current Matches API
+        // ==========================================
 
         const apiUrl =
-          "https://api.cricapi.com/v1/cricScore?apikey=" +
-          encodeURIComponent(env.CRICKET_API_KEY);
+          "https://api.cricapi.com/v1/currentMatches?apikey=" +
+          encodeURIComponent(env.CRICKET_API_KEY) +
+          "&offset=0";
 
         const apiResponse = await fetch(apiUrl, {
           method: "GET",
           headers: {
-            "Accept": "application/json"
+            Accept: "application/json"
           },
           cf: {
             cacheTtl: 0,
@@ -84,12 +75,9 @@ export default {
           );
         }
 
-        /*
-         * API response से matches निकालना।
-         *
-         * अलग-अलग API versions में data अलग property
-         * में आ सकता है, इसलिए multiple formats support किए हैं।
-         */
+        // ==========================================
+        // MATCH LIST
+        // ==========================================
 
         let matches = [];
 
@@ -99,80 +87,11 @@ export default {
           matches = apiData.matches;
         } else if (Array.isArray(apiData?.result)) {
           matches = apiData.result;
-        } else if (Array.isArray(apiData)) {
-          matches = apiData;
         }
 
-        /*
-         * cricScore के आसान text score को
-         * आपके पुराने frontend के लिए score array में बदलना।
-         *
-         * Example:
-         * "India 180/4 (20) vs Afghanistan 150/8 (20)"
-         */
-
-        function convertScoreText(match) {
-          if (Array.isArray(match?.score)) {
-            return match.score;
-          }
-
-          const text =
-            match?.score ||
-            match?.scoreText ||
-            match?.scores ||
-            "";
-
-          if (typeof text !== "string" || !text.trim()) {
-            return [];
-          }
-
-          const scoreArray = [];
-
-          /*
-           * अलग-अलग team score formats:
-           *
-           * Team 180/4 (20)
-           * Team 180/4
-           * Team 180 (20)
-           */
-
-          const regex =
-            /([A-Za-z0-9 .&'_-]+?)\s+(\d+)(?:\/(\d+))?(?:\s*\(([\d.]+)\))?/g;
-
-          let found;
-
-          while ((found = regex.exec(text)) !== null) {
-            const teamName = found[1].trim();
-
-            if (!teamName) continue;
-
-            const runs = Number(found[2] || 0);
-            const wickets =
-              found[3] !== undefined
-                ? Number(found[3])
-                : 0;
-
-            const overs =
-              found[4] !== undefined
-                ? found[4]
-                : "";
-
-            scoreArray.push({
-              r: runs,
-              w: wickets,
-              o: overs,
-              inning: teamName + " Inning",
-              team: teamName
-            });
-          }
-
-          return scoreArray;
-        }
-
-        /*
-         * हर match को पुराने currentMatches जैसे
-         * predictable format में normalize करें।
-         */
+        // ==========================================
+        // NORMALIZE MATCH DATA
+        // ==========================================
 
         const normalizedMatches = matches.map(
           (match, index) => {
@@ -181,59 +100,85 @@ export default {
               : [];
 
             const team1 =
-              match?.team1 ||
-              match?.teamA ||
-              match?.homeTeam ||
               teams[0] ||
+              match?.team1 ||
               "";
 
             const team2 =
-              match?.team2 ||
-              match?.teamB ||
-              match?.awayTeam ||
               teams[1] ||
+              match?.team2 ||
               "";
 
-            const name =
+            const matchName =
               match?.name ||
-              match?.match ||
-              match?.title ||
-              (team1 && team2
-                ? `${team1} vs ${team2}`
-                : "Cricket Match");
+              match?.matchType ||
+              (
+                team1 && team2
+                  ? `${team1} vs ${team2}`
+                  : "Cricket Match"
+              );
 
             const status =
               match?.status ||
-              match?.state ||
-              match?.matchStatus ||
               "";
 
             const venue =
               match?.venue ||
-              match?.ground ||
-              match?.stadium ||
               "";
 
             const dateTimeGMT =
               match?.dateTimeGMT ||
               match?.date ||
-              match?.startDate ||
-              match?.startTime ||
               "";
 
-            const score =
-              convertScoreText(match);
+            // ======================================
+            // SCORE ARRAY
+            // ======================================
+
+            let score = [];
+
+            if (Array.isArray(match?.score)) {
+              score = match.score.map(
+                (item) => ({
+                  r:
+                    item?.r ??
+                    item?.runs ??
+                    0,
+
+                  w:
+                    item?.w ??
+                    item?.wickets ??
+                    0,
+
+                  o:
+                    item?.o ??
+                    item?.overs ??
+                    "",
+
+                  team:
+                    item?.team ||
+                    item?.teamName ||
+                    "",
+
+                  inning:
+                    item?.inning ||
+                    item?.innings ||
+                    ""
+                })
+              );
+            }
 
             return {
-              ...match,
-
               id:
                 match?.id ||
                 match?.matchId ||
-                match?.match_id ||
-                `cricscore-${index}`,
+                `match-${index}`,
 
-              name,
+              name: matchName,
+
+              matchType:
+                match?.matchType ||
+                "",
 
               status,
 
@@ -241,34 +186,101 @@ export default {
 
               dateTimeGMT,
 
-              date: dateTimeGMT,
+              date:
+                match?.date ||
+                dateTimeGMT,
 
-              teams:
-                teams.length > 0
-                  ? teams
-                  : [team1, team2].filter(Boolean),
+              teams,
 
               team1,
 
               team2,
 
-              score
+              score,
+
+              series_id:
+                match?.series_id ||
+                match?.seriesId ||
+                "",
+
+              series_name:
+                match?.series_name ||
+                match?.seriesName ||
+                "",
+
+              matchStarted:
+                match?.matchStarted === true,
+
+              matchEnded:
+                match?.matchEnded === true
             };
           }
         );
 
-        /*
-         * API key अगर किसी response में accidentally आए
-         * तो उसे browser तक नहीं भेजना।
-         */
+        // ==========================================
+        // SORT
+        // LIVE FIRST
+        // UPCOMING SECOND
+        // RESULTS LAST
+        // ==========================================
 
-        if (
-          apiData &&
-          typeof apiData === "object" &&
-          "apikey" in apiData
-        ) {
-          delete apiData.apikey;
+        function isLive(match) {
+          const s =
+            String(match?.status || "")
+              .toLowerCase();
+
+          return (
+            match?.matchStarted === true &&
+            match?.matchEnded !== true &&
+            (
+              s.includes("live") ||
+              s.includes("in progress") ||
+              s.includes("innings") ||
+              s.includes("batting") ||
+              s.includes("need") ||
+              s.includes("lead") ||
+              s.includes("trail")
+            )
+          );
         }
+
+        function isResult(match) {
+          const s =
+            String(match?.status || "")
+              .toLowerCase();
+
+          return (
+            match?.matchEnded === true ||
+            s.includes("won") ||
+            s.includes("draw") ||
+            s.includes("abandoned") ||
+            s.includes("no result") ||
+            s.includes("complete") ||
+            s.includes("finished")
+          );
+        }
+
+        normalizedMatches.sort(
+          (a, b) => {
+            const aLive = isLive(a);
+            const bLive = isLive(b);
+
+            const aResult = isResult(a);
+            const bResult = isResult(b);
+
+            if (aLive && !bLive) return -1;
+            if (!aLive && bLive) return 1;
+
+            if (aResult && !bResult) return 1;
+            if (!aResult && bResult) return -1;
+
+            return 0;
+          }
+        );
+
+        // ==========================================
+        // NEVER RETURN API KEY
+        // ==========================================
 
         return Response.json(
           {
@@ -278,15 +290,17 @@ export default {
               data: normalizedMatches
             },
 
-            source: "CricketData eCricScore",
+            source: "CricketData currentMatches",
 
-            updatedAt: new Date().toISOString()
+            updatedAt:
+              new Date().toISOString()
           },
           {
             headers: {
-              "Cache-Control": "no-store, no-cache, must-revalidate",
-              "Pragma": "no-cache",
-              "Expires": "0"
+              "Cache-Control":
+                "no-store, no-cache, must-revalidate",
+              Pragma: "no-cache",
+              Expires: "0"
             }
           }
         );
@@ -329,7 +343,8 @@ export default {
           );
         }
 
-        const body = await request.json();
+        const body =
+          await request.json();
 
         const player =
           body.player ||
@@ -405,13 +420,14 @@ No watermark.
 No text.
 `;
 
-        const aiResult = await env.AI.run(
-          "@cf/black-forest-labs/flux-1-schnell",
-          {
-            prompt,
-            steps: 4
-          }
-        );
+        const aiResult =
+          await env.AI.run(
+            "@cf/black-forest-labs/flux-1-schnell",
+            {
+              prompt,
+              steps: 4
+            }
+          );
 
         if (
           !aiResult ||
@@ -465,6 +481,7 @@ No text.
     // =========================
     // WEBSITE FILES
     // =========================
+
     return env.ASSETS.fetch(request);
   }
 };
