@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <meta name="description" content="Cricket Short - AI Cricket Player, Live Cricket Score, Poster and Player Card">
-
 <title>Cricket Short</title>
 
 <style>
@@ -14,347 +12,347 @@
 html{scroll-behavior:smooth}
 
 body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  color:#172033;
-  background:linear-gradient(
-    180deg,
-    #07111f 0,
-    #0b1728 360px,
-    #f4f7fb 360px,
-    #f4f7fb 100%
-  );
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+color:#172033;
+background:linear-gradient(
+180deg,
+#07111f 0,
+#0b1728 360px,
+#f4f7fb 360px,
+#f4f7fb 100%
+);
 }
 
 button,input,select{font:inherit}
 button{cursor:pointer}
 
 .hero{
-  padding:28px 16px 22px;
-  text-align:center;
-  color:#fff;
+padding:28px 16px 22px;
+text-align:center;
+color:#fff;
 }
 
 .hero h1{
-  margin:0;
-  font-size:32px;
-  font-weight:900;
+margin:0;
+font-size:32px;
+font-weight:900;
 }
 
 .hero p{
-  margin:8px 0 0;
-  color:#b9c5d8;
-  font-size:14px;
+margin:8px 0 0;
+color:#b9c5d8;
+font-size:14px;
 }
 
 .nav{
-  max-width:1100px;
-  margin:auto;
-  padding:0 12px 18px;
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  scrollbar-width:none;
+max-width:1100px;
+margin:auto;
+padding:0 12px 18px;
+display:flex;
+gap:8px;
+overflow-x:auto;
+scrollbar-width:none;
 }
 
 .nav::-webkit-scrollbar{display:none}
 
 .nav a{
-  flex:0 0 auto;
-  text-decoration:none;
-  color:#fff;
-  background:#17243a;
-  border:1px solid #2a3952;
-  border-radius:999px;
-  padding:10px 14px;
-  font-size:13px;
-  font-weight:800;
+flex:0 0 auto;
+text-decoration:none;
+color:#fff;
+background:#17243a;
+border:1px solid #2a3952;
+border-radius:999px;
+padding:10px 14px;
+font-size:13px;
+font-weight:800;
 }
 
 .container{
-  width:min(1100px,calc(100% - 24px));
-  margin:auto;
-  padding-bottom:40px;
+width:min(1100px,calc(100% - 24px));
+margin:auto;
+padding-bottom:40px;
 }
 
 .section{
-  margin-top:18px;
-  background:#fff;
-  border-radius:18px;
-  padding:18px;
-  box-shadow:0 8px 30px rgba(12,30,55,.08);
+margin-top:18px;
+background:#fff;
+border-radius:18px;
+padding:18px;
+box-shadow:0 8px 30px rgba(12,30,55,.08);
 }
 
 .section-title{
-  margin:0 0 6px;
-  font-size:22px;
-  font-weight:900;
+margin:0 0 6px;
+font-size:22px;
+font-weight:900;
 }
 
 .section-subtitle{
-  margin:0 0 18px;
-  color:#667085;
-  font-size:14px;
-  line-height:1.5;
+margin:0 0 18px;
+color:#667085;
+font-size:14px;
+line-height:1.5;
 }
 
 .form-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:14px;
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:14px;
 }
 
 .field{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+display:flex;
+flex-direction:column;
+gap:6px;
 }
 
 .field.full{grid-column:1/-1}
 
 .field label{
-  font-size:13px;
-  font-weight:800;
-  color:#344054;
+font-size:13px;
+font-weight:800;
+color:#344054;
 }
 
 .field input,
 .field select{
-  width:100%;
-  border:1px solid #d7deea;
-  border-radius:11px;
-  padding:12px;
-  background:#fff;
-  outline:none;
-  color:#172033;
+width:100%;
+border:1px solid #d7deea;
+border-radius:11px;
+padding:12px;
+background:#fff;
+outline:none;
+color:#172033;
 }
 
 .field input:focus,
 .field select:focus{
-  border-color:#4667ff;
-  box-shadow:0 0 0 3px rgba(70,103,255,.12);
+border-color:#4667ff;
+box-shadow:0 0 0 3px rgba(70,103,255,.12);
 }
 
 .primary-btn{
-  width:100%;
-  border:0;
-  border-radius:12px;
-  padding:14px 16px;
-  background:#172033;
-  color:#fff;
-  font-weight:900;
-  margin-top:16px;
+width:100%;
+border:0;
+border-radius:12px;
+padding:14px 16px;
+background:#172033;
+color:#fff;
+font-weight:900;
+margin-top:16px;
 }
 
 .primary-btn:disabled{
-  opacity:.6;
-  cursor:wait;
+opacity:.6;
+cursor:wait;
 }
 
 .secondary-btn{
-  border:1px solid #d7deea;
-  border-radius:10px;
-  background:#fff;
-  color:#172033;
-  padding:10px 13px;
-  font-weight:800;
+border:1px solid #d7deea;
+border-radius:10px;
+background:#fff;
+color:#172033;
+padding:10px 13px;
+font-weight:800;
 }
 
 .message{
-  padding:13px;
-  border-radius:11px;
-  background:#f1f5f9;
-  color:#475467;
-  font-size:14px;
-  line-height:1.5;
+padding:13px;
+border-radius:11px;
+background:#f1f5f9;
+color:#475467;
+font-size:14px;
+line-height:1.5;
 }
 
 .error-message{
-  background:#fff1f2;
-  color:#be123c;
+background:#fff1f2;
+color:#be123c;
 }
 
 .generated-image{
-  width:100%;
-  display:block;
-  margin-top:12px;
-  border-radius:16px;
+width:100%;
+display:block;
+margin-top:12px;
+border-radius:16px;
 }
 
 .result-actions{
-  display:flex;
-  gap:10px;
-  margin-top:12px;
+display:flex;
+gap:10px;
+margin-top:12px;
 }
 
 .result-actions button{flex:1}
 
-/* LIVE SCORE */
+/* SCORE */
 
 .score-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-  margin-bottom:10px;
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:12px;
+margin-bottom:10px;
 }
 
 .score-header button{
-  border:1px solid #d7deea;
-  background:#fff;
-  border-radius:10px;
-  padding:9px 12px;
-  font-weight:800;
+border:1px solid #d7deea;
+background:#fff;
+border-radius:10px;
+padding:9px 12px;
+font-weight:800;
 }
 
 #lastUpdated{
-  color:#667085;
-  font-size:12px;
-  margin-bottom:14px;
+color:#667085;
+font-size:12px;
+margin-bottom:14px;
 }
 
 #liveMatches{
-  display:grid;
-  gap:14px;
+display:grid;
+gap:14px;
 }
 
 .match-card{
-  border:1px solid #e3e8ef;
-  border-radius:16px;
-  overflow:hidden;
-  background:#fff;
+border:1px solid #e3e8ef;
+border-radius:16px;
+overflow:hidden;
+background:#fff;
 }
 
 .match-top{
-  display:flex;
-  padding:14px 14px 0;
+display:flex;
+padding:14px 14px 0;
 }
 
 .status-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  border-radius:999px;
-  padding:6px 10px;
-  font-size:11px;
-  font-weight:900;
-  background:#eef2f7;
-  color:#475467;
+display:inline-flex;
+align-items:center;
+gap:5px;
+border-radius:999px;
+padding:6px 10px;
+font-size:11px;
+font-weight:900;
+background:#eef2f7;
+color:#475467;
 }
 
 .status-pill.live{
-  background:#fee2e2;
-  color:#b91c1c;
+background:#fee2e2;
+color:#b91c1c;
 }
 
 .status-pill.break{
-  background:#fff7ed;
-  color:#9a3412;
+background:#fff7ed;
+color:#9a3412;
 }
 
 .status-pill.delayed{
-  background:#fef3c7;
-  color:#92400e;
+background:#fef3c7;
+color:#92400e;
 }
 
 .status-pill.result{
-  background:#ecfdf3;
-  color:#166534;
+background:#ecfdf3;
+color:#166534;
 }
 
 .match-card h3{
-  margin:10px 14px 5px;
-  font-size:17px;
-  line-height:1.4;
+margin:10px 14px 5px;
+font-size:17px;
+line-height:1.4;
 }
 
 .provider-status{
-  margin:0 14px 14px;
-  color:#667085;
-  font-size:13px;
-  line-height:1.45;
+margin:0 14px 14px;
+color:#667085;
+font-size:13px;
+line-height:1.45;
 }
 
 .scoreboard{
-  margin:0 14px;
-  border-radius:13px;
-  background:#07111f;
-  color:#fff;
-  overflow:hidden;
+margin:0 14px;
+border-radius:13px;
+background:#07111f;
+color:#fff;
+overflow:hidden;
 }
 
 .score-team{
-  display:flex;
-  align-items:center;
-  gap:11px;
-  padding:13px;
+display:flex;
+align-items:center;
+gap:11px;
+padding:13px;
 }
 
 .score-team+.score-team{
-  border-top:1px solid #23334a;
+border-top:1px solid #23334a;
 }
 
 .team-logo{
-  width:44px;
-  height:44px;
-  flex:0 0 44px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#1d2b42;
-  color:#fff;
-  font-size:13px;
-  font-weight:900;
+width:44px;
+height:44px;
+flex:0 0 44px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#1d2b42;
+color:#fff;
+font-size:13px;
+font-weight:900;
 }
 
 .team-info{
-  flex:1;
-  min-width:0;
+flex:1;
+min-width:0;
 }
 
 .team-info strong{
-  display:block;
-  font-size:14px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+display:block;
+font-size:14px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
 }
 
 .team-info small{
-  display:block;
-  margin-top:3px;
-  color:#9eabc0;
-  font-size:11px;
+display:block;
+margin-top:3px;
+color:#9eabc0;
+font-size:11px;
 }
 
 .team-score{
-  font-size:20px;
-  font-weight:900;
-  white-space:nowrap;
+font-size:20px;
+font-weight:900;
+white-space:nowrap;
 }
 
 .innings-box{
-  margin:14px;
-  padding:12px;
-  border-radius:12px;
-  background:#f7f9fc;
+margin:14px;
+padding:12px;
+border-radius:12px;
+background:#f7f9fc;
 }
 
 .innings-box h4{
-  margin:0 0 8px;
-  font-size:12px;
-  color:#475467;
+margin:0 0 8px;
+font-size:12px;
+color:#475467;
 }
 
 .innings-row{
-  display:grid;
-  grid-template-columns:1fr auto auto;
-  gap:8px;
-  align-items:center;
-  padding:7px 0;
-  border-bottom:1px solid #e6ebf2;
-  font-size:12px;
+display:grid;
+grid-template-columns:1fr auto auto;
+gap:8px;
+align-items:center;
+padding:7px 0;
+border-bottom:1px solid #e6ebf2;
+font-size:12px;
 }
 
 .innings-row:last-child{border-bottom:0}
@@ -362,133 +360,133 @@ button{cursor:pointer}
 .innings-row strong{font-size:13px}
 
 .innings-row small{
-  color:#667085;
-  min-width:55px;
-  text-align:right;
+color:#667085;
+min-width:55px;
+text-align:right;
 }
 
 .innings-empty{
-  color:#667085;
-  font-size:12px;
+color:#667085;
+font-size:12px;
 }
 
 .match-meta{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  margin:0 14px 14px;
-  color:#667085;
-  font-size:12px;
+display:flex;
+flex-direction:column;
+gap:6px;
+margin:0 14px 14px;
+color:#667085;
+font-size:12px;
 }
 
 .match-actions{
-  display:flex;
-  gap:8px;
-  padding:0 14px 14px;
+display:flex;
+gap:8px;
+padding:0 14px 14px;
 }
 
 .match-actions button{
-  flex:1;
-  border:1px solid #d7deea;
-  background:#fff;
-  border-radius:10px;
-  padding:10px;
-  color:#344054;
-  font-size:12px;
-  font-weight:800;
+flex:1;
+border:1px solid #d7deea;
+background:#fff;
+border-radius:10px;
+padding:10px;
+color:#344054;
+font-size:12px;
+font-weight:800;
 }
 
 /* TOOLS */
 
 .tool-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:18px;
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:18px;
 }
 
 .tool-card{
-  border:1px solid #e3e8ef;
-  border-radius:16px;
-  padding:16px;
+border:1px solid #e3e8ef;
+border-radius:16px;
+padding:16px;
 }
 
 .tool-card h3{
-  margin:0 0 7px;
-  font-size:18px;
+margin:0 0 7px;
+font-size:18px;
 }
 
 .tool-card p{
-  margin:0 0 14px;
-  color:#667085;
-  font-size:13px;
-  line-height:1.5;
+margin:0 0 14px;
+color:#667085;
+font-size:13px;
+line-height:1.5;
 }
 
 /* NEWS */
 
 .news-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:12px;
 }
 
 .news-link{
-  display:block;
-  text-decoration:none;
-  border:1px solid #e3e8ef;
-  border-radius:13px;
-  padding:15px;
-  color:#172033;
-  background:#fafcff;
+display:block;
+text-decoration:none;
+border:1px solid #e3e8ef;
+border-radius:13px;
+padding:15px;
+color:#172033;
+background:#fafcff;
 }
 
 .news-link strong{
-  display:block;
-  margin-bottom:4px;
+display:block;
+margin-bottom:4px;
 }
 
 .news-link span{
-  color:#667085;
-  font-size:12px;
+color:#667085;
+font-size:12px;
 }
 
 footer{
-  text-align:center;
-  color:#667085;
-  font-size:12px;
-  padding:22px 10px 35px;
+text-align:center;
+color:#667085;
+font-size:12px;
+padding:22px 10px 35px;
 }
 
 @media(max-width:700px){
 
-  .hero h1{font-size:28px}
+.hero h1{font-size:28px}
 
-  .form-grid,
-  .tool-grid,
-  .news-grid{
-    grid-template-columns:1fr;
-  }
+.form-grid,
+.tool-grid,
+.news-grid{
+grid-template-columns:1fr;
+}
 
-  .field.full{
-    grid-column:auto;
-  }
+.field.full{
+grid-column:auto;
+}
 
-  .section{
-    padding:14px;
-    border-radius:15px;
-  }
+.section{
+padding:14px;
+border-radius:15px;
+}
 
-  .score-header h2{
-    font-size:19px;
-  }
+.score-header h2{
+font-size:19px;
+}
 
-  .team-score{
-    font-size:17px;
-  }
+.team-score{
+font-size:17px;
+}
 
-  .match-actions{
-    flex-direction:column;
-  }
+.match-actions{
+flex-direction:column;
+}
 
 }
 </style>
@@ -497,16 +495,16 @@ footer{
 <body>
 
 <header class="hero">
-  <h1>🏏 Cricket Short</h1>
-  <p>AI Cricket Player • Live Score • Poster • Player Card</p>
+<h1>🏏 Cricket Short</h1>
+<p>AI Cricket Player • Live Score • Poster • Player Card</p>
 </header>
 
 <nav class="nav">
-  <a href="#ai-player">🏏 AI Player</a>
-  <a href="#live-score">🔴 Live Score</a>
-  <a href="#poster">🎨 Poster</a>
-  <a href="#player-card">🪪 Player Card</a>
-  <a href="#news">📰 News</a>
+<a href="#ai-player">🏏 AI Player</a>
+<a href="#live-score">🔴 Live Score</a>
+<a href="#poster">🎨 Poster</a>
+<a href="#player-card">🪪 Player Card</a>
+<a href="#news">📰 News</a>
 </nav>
 
 <main class="container">
@@ -675,13 +673,11 @@ Loading...
 </section>
 
 
-<!-- POSTER + CARD -->
+<!-- POSTER + PLAYER CARD -->
 
 <section class="section">
 
 <div class="tool-grid">
-
-<!-- POSTER -->
 
 <div class="tool-card" id="poster">
 
@@ -724,8 +720,6 @@ Simple professional cricket match poster बनाएं।
 
 </div>
 
-
-<!-- PLAYER CARD -->
 
 <div class="tool-card" id="player-card">
 
@@ -839,7 +833,7 @@ Cricket Short • AI Cricket Player • Live Score • Poster • Player Card
    GLOBAL
 ========================================= */
 
-let latestMatches = [];
+let latestMatches=[];
 
 
 /* =========================================
@@ -859,7 +853,7 @@ return String(value ?? "")
 
 
 /* =========================================
-   STATUS DETECTION
+   STATUS
 ========================================= */
 
 function getStatusInfo(status){
@@ -867,14 +861,8 @@ function getStatusInfo(status){
 const s=String(status||"").toLowerCase();
 
 
-/* STUMPS / BREAK */
-
 if(
-/\b stumps\b/.test(" "+s) ||
-/\bclose of play\b/.test(s) ||
-/\blunch\b/.test(s) ||
-/\btea\b/.test(s) ||
-/\bbreak\b/.test(s)
+/\b(stumps|close of play|lunch|tea|break)\b/.test(s)
 ){
 
 return{
@@ -887,12 +875,9 @@ live:false
 }
 
 
-/* DELAYED */
-
 if(
-/\bdelayed\b/.test(s) ||
-/\bdelay\b/.test(s) ||
-/bwet outfield\b/.test(s) ||
+/\b(delayed|delay)\b/.test(s) ||
+/\bwet outfield\b/.test(s) ||
 /\brain\b/.test(s)
 ){
 
@@ -906,13 +891,8 @@ live:false
 }
 
 
-/* EXPLICIT LIVE */
-
 if(
-/\blive\b/.test(s) ||
-/\bin progress\b/.test(s) ||
-/\binnings in progress\b/.test(s) ||
-/\bcurrently batting\b/.test(s)
+/\b(live|in progress|innings in progress|currently batting)\b/.test(s)
 ){
 
 return{
@@ -925,16 +905,8 @@ live:true
 }
 
 
-/* RESULT */
-
 if(
-/\bwon\b/.test(s) ||
-/\bwon by\b/.test(s) ||
-/\bdraw\b/.test(s) ||
-/\babandoned\b/.test(s) ||
-/\bno result\b/.test(s) ||
-/\bcomplete\b/.test(s) ||
-/\bfinished\b/.test(s)
+/\b(won|won by|draw|abandoned|no result|complete|finished)\b/.test(s)
 ){
 
 return{
@@ -958,27 +930,24 @@ live:false
 
 
 /* =========================================
-   GET MATCH TEAMS
+   MATCH TEAMS
 ========================================= */
 
 function getMatchTeams(match){
 
 const name=String(match?.name||"");
 
-const firstPart=name
-.split(",")[0]
-.trim();
+const firstPart=
+name.split(",")[0].trim();
 
-
-const result=firstPart.match(
+const result=
+firstPart.match(
 /^(.+?)\s+(?:vs\.?|v)\s+(.+)$/i
 );
-
 
 if(!result){
 return[];
 }
-
 
 return[
 result[1].trim(),
@@ -1004,41 +973,271 @@ return String(name||"")
 
 
 /* =========================================
-   TEAM FROM SCORE
+   FIND EXPLICIT TEAM
+========================================= */
+
+function findExplicitTeam(match,score){
+
+const teams=getMatchTeams(match);
+
+const rawTeam=
+String(score?.team||"").trim();
+
+const rawInning=
+String(score?.inning||"").trim();
+
+
+/*
+team field exact
+*/
+
+if(rawTeam){
+
+const exact=
+teams.find(
+team=>
+normalizeTeamName(team)===
+normalizeTeamName(rawTeam)
+);
+
+if(exact){
+return exact;
+}
+
+}
+
+
+/*
+inning field
+*/
+
+if(rawInning){
+
+const cleaned=
+rawInning
+.replace(
+/\s+Inning\s+\d+\s*$/i,
+""
+)
+.trim();
+
+const matches=
+teams.filter(
+team=>
+normalizeTeamName(cleaned)
+.includes(
+normalizeTeamName(team)
+)
+);
+
+if(matches.length===1){
+return matches[0];
+}
+
+}
+
+return null;
+
+}
+
+
+/* =========================================
+   ROBUST TEST MATCH TEAM MAPPING
+========================================= */
+
+function getMappedScores(match){
+
+const scores=
+Array.isArray(match?.score)
+?match.score
+:[];
+
+const teams=getMatchTeams(match);
+
+if(!scores.length){
+return[];
+}
+
+const mapped=[];
+
+
+/*
+First find all scores where API clearly
+tells us the team.
+*/
+
+const known=[];
+
+scores.forEach((score,index)=>{
+
+const explicit=
+findExplicitTeam(
+match,
+score
+);
+
+known[index]=explicit||null;
+
+});
+
+
+/*
+Resolve ambiguous Test innings.
+
+Important:
+For a Test match the innings alternate:
+
+Team A
+Team B
+Team A
+Team B
+
+BUT the first batting team can be either
+team from the match title.
+
+Therefore, when the API clearly identifies
+one innings, use that as the anchor and
+alternate around it.
+*/
+
+if(teams.length===2 && scores.length>=2){
+
+/*
+Forward mapping from known score.
+*/
+
+for(let i=0;i<scores.length;i++){
+
+if(!known[i]){
+continue;
+}
+
+const anchor=
+known[i];
+
+for(
+let j=i+1;
+j<scores.length;
+j++
+){
+
+if(known[j]){
+continue;
+}
+
+const distance=j-i;
+
+if(distance%2===1){
+
+known[j]=
+normalizeTeamName(anchor)===
+normalizeTeamName(teams[0])
+?teams[1]
+:teams[0];
+
+}else{
+
+known[j]=anchor;
+
+}
+
+}
+
+
+/*
+Backward mapping
+*/
+
+for(
+let j=i-1;
+j>=0;
+j--
+){
+
+if(known[j]){
+continue;
+}
+
+const distance=i-j;
+
+if(distance%2===1){
+
+known[j]=
+normalizeTeamName(anchor)===
+normalizeTeamName(teams[0])
+?teams[1]
+:teams[0];
+
+}else{
+
+known[j]=anchor;
+
+}
+
+}
+
+}
+
+}
+
+
+/*
+Any still unresolved scores:
+Use alternating match-team order.
+*/
+
+scores.forEach((score,index)=>{
+
+let team=known[index];
+
+if(!team && teams.length===2){
+
+team=teams[index%2];
+
+}
+
+if(!team){
+
+team=
+String(
+score?.team||
+score?.inning||
+"Team"
+)
+.replace(
+/\s+Inning\s+\d+\s*$/i,
+""
+)
+.split(",")
+.pop()
+.trim()||"Team";
+
+}
+
+mapped.push({
+...score,
+team
+});
+
+});
+
+
+return mapped;
+
+}
+
+
+/* =========================================
+   TEAM DISPLAY
 ========================================= */
 
 function displayTeamForScore(match,score,index){
 
-const teams=getMatchTeams(match);
+const mapped=
+getMappedScores(match);
 
-
-let raw=String(
-score?.team ||
-score?.inning ||
-""
-).trim();
-
-
-/*
-Remove:
-Inning 1
-Inning 2
-etc.
-*/
-
-raw=raw
-.replace(/\s+Inning\s+\d+\s*$/i,"")
-.trim();
-
-
-if(!raw){
-
-if(teams.length===2){
-
-return teams[
-index % teams.length
-];
-
+if(mapped[index]){
+return mapped[index].team;
 }
 
 return"Team";
@@ -1046,120 +1245,17 @@ return"Team";
 }
 
 
-const rawNormalized=
-normalizeTeamName(raw);
-
-
-/*
-Exact match
-*/
-
-for(const team of teams){
-
-if(
-normalizeTeamName(team)===
-rawNormalized
-){
-
-return team;
-
-}
-
-}
-
-
-/*
-If raw contains team name
-*/
-
-const matches=[];
-
-for(const team of teams){
-
-if(
-rawNormalized.includes(
-normalizeTeamName(team)
-)
-){
-
-matches.push(team);
-
-}
-
-}
-
-
-/*
-For strings like:
-Essex,Warwickshire
-
-Prefer the LAST matching team.
-*/
-
-if(matches.length){
-
-return matches[matches.length-1];
-
-}
-
-
-/*
-Comma fallback
-*/
-
-const parts=raw
-.split(",")
-.map(x=>x.trim())
-.filter(Boolean);
-
-
-for(let i=parts.length-1;i>=0;i--){
-
-const found=teams.find(
-team=>
-normalizeTeamName(team)===
-normalizeTeamName(parts[i])
-);
-
-if(found){
-return found;
-}
-
-}
-
-
-/*
-FINAL fallback:
-For Test matches, score order is
-usually innings order.
-
-If we have two actual match teams,
-map using innings index.
-*/
-
-if(teams.length===2){
-
-return teams[index%2];
-
-}
-
-
-return parts[parts.length-1]||raw;
-
-}
-
-
 /* =========================================
-   TEAM INITIALS
+   INITIALS
 ========================================= */
 
 function getTeamInitials(team){
 
-const words=String(team||"Team")
+const words=
+String(team||"Team")
 .trim()
 .split(/\s+/)
 .filter(Boolean);
-
 
 if(words.length===1){
 
@@ -1168,7 +1264,6 @@ return words[0]
 .toUpperCase();
 
 }
-
 
 return words
 .slice(0,2)
@@ -1180,7 +1275,7 @@ return words
 
 
 /* =========================================
-   SCORE
+   SCORE TEXT
 ========================================= */
 
 function getScoreText(score){
@@ -1189,18 +1284,15 @@ if(!score){
 return"—";
 }
 
-
 const runs=
 score.r ??
 score.runs ??
 0;
 
-
 const wickets=
 score.w ??
 score.wickets ??
 0;
-
 
 return`${runs} / ${wickets}`;
 
@@ -1217,12 +1309,10 @@ if(!score){
 return"";
 }
 
-
 const overs=
 score.o ??
 score.overs ??
 "";
-
 
 return overs===""?"":`${overs} overs`;
 
@@ -1235,69 +1325,45 @@ return overs===""?"":`${overs} overs`;
 
 function getLatestTeamScores(match){
 
-const scores=
-Array.isArray(match?.score)
-?match.score
-:[];
+const mapped=
+getMappedScores(match);
 
-
-const teams=getMatchTeams(match);
-
-
-/*
-Use actual team names as keys.
-This prevents:
-Gloucestershire,Middlesex
-from becoming a third team.
-*/
+const teams=
+getMatchTeams(match);
 
 const teamMap=new Map();
 
 
-scores.forEach((score,index)=>{
+mapped.forEach(score=>{
 
-const team=
-displayTeamForScore(
-match,
-score,
-index
-);
-
+const team=score.team;
 
 if(!team){
 return;
 }
 
-
-const key=normalizeTeamName(team);
-
-
-/*
-Later score for same team
-replaces previous score.
-*/
+const key=
+normalizeTeamName(team);
 
 teamMap.set(
 key,
-{
-...score,
-team
-}
+score
 );
 
 });
 
 
-/*
-Return in match-name order when possible.
-*/
-
 const result=[];
 
 
+/*
+Always show teams in match-title order.
+*/
+
 teams.forEach(team=>{
 
-const key=normalizeTeamName(team);
+const key=
+normalizeTeamName(team);
 
 if(teamMap.has(key)){
 
@@ -1305,36 +1371,9 @@ result.push(
 teamMap.get(key)
 );
 
-}else{
-
-/*
-If no score available,
-do not create fake 0/0
-unless absolutely necessary.
-*/
-
 }
 
 });
-
-
-/*
-Add any remaining teams.
-*/
-
-for(const item of teamMap.values()){
-
-const already=result.some(
-x=>
-normalizeTeamName(x.team)===
-normalizeTeamName(item.team)
-);
-
-if(!already){
-result.push(item);
-}
-
-}
 
 
 return result.slice(0,2);
@@ -1348,13 +1387,10 @@ return result.slice(0,2);
 
 function getInningsDetails(match){
 
-const scores=
-Array.isArray(match?.score)
-?match.score
-:[];
+const mapped=
+getMappedScores(match);
 
-
-if(!scores.length){
+if(!mapped.length){
 
 return`
 <div class="innings-empty">
@@ -1364,22 +1400,13 @@ No innings details available
 
 }
 
-
-return scores.map((score,index)=>{
-
-const team=
-displayTeamForScore(
-match,
-score,
-index
-);
-
+return mapped.map(score=>{
 
 return`
 <div class="innings-row">
 
 <span>
-${escapeHtml(team)}
+${escapeHtml(score.team)}
 </span>
 
 <strong>
@@ -1413,19 +1440,15 @@ match?.dateTimeGMT ||
 match?.date ||
 "";
 
-
 if(!raw){
 return"";
 }
 
-
 const date=new Date(raw);
-
 
 if(Number.isNaN(date.getTime())){
 return raw;
 }
-
 
 return date.toLocaleString(
 "en-IN",
@@ -1452,19 +1475,14 @@ getStatusInfo(
 match?.status
 );
 
-
 const teams=
-getLatestTeamScores(
-match
-);
-
+getLatestTeamScores(match);
 
 const teamRows=
 teams.map(teamScore=>{
 
 const team=
 teamScore.team||"Team";
-
 
 return`
 <div class="score-team">
@@ -1515,14 +1533,14 @@ ${status.label}
 
 <h3>
 ${escapeHtml(
-match?.name ||
+match?.name||
 "Cricket Match"
 )}
 </h3>
 
 <div class="provider-status">
 ${escapeHtml(
-match?.status ||
+match?.status||
 "Status unavailable"
 )}
 </div>
@@ -1548,7 +1566,7 @@ ${getInningsDetails(match)}
 <span>
 📍
 ${escapeHtml(
-match?.venue ||
+match?.venue||
 "Venue unavailable"
 )}
 </span>
@@ -1587,7 +1605,7 @@ onclick="shareScoreboardByIndex(${index})"
 
 
 /* =========================================
-   LOAD LIVE SCORE
+   LOAD LIVE SCORES
 ========================================= */
 
 async function loadLiveScores(){
@@ -1597,18 +1615,15 @@ document.getElementById(
 "liveMatches"
 );
 
-
 if(!container){
 return;
 }
-
 
 container.innerHTML=`
 <div class="message">
 🔄 Loading cricket scores...
 </div>
 `;
-
 
 try{
 
@@ -1620,27 +1635,23 @@ cache:"no-store"
 }
 );
 
-
 const result=
 await response.json();
 
-
 if(
-!response.ok ||
+!response.ok||
 !result.success
 ){
 
 throw new Error(
-result.error ||
+result.error||
 "Live score request failed"
 );
 
 }
 
-
 const data=
 result.data||{};
-
 
 latestMatches=
 Array.isArray(data.data)
@@ -1649,10 +1660,8 @@ Array.isArray(data.data)
 
 
 /*
-Sort:
-1. LIVE
-2. STUMPS / DELAYED / UPDATE
-3. RESULT
+Live/active matches first,
+results at the bottom.
 */
 
 latestMatches.sort(
@@ -1664,40 +1673,31 @@ getStatusInfo(a?.status);
 const bInfo=
 getStatusInfo(b?.status);
 
-
-if(aInfo.live&&!bInfo.live){
+if(
+aInfo.live&&!bInfo.live
+){
 return-1;
 }
 
-
-if(!aInfo.live&&bInfo.live){
+if(
+!aInfo.live&&bInfo.live
+){
 return 1;
 }
-
-
-/*
-Results after non-results
-*/
 
 if(
 aInfo.label==="RESULT" &&
 bInfo.label!=="RESULT"
 ){
-
 return 1;
-
 }
-
 
 if(
 aInfo.label!=="RESULT" &&
 bInfo.label==="RESULT"
 ){
-
 return-1;
-
 }
-
 
 return 0;
 
@@ -1731,14 +1731,11 @@ document.getElementById(
 "lastUpdated"
 );
 
-
 if(updated){
 
 updated.textContent=
 "Last updated: "+
-new Date().toLocaleTimeString(
-"en-IN"
-)+
+new Date().toLocaleTimeString("en-IN")+
 " • "+
 latestMatches.length+
 " matches • Auto refresh: 5 min";
@@ -1752,7 +1749,6 @@ console.error(
 error
 );
 
-
 container.innerHTML=`
 
 <div class="message error-message">
@@ -1763,7 +1759,7 @@ container.innerHTML=`
 
 <small>
 ${escapeHtml(
-error.message ||
+error.message||
 "Unknown error"
 )}
 </small>
@@ -1784,20 +1780,14 @@ error.message ||
 function drawScoreboard(match){
 
 const canvas=
-document.createElement(
-"canvas"
-);
-
+document.createElement("canvas");
 
 canvas.width=1600;
 canvas.height=900;
 
-
 const ctx=
 canvas.getContext("2d");
 
-
-/* background */
 
 ctx.fillStyle="#07111f";
 
@@ -1808,8 +1798,6 @@ ctx.fillRect(
 900
 );
 
-
-/* brand */
 
 ctx.fillStyle="#ffffff";
 
@@ -1823,8 +1811,6 @@ ctx.fillText(
 );
 
 
-/* match */
-
 ctx.font=
 "bold 40px Arial";
 
@@ -1835,7 +1821,6 @@ match?.name||
 )
 .split(",")[0];
 
-
 ctx.fillText(
 title,
 70,
@@ -1843,17 +1828,13 @@ title,
 );
 
 
-/* status */
-
 const status=
 getStatusInfo(
 match?.status
 );
 
-
 ctx.font=
 "bold 32px Arial";
-
 
 ctx.fillText(
 status.label,
@@ -1862,23 +1843,16 @@ status.label,
 );
 
 
-/* scores */
-
 const teams=
-getLatestTeamScores(
-match
-);
-
+getLatestTeamScores(match);
 
 let y=370;
-
 
 teams.forEach(teamScore=>{
 
 const team=
 teamScore.team||
 "Team";
-
 
 ctx.font=
 "bold 42px Arial";
@@ -1889,13 +1863,11 @@ getTeamInitials(team),
 y
 );
 
-
 ctx.fillText(
 team,
 220,
 y
 );
-
 
 ctx.font=
 "bold 60px Arial";
@@ -1906,7 +1878,6 @@ getScoreText(teamScore),
 y
 );
 
-
 ctx.font=
 "28px Arial";
 
@@ -1916,13 +1887,10 @@ getOversText(teamScore),
 y+42
 );
 
-
 y+=190;
 
 });
 
-
-/* footer */
 
 ctx.font=
 "24px Arial";
@@ -1932,7 +1900,6 @@ ctx.fillText(
 70,
 830
 );
-
 
 return canvas;
 
@@ -1948,15 +1915,12 @@ function downloadScoreboardByIndex(index){
 const match=
 latestMatches[index];
 
-
 if(!match){
 return;
 }
 
-
 const canvas=
 drawScoreboard(match);
-
 
 canvas.toBlob(
 blob=>{
@@ -1965,27 +1929,22 @@ if(!blob){
 return;
 }
 
-
 const url=
 URL.createObjectURL(blob);
 
-
 const a=
 document.createElement("a");
-
 
 a.href=url;
 
 a.download=
 "cricket-short-scoreboard.jpg";
 
-
 document.body.appendChild(a);
 
 a.click();
 
 a.remove();
-
 
 URL.revokeObjectURL(url);
 
@@ -2006,15 +1965,12 @@ async function shareScoreboardByIndex(index){
 const match=
 latestMatches[index];
 
-
 if(!match){
 return;
 }
 
-
 const canvas=
 drawScoreboard(match);
-
 
 canvas.toBlob(
 async blob=>{
@@ -2022,7 +1978,6 @@ async blob=>{
 if(!blob){
 return;
 }
-
 
 const file=
 new File(
@@ -2032,7 +1987,6 @@ new File(
 type:"image/jpeg"
 }
 );
-
 
 try{
 
@@ -2057,9 +2011,7 @@ files:[file]
 
 }else{
 
-downloadScoreboardByIndex(
-index
-);
+downloadScoreboardByIndex(index);
 
 }
 
@@ -2081,7 +2033,7 @@ error
 
 
 /* =========================================
-   AI IMAGE GENERATOR
+   AI IMAGE
 ========================================= */
 
 async function generateAIImage(){
@@ -2091,84 +2043,70 @@ document.getElementById(
 "aiResult"
 );
 
-
 const button=
 document.getElementById(
 "generateImageBtn"
 );
-
 
 const player=
 document.getElementById(
 "playerName"
 ).value.trim();
 
-
 const team=
 document.getElementById(
 "playerTeam"
 ).value.trim();
-
 
 const pose=
 document.getElementById(
 "playerPose"
 ).value;
 
-
 const style=
 document.getElementById(
 "imageStyle"
 ).value;
-
 
 const jersey=
 document.getElementById(
 "jerseyNumber"
 ).value;
 
-
 const stadium=
 document.getElementById(
 "stadiumType"
 ).value;
-
 
 const matchTime=
 document.getElementById(
 "matchTime"
 ).value;
 
-
 const tournament=
 document.getElementById(
 "tournament"
 ).value.trim();
-
 
 const jerseyColor=
 document.getElementById(
 "jerseyColor"
 ).value;
 
-
 const cameraAngle=
 document.getElementById(
 "cameraAngle"
 ).value;
-
 
 const weather=
 document.getElementById(
 "weather"
 ).value;
 
-
 const playerType=
 document.getElementById(
 "playerType"
 ).value;
-
 
 const playingHand=
 document.getElementById(
@@ -2185,6 +2123,7 @@ Please enter player name.
 `;
 
 return;
+
 }
 
 
@@ -2192,7 +2131,6 @@ button.disabled=true;
 
 button.textContent=
 "⏳ Generating...";
-
 
 result.innerHTML=`
 <div class="message">
@@ -2249,7 +2187,6 @@ if(!response.ok){
 let errorMessage=
 "AI image generation failed.";
 
-
 if(
 contentType.includes(
 "application/json"
@@ -2259,13 +2196,11 @@ contentType.includes(
 const errorData=
 await response.json();
 
-
 errorMessage=
 errorData.error||
 errorMessage;
 
 }
-
 
 throw new Error(
 errorMessage
@@ -2277,11 +2212,8 @@ errorMessage
 const blob=
 await response.blob();
 
-
 const imageUrl=
-URL.createObjectURL(
-blob
-);
+URL.createObjectURL(blob);
 
 
 result.innerHTML=`
@@ -2300,7 +2232,7 @@ alt="AI Cricket Player"
 
 <button
 class="secondary-btn"
-onclick="downloadAIImage('${imageUrl}')"
+id="downloadAIButton"
 >
 📥 Download
 </button>
@@ -2309,13 +2241,23 @@ onclick="downloadAIImage('${imageUrl}')"
 
 `;
 
+
+document
+.getElementById("downloadAIButton")
+.addEventListener(
+"click",
+()=>{
+downloadAIImage(imageUrl);
+}
+);
+
+
 }catch(error){
 
 console.error(
 "AI error:",
 error
 );
-
 
 result.innerHTML=`
 
@@ -2357,12 +2299,10 @@ function downloadAIImage(url){
 const a=
 document.createElement("a");
 
-
 a.href=url;
 
 a.download=
 "cricket-short-ai-player.jpg";
-
 
 document.body.appendChild(a);
 
@@ -2384,36 +2324,30 @@ document.getElementById(
 "posterPlayer"
 ).value.trim();
 
-
 const team=
 document.getElementById(
 "posterTeam"
 ).value.trim();
-
 
 const match=
 document.getElementById(
 "posterMatch"
 ).value.trim();
 
-
 const tournament=
 document.getElementById(
 "posterTournament"
 ).value.trim();
-
 
 const stadium=
 document.getElementById(
 "posterStadium"
 ).value.trim();
 
-
 const result=
 document.getElementById(
 "posterResult"
 );
-
 
 result.innerHTML=`
 
@@ -2510,42 +2444,35 @@ document.getElementById(
 "cardPlayer"
 ).value.trim();
 
-
 const team=
 document.getElementById(
 "cardTeam"
 ).value.trim();
-
 
 const role=
 document.getElementById(
 "cardRole"
 ).value;
 
-
 const number=
 document.getElementById(
 "cardNumber"
 ).value;
-
 
 const hand=
 document.getElementById(
 "cardHand"
 ).value;
 
-
 const level=
 document.getElementById(
 "cardLevel"
 ).value;
 
-
 const result=
 document.getElementById(
 "cardResult"
 );
-
 
 result.innerHTML=`
 
@@ -2666,7 +2593,7 @@ ${escapeHtml(level)}
 
 
 /* =========================================
-   START
+   EVENTS
 ========================================= */
 
 document
@@ -2679,15 +2606,15 @@ generateAIImage
 );
 
 
-document.addEventListener(
-"DOMContentLoaded",
+/* =========================================
+   INITIAL LOAD
+========================================= */
+
+window.addEventListener(
+"load",
 ()=>{
 
 loadLiveScores();
-
-/*
-5 minute auto refresh
-*/
 
 setInterval(
 loadLiveScores,
