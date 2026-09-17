@@ -136,72 +136,129 @@
     }
 
     /* =========================
-       LIVE SCORE DESIGN
+       LIVE SCORE
        ========================= */
+
+    .live-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .live-header h2 {
+      margin: 0;
+    }
+
+    .refresh-button {
+      width: auto;
+      margin-top: 0;
+      padding: 10px 15px;
+      background: #2563eb;
+      font-size: 14px;
+    }
 
     .live-card {
       background: #0f172a;
       padding: 18px;
       margin-top: 15px;
       border-radius: 14px;
-      text-align: center;
     }
 
     .live-badge {
       display: inline-block;
-      padding: 8px 15px;
+      padding: 7px 13px;
       border-radius: 20px;
       background: #7f1d1d;
       color: #fecaca;
       font-weight: bold;
       margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .completed-badge {
+      background: #334155;
+      color: #cbd5e1;
     }
 
     .match-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
+      line-height: 1.4;
+      margin-bottom: 15px;
     }
 
-    .score {
-      font-size: 48px;
-      font-weight: 800;
-      margin: 12px 0;
-    }
-
-    .overs {
-      color: #cbd5e1;
-      font-size: 17px;
-    }
-
-    .players {
-      margin-top: 18px;
-      padding: 14px;
-      background: #1e293b;
-      border-radius: 12px;
-      font-size: 17px;
-    }
-
-    .score-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+    .team-score {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       gap: 10px;
-      margin-top: 18px;
-    }
-
-    .score-box {
-      background: #1e293b;
       padding: 13px;
+      margin-top: 8px;
+      background: #1e293b;
       border-radius: 10px;
     }
 
-    .score-box small {
-      display: block;
-      color: #94a3b8;
-      margin-bottom: 5px;
+    .team-name {
+      font-weight: bold;
+      text-align: left;
     }
 
-    .score-box strong {
-      font-size: 17px;
+    .team-score-value {
+      font-size: 20px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #172554;
+      color: #dbeafe;
+      line-height: 1.5;
+    }
+
+    .venue {
+      margin-top: 12px;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .match-type {
+      margin-top: 10px;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .score-loading {
+      text-align: center;
+      padding: 25px 10px;
+      color: #facc15;
+    }
+
+    .score-error {
+      padding: 15px;
+      border-radius: 10px;
+      background: #7f1d1d;
+      color: #fecaca;
+      line-height: 1.5;
+    }
+
+    .no-match {
+      padding: 20px;
+      text-align: center;
+      background: #0f172a;
+      border-radius: 14px;
+      color: #cbd5e1;
+    }
+
+    .last-updated {
+      margin-top: 15px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 12px;
     }
 
     .broadcast-box {
@@ -219,9 +276,10 @@
       margin-top: 15px;
       padding: 10px;
       border-radius: 10px;
-      background: #3f3f46;
-      color: #d4d4d8;
+      background: #14532d;
+      color: #bbf7d0;
       font-size: 13px;
+      text-align: center;
     }
 
     footer {
@@ -231,48 +289,29 @@
     }
 
     @media (max-width: 500px) {
-
       header h1 {
         font-size: 24px;
       }
 
-      .score {
-        font-size: 40px;
+      .team-score-value {
+        font-size: 18px;
       }
 
       .match-title {
-        font-size: 17px;
-      }
-
-      .players {
-        font-size: 15px;
+        font-size: 16px;
       }
     }
-
   </style>
 </head>
 
 <body>
 
-<!-- =========================
-     HEADER
-     ========================= -->
-
 <header>
-
-  <h1>
-    🏏 Cricket AI
-  </h1>
-
-  <p>
-    Cricket Image • News • Live Score
-  </p>
-
+  <h1>🏏 Cricket AI</h1>
+  <p>Cricket Image • News • Live Score</p>
 </header>
 
-
 <div class="container">
-
 
   <!-- =========================
        AI IMAGE GENERATOR
@@ -280,13 +319,9 @@
 
   <div class="card">
 
-    <h2>
-      ✨ Cricket AI Image Generator
-    </h2>
+    <h2>✨ Cricket AI Image Generator</h2>
 
-    <label for="player">
-      Player Name
-    </label>
+    <label for="player">Player Name</label>
 
     <input
       type="text"
@@ -295,10 +330,7 @@
       value="Sachin Tendulkar"
     >
 
-
-    <label for="team">
-      Team
-    </label>
+    <label for="team">Team</label>
 
     <input
       type="text"
@@ -307,31 +339,14 @@
       value="India"
     >
 
-
-    <label for="style">
-      Image Style
-    </label>
+    <label for="style">Image Style</label>
 
     <select id="style">
-
-      <option value="Realistic">
-        Realistic
-      </option>
-
-      <option value="Digital Art">
-        Digital Art
-      </option>
-
-      <option value="Anime">
-        Anime
-      </option>
-
-      <option value="Poster Style">
-        Poster Style
-      </option>
-
+      <option value="Realistic">Realistic</option>
+      <option value="Digital Art">Digital Art</option>
+      <option value="Anime">Anime</option>
+      <option value="Poster Style">Poster Style</option>
     </select>
-
 
     <button
       id="generateButton"
@@ -340,40 +355,28 @@
       ✨ Generate Cricket Image
     </button>
 
-
     <div id="loading">
-
       🎨 AI Image बनाई जा रही है...
-
       <br><br>
-
       कृपया इंतजार करें।
-
     </div>
-
 
     <div id="error"></div>
 
-
     <div id="result">
 
-      <h2>
-        🎨 Generated Cricket Image
-      </h2>
-
+      <h2>🎨 Generated Cricket Image</h2>
 
       <img
         id="generatedImage"
         alt="Generated Cricket Player"
       >
 
-
       <h3 id="resultPlayer"></h3>
 
       <p id="resultTeam"></p>
 
       <p id="resultStyle"></p>
-
 
       <a
         id="downloadButton"
@@ -388,28 +391,21 @@
   </div>
 
 
-
   <!-- =========================
        CRICKET NEWS
        ========================= -->
 
   <div class="card">
 
-    <h2>
-      📰 Cricket News
-    </h2>
-
+    <h2>📰 Cricket News</h2>
 
     <div class="news-card">
 
-      <h3>
-        🏏 Latest Cricket News
-      </h3>
+      <h3>🏏 Latest Cricket News</h3>
 
       <p>
         ताज़ा क्रिकेट समाचार देखने के लिए Cricinfo पर जाएँ।
       </p>
-
 
       <a
         class="news-link"
@@ -422,18 +418,13 @@
 
     </div>
 
-
-
     <div class="news-card">
 
-      <h3>
-        🏆 Official Cricket Updates
-      </h3>
+      <h3>🏆 Official Cricket Updates</h3>
 
       <p>
         International Cricket और official updates देखें।
       </p>
-
 
       <a
         class="news-link"
@@ -449,201 +440,94 @@
   </div>
 
 
-
   <!-- =========================
-       LIVE CRICKET SCORE
+       REAL LIVE CRICKET SCORE
        ========================= -->
 
   <div class="card">
 
-    <h2>
-      🔴 Live Cricket Score
-    </h2>
+    <div class="live-header">
 
-
-    <div class="live-card">
-
-
-      <div class="live-badge">
-        🔴 LIVE DEMO
-      </div>
-
-
-      <div class="match-title">
-        🇮🇳 INDIA vs AUSTRALIA 🇦🇺
-      </div>
-
-
-      <div
-        class="score"
-        id="liveScore"
-      >
-        187/4
-      </div>
-
-
-      <div
-        class="overs"
-        id="liveOvers"
-      >
-        28.3 Overs
-      </div>
-
-
-
-      <div class="players">
-
-        🏏
-
-        <strong id="batsman1">
-          KOHLI 72*
-        </strong>
-
-        &nbsp; | &nbsp;
-
-        <strong id="batsman2">
-          RAHUL 41*
-        </strong>
-
-      </div>
-
-
-
-      <div class="score-info">
-
-
-        <div class="score-box">
-
-          <small>
-            CRR
-          </small>
-
-          <strong id="crr">
-            6.56
-          </strong>
-
-        </div>
-
-
-        <div class="score-box">
-
-          <small>
-            TARGET
-          </small>
-
-          <strong id="target">
-            256
-          </strong>
-
-        </div>
-
-
-        <div class="score-box">
-
-          <small>
-            RRR
-          </small>
-
-          <strong id="rrr">
-            7.20
-          </strong>
-
-        </div>
-
-
-        <div class="score-box">
-
-          <small>
-            STATUS
-          </small>
-
-          <strong id="matchStatus">
-            Batting
-          </strong>
-
-        </div>
-
-
-      </div>
-
-
-
-      <!-- DEMO BUTTON -->
+      <h2>🔴 Live Cricket Score</h2>
 
       <button
-        onclick="demoNextBall()"
+        class="refresh-button"
+        id="refreshScoreButton"
+        onclick="loadLiveScores()"
       >
-        🔄 Demo Next Ball
+        🔄 Refresh
       </button>
 
+    </div>
 
+    <div id="liveScoreContainer">
 
-      <!-- BROADCAST BUTTON -->
-
-      <button
-        onclick="showBroadcastInfo()"
-        style="background:#2563eb;"
-      >
-        📡 Broadcast Setup
-      </button>
-
-
-
-      <div
-        id="broadcastInfo"
-        class="broadcast-box"
-      >
-
-        <strong>
-          📡 Broadcast जानकारी
-        </strong>
-
-        <br><br>
-
-        यह अभी Demo Score है।
-
-        <br><br>
-
-        अगले चरण में:
-
-        <br>
-
-        1️⃣ Real Cricket Score API
-
-        <br>
-
-        2️⃣ Automatic Score Update
-
-        <br>
-
-        3️⃣ Score Graphics
-
-        <br>
-
-        4️⃣ RTMP Streaming
-
-        <br>
-
-        5️⃣ YouTube / Facebook Broadcast
-
-        <br><br>
-
-        इसमें मैच का वीडियो या कैमरा जरूरी नहीं होगा।
-
+      <div class="score-loading">
+        🏏 Live Score लोड हो रहा है...
       </div>
 
+    </div>
 
+    <div
+      id="lastUpdated"
+      class="last-updated"
+    >
+      अभी score load हो रहा है...
+    </div>
 
-      <div class="api-status">
+    <button
+      onclick="showBroadcastInfo()"
+      style="background:#2563eb;"
+    >
+      📡 Broadcast Setup
+    </button>
 
-        ⚙️ API Status:
-        <strong>
-          Demo Mode
-        </strong>
+    <div
+      id="broadcastInfo"
+      class="broadcast-box"
+    >
 
-      </div>
+      <strong>📡 Broadcast जानकारी</strong>
 
+      <br><br>
 
+      यह Live Score API से real/current cricket data लेता है।
+
+      <br><br>
+
+      अगले चरण में:
+
+      <br>
+
+      1️⃣ Score Graphics
+
+      <br>
+
+      2️⃣ Full-screen Scoreboard
+
+      <br>
+
+      3️⃣ Automatic Score Update
+
+      <br>
+
+      4️⃣ RTMP Streaming
+
+      <br>
+
+      5️⃣ YouTube / Facebook Broadcast
+
+      <br><br>
+
+      इसमें मैच का वीडियो या कैमरा जरूरी नहीं होगा।
+
+    </div>
+
+    <div class="api-status">
+      ⚙️ API Status:
+      <strong id="apiStatus">
+        Connecting...
+      </strong>
     </div>
 
   </div>
@@ -651,31 +535,20 @@
 </div>
 
 
-
-<!-- =========================
-     FOOTER
-     ========================= -->
-
 <footer>
-
   © 2026 Cricket AI
-
 </footer>
-
 
 
 <script>
 
-
-// =====================================================
-// AI IMAGE GENERATOR
-// =====================================================
+/* =====================================================
+   AI IMAGE GENERATOR
+   ===================================================== */
 
 let currentImageUrl = null;
 
-
 async function generateImage() {
-
 
   const player =
     document
@@ -684,7 +557,6 @@ async function generateImage() {
       .trim()
     || "Cricket Player";
 
-
   const team =
     document
       .getElementById("team")
@@ -692,65 +564,43 @@ async function generateImage() {
       .trim()
     || "India";
 
-
   const style =
     document
       .getElementById("style")
       .value;
 
-
   const button =
     document
       .getElementById("generateButton");
-
 
   const loading =
     document
       .getElementById("loading");
 
-
   const errorBox =
     document
       .getElementById("error");
-
 
   const result =
     document
       .getElementById("result");
 
-
   const generatedImage =
     document
       .getElementById("generatedImage");
-
 
   const downloadButton =
     document
       .getElementById("downloadButton");
 
+  result.style.display = "none";
+  errorBox.style.display = "none";
+  loading.style.display = "block";
 
-  result.style.display =
-    "none";
-
-
-  errorBox.style.display =
-    "none";
-
-
-  loading.style.display =
-    "block";
-
-
-  button.disabled =
-    true;
-
-
-  button.innerText =
-    "⏳ Generating Image...";
-
+  button.disabled = true;
+  button.innerText = "⏳ Generating Image...";
 
   try {
-
 
     const response =
       await fetch(
@@ -771,170 +621,114 @@ async function generateImage() {
         }
       );
 
-
     if (!response.ok) {
 
-
       const contentType =
-        response.headers
-          .get("content-type")
+        response.headers.get("content-type")
         || "";
-
 
       let errorMessage =
         "Image generate नहीं हो सकी";
 
-
       if (
-        contentType
-          .includes("application/json")
+        contentType.includes(
+          "application/json"
+        )
       ) {
-
 
         const errorData =
           await response.json();
-
 
         errorMessage =
           errorData.error
           || errorMessage;
 
-
       } else {
-
 
         const errorText =
           await response.text();
-
 
         errorMessage =
           "Server Error (" +
           response.status +
           "): " +
-          errorText.substring(
-            0,
-            300
-          );
+          errorText.substring(0, 300);
 
       }
 
-
-      throw new Error(
-        errorMessage
-      );
-
+      throw new Error(errorMessage);
     }
-
 
     const imageBlob =
       await response.blob();
 
-
     if (
-      !imageBlob.type
-        .startsWith("image/")
+      !imageBlob.type.startsWith("image/")
     ) {
-
 
       const text =
         await imageBlob.text();
 
-
       throw new Error(
-        "Server ने Image की जगह यह भेजा: "
-        + text.substring(0, 300)
+        "Server ने Image की जगह यह भेजा: " +
+        text.substring(0, 300)
       );
-
     }
-
 
     if (currentImageUrl) {
-
-      URL.revokeObjectURL(
-        currentImageUrl
-      );
-
+      URL.revokeObjectURL(currentImageUrl);
     }
 
-
     currentImageUrl =
-      URL.createObjectURL(
-        imageBlob
-      );
-
+      URL.createObjectURL(imageBlob);
 
     generatedImage.src =
       currentImageUrl;
 
-
     downloadButton.href =
       currentImageUrl;
 
-
     document
-      .getElementById(
-        "resultPlayer"
-      )
+      .getElementById("resultPlayer")
       .innerText =
       "🏏 Player: " + player;
 
-
     document
-      .getElementById(
-        "resultTeam"
-      )
+      .getElementById("resultTeam")
       .innerText =
       "🌍 Team: " + team;
 
-
     document
-      .getElementById(
-        "resultStyle"
-      )
+      .getElementById("resultStyle")
       .innerText =
       "🎨 Style: " + style;
 
-
-    result.style.display =
-      "block";
-
+    result.style.display = "block";
 
     result.scrollIntoView({
       behavior: "smooth",
       block: "start"
     });
 
-
   }
-
 
   catch (error) {
 
-
     console.error(error);
-
 
     errorBox.innerText =
       "❌ Error: " +
       error.message;
 
-
-    errorBox.style.display =
-      "block";
+    errorBox.style.display = "block";
 
   }
 
-
   finally {
 
+    loading.style.display = "none";
 
-    loading.style.display =
-      "none";
-
-
-    button.disabled =
-      false;
-
+    button.disabled = false;
 
     button.innerText =
       "✨ Generate Cricket Image";
@@ -944,129 +738,496 @@ async function generateImage() {
 }
 
 
+/* =====================================================
+   REAL LIVE SCORE
+   ===================================================== */
 
-// =====================================================
-// LIVE SCORE DEMO
-// =====================================================
-
-let demoBall = 0;
-
-
-function demoNextBall() {
+let scoreLoading = false;
 
 
-  demoBall++;
+/*
+  Score को readable format में बनाना
+*/
+
+function formatScore(score) {
+
+  if (!score) {
+    return "Score unavailable";
+  }
+
+  const runs =
+    score.r ?? "-";
+
+  const wickets =
+    score.w ?? "-";
+
+  const overs =
+    score.o ?? "-";
+
+  return (
+    runs +
+    "/" +
+    wickets +
+    " (" +
+    overs +
+    " ov)"
+  );
+}
 
 
-  const scores = [
+/*
+  Team name से score ढूँढना
+*/
 
+function getTeamScore(match, teamName) {
 
-    {
-      score: "188/4",
-      overs: "28.4 Overs",
-      bat1: "KOHLI 73*",
-      bat2: "RAHUL 41*",
-      crr: "6.58"
-    },
+  if (
+    !match.score ||
+    !Array.isArray(match.score)
+  ) {
+    return null;
+  }
 
+  const scores =
+    match.score.filter(
+      item => item && item.inning
+    );
 
-    {
-      score: "188/4",
-      overs: "28.5 Overs",
-      bat1: "KOHLI 73*",
-      bat2: "RAHUL 41*",
-      crr: "6.57"
-    },
+  if (!scores.length) {
+    return null;
+  }
 
+  /*
+    पहले उसी team का सबसे recent inning खोजें
+  */
 
-    {
-      score: "189/4",
-      overs: "29.0 Overs",
-      bat1: "KOHLI 73*",
-      bat2: "RAHUL 42*",
-      crr: "6.51"
-    },
+  const teamScores =
+    scores.filter(
+      item =>
+        item.inning
+          .toLowerCase()
+          .includes(
+            teamName.toLowerCase()
+          )
+    );
 
-
-    {
-      score: "190/4",
-      overs: "29.1 Overs",
-      bat1: "KOHLI 74*",
-      bat2: "RAHUL 42*",
-      crr: "6.52"
-    }
-
-
-  ];
-
-
-  const s =
-    scores[
-      (demoBall - 1)
-      % scores.length
+  if (teamScores.length) {
+    return teamScores[
+      teamScores.length - 1
     ];
+  }
+
+  /*
+    fallback
+  */
+
+  return scores[
+    scores.length - 1
+  ];
+}
 
 
-  document
-    .getElementById(
-      "liveScore"
-    )
-    .innerText =
-    s.score;
+/*
+  Match card बनाना
+*/
+
+function createMatchCard(match) {
+
+  const teams =
+    Array.isArray(match.teams)
+      ? match.teams
+      : [];
+
+  const team1 =
+    teams[0] || "Team 1";
+
+  const team2 =
+    teams[1] || "Team 2";
+
+  const score1 =
+    getTeamScore(
+      match,
+      team1
+    );
+
+  const score2 =
+    getTeamScore(
+      match,
+      team2
+    );
+
+  const isLive =
+    match.matchEnded !== true;
+
+  const badgeClass =
+    isLive
+      ? "live-badge"
+      : "live-badge completed-badge";
+
+  const badgeText =
+    isLive
+      ? "🔴 LIVE / CURRENT"
+      : "✅ COMPLETED";
+
+  const score1Text =
+    score1
+      ? formatScore(score1)
+      : "Yet to bat";
+
+  const score2Text =
+    score2
+      ? formatScore(score2)
+      : "Yet to bat";
+
+  const matchName =
+    match.name ||
+    team1 + " vs " + team2;
+
+  const venue =
+    match.venue ||
+    "Venue unavailable";
+
+  const status =
+    match.status ||
+    "Status unavailable";
+
+  const matchType =
+    match.matchType
+      ? match.matchType.toUpperCase()
+      : "CRICKET";
+
+  return `
+
+    <div class="live-card">
+
+      <div class="${badgeClass}">
+        ${badgeText}
+      </div>
+
+      <div class="match-title">
+        ${escapeHtml(matchName)}
+      </div>
+
+      <div class="team-score">
+
+        <div class="team-name">
+          🏏 ${escapeHtml(team1)}
+        </div>
+
+        <div class="team-score-value">
+          ${escapeHtml(score1Text)}
+        </div>
+
+      </div>
+
+      <div class="team-score">
+
+        <div class="team-name">
+          🏏 ${escapeHtml(team2)}
+        </div>
+
+        <div class="team-score-value">
+          ${escapeHtml(score2Text)}
+        </div>
+
+      </div>
+
+      <div class="status">
+        <strong>📢 Status:</strong>
+        ${escapeHtml(status)}
+      </div>
+
+      <div class="venue">
+        📍 ${escapeHtml(venue)}
+      </div>
+
+      <div class="match-type">
+        🏆 ${escapeHtml(matchType)}
+      </div>
+
+    </div>
+
+  `;
+}
 
 
-  document
-    .getElementById(
-      "liveOvers"
-    )
-    .innerText =
-    s.overs;
+/*
+  HTML सुरक्षित रखने के लिए
+*/
 
+function escapeHtml(value) {
 
-  document
-    .getElementById(
-      "batsman1"
-    )
-    .innerText =
-    s.bat1;
-
-
-  document
-    .getElementById(
-      "batsman2"
-    )
-    .innerText =
-    s.bat2;
-
-
-  document
-    .getElementById(
-      "crr"
-    )
-    .innerText =
-    s.crr;
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
 }
 
 
+/*
+  Real API से scores लाना
+*/
 
-// =====================================================
-// BROADCAST INFORMATION
-// =====================================================
+async function loadLiveScores() {
+
+  if (scoreLoading) {
+    return;
+  }
+
+  scoreLoading = true;
+
+  const container =
+    document.getElementById(
+      "liveScoreContainer"
+    );
+
+  const status =
+    document.getElementById(
+      "apiStatus"
+    );
+
+  const refreshButton =
+    document.getElementById(
+      "refreshScoreButton"
+    );
+
+  const lastUpdated =
+    document.getElementById(
+      "lastUpdated"
+    );
+
+  refreshButton.disabled = true;
+  refreshButton.innerText =
+    "⏳ Loading...";
+
+  status.innerText =
+    "Connecting...";
+
+  container.innerHTML = `
+
+    <div class="score-loading">
+      🏏 Live Score लोड हो रहा है...
+    </div>
+
+  `;
+
+  try {
+
+    /*
+      IMPORTANT:
+      API key यहाँ नहीं है।
+      Worker Cloudflare Secret से key इस्तेमाल करता है।
+    */
+
+    const response =
+      await fetch(
+        "/api/live-score",
+        {
+          method: "GET",
+          cache: "no-store"
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (!response.ok) {
+
+      throw new Error(
+        result.error ||
+        "Live Score API Error"
+      );
+    }
+
+    if (!result.success) {
+
+      throw new Error(
+        result.error ||
+        "Live Score API failed"
+      );
+    }
+
+    /*
+      Worker response:
+      {
+        success: true,
+        data: {
+          data: [...]
+        }
+      }
+    */
+
+    const apiData =
+      result.data || {};
+
+    let matches =
+      Array.isArray(apiData.data)
+        ? apiData.data
+        : [];
+
+    /*
+      Current/live matches पहले
+    */
+
+    matches.sort(
+      (a, b) => {
+
+        const aLive =
+          a.matchEnded !== true;
+
+        const bLive =
+          b.matchEnded !== true;
+
+        if (aLive && !bLive) {
+          return -1;
+        }
+
+        if (!aLive && bLive) {
+          return 1;
+        }
+
+        return 0;
+
+      }
+    );
+
+
+    if (!matches.length) {
+
+      container.innerHTML = `
+
+        <div class="no-match">
+
+          🏏 अभी कोई match उपलब्ध नहीं है।
+
+          <br><br>
+
+          थोड़ी देर बाद Refresh करें।
+
+        </div>
+
+      `;
+
+      status.innerText =
+        "Connected";
+
+    } else {
+
+      container.innerHTML =
+        matches
+          .map(createMatchCard)
+          .join("");
+
+      status.innerText =
+        "Connected ✓";
+    }
+
+    const now =
+      new Date();
+
+    lastUpdated.innerText =
+      "Last updated: " +
+      now.toLocaleTimeString(
+        "hi-IN"
+      );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Live Score Error:",
+      error
+    );
+
+    container.innerHTML = `
+
+      <div class="score-error">
+
+        ❌ Live Score load नहीं हो सका।
+
+        <br><br>
+
+        ${escapeHtml(
+          error.message ||
+          "Unknown error"
+        )}
+
+        <br><br>
+
+        🔄 कृपया Refresh दबाएँ।
+
+      </div>
+
+    `;
+
+    status.innerText =
+      "Error";
+
+    lastUpdated.innerText =
+      "Score update failed";
+
+  }
+
+  finally {
+
+    scoreLoading = false;
+
+    refreshButton.disabled =
+      false;
+
+    refreshButton.innerText =
+      "🔄 Refresh";
+
+  }
+
+}
+
+
+/* =====================================================
+   AUTO REFRESH
+   ===================================================== */
+
+/*
+  हर 60 सेकंड में Real Score update
+*/
+
+setInterval(
+  loadLiveScores,
+  60000
+);
+
+
+/*
+  Page खुलते ही score load
+*/
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    loadLiveScores();
+
+  }
+);
+
+
+/* =====================================================
+   BROADCAST INFORMATION
+   ===================================================== */
 
 function showBroadcastInfo() {
 
-
   const box =
-    document
-      .getElementById(
-        "broadcastInfo"
-      );
-
+    document.getElementById(
+      "broadcastInfo"
+    );
 
   if (
-    box.style.display === "none"
-    ||
+    box.style.display === "none" ||
     box.style.display === ""
   ) {
 
@@ -1082,8 +1243,7 @@ function showBroadcastInfo() {
 
 }
 
-
 </script>
 
 </body>
-  </html>
+</html>
