@@ -1,487 +1,239 @@
 export default {
   async fetch(request, env) {
+
     const url = new URL(request.url);
 
-    // =========================
-    // LIVE CRICKET SCORE
-    // =========================
-    if (url.pathname === "/api/live-score") {
-      if (request.method !== "GET") {
-        return Response.json(
-          {
-            success: false,
-            error: "Only GET requests are allowed"
-          },
-          { status: 405 }
-        );
-      }
+    /*
+    ==========================================
+    AI IMAGE GENERATOR
+    ==========================================
+    */
+
+    if (
+      url.pathname === "/api/generate-image" &&
+      request.method === "POST"
+    ) {
 
       try {
-        if (!env.CRICKET_API_KEY) {
-          return Response.json(
-            {
-              success: false,
-              error: "CRICKET_API_KEY secret not found in Cloudflare"
-            },
-            { status: 500 }
-          );
-        }
 
-        // ==========================================
-        // CricketData Current Matches API
-        // ==========================================
-
-        const apiUrl =
-          "https://api.cricapi.com/v1/currentMatches?apikey=" +
-          encodeURIComponent(env.CRICKET_API_KEY) +
-          "&offset=0";
-
-        const apiResponse = await fetch(apiUrl, {
-          method: "GET",
-          headers: {
-            Accept: "application/json"
-          },
-          cf: {
-            cacheTtl: 0,
-            cacheEverything: false
-          }
-        });
-
-        const responseText = await apiResponse.text();
-
-        if (!apiResponse.ok) {
-          return Response.json(
-            {
-              success: false,
-              error:
-                "Cricket API HTTP Error " +
-                apiResponse.status
-            },
-            { status: 502 }
-          );
-        }
-
-        let apiData;
-
-        try {
-          apiData = JSON.parse(responseText);
-        } catch {
-          return Response.json(
-            {
-              success: false,
-              error: "Cricket API returned invalid JSON"
-            },
-            { status: 502 }
-          );
-        }
-
-        // ==========================================
-        // MATCH LIST
-        // ==========================================
-
-        let matches = [];
-
-        if (Array.isArray(apiData?.data)) {
-          matches = apiData.data;
-        } else if (Array.isArray(apiData?.matches)) {
-          matches = apiData.matches;
-        } else if (Array.isArray(apiData?.result)) {
-          matches = apiData.result;
-        }
-
-        // ==========================================
-        // NORMALIZE MATCH DATA
-        // ==========================================
-
-        const normalizedMatches = matches.map(
-          (match, index) => {
-            const teams = Array.isArray(match?.teams)
-              ? match.teams
-              : [];
-
-            const team1 =
-              teams[0] ||
-              match?.team1 ||
-              "";
-
-            const team2 =
-              teams[1] ||
-              match?.team2 ||
-              "";
-
-            const matchName =
-              match?.name ||
-              match?.matchType ||
-              (
-                team1 && team2
-                  ? `${team1} vs ${team2}`
-                  : "Cricket Match"
-              );
-
-            const status =
-              match?.status ||
-              "";
-
-            const venue =
-              match?.venue ||
-              "";
-
-            const dateTimeGMT =
-              match?.dateTimeGMT ||
-              match?.date ||
-              "";
-
-            // ======================================
-            // SCORE ARRAY
-            // ======================================
-
-            let score = [];
-
-            if (Array.isArray(match?.score)) {
-              score = match.score.map(
-                (item) => ({
-                  r:
-                    item?.r ??
-                    item?.runs ??
-                    0,
-
-                  w:
-                    item?.w ??
-                    item?.wickets ??
-                    0,
-
-                  o:
-                    item?.o ??
-                    item?.overs ??
-                    "",
-
-                  team:
-                    item?.team ||
-                    item?.teamName ||
-                    "",
-
-                  inning:
-                    item?.inning ||
-                    item?.innings ||
-                    ""
-                })
-              );
-            }
-
-            return {
-              id:
-                match?.id ||
-                match?.matchId ||
-                `match-${index}`,
-
-              name: matchName,
-
-              matchType:
-                match?.matchType ||
-                "",
-
-              status,
-
-              venue,
-
-              dateTimeGMT,
-
-              date:
-                match?.date ||
-                dateTimeGMT,
-
-              teams,
-
-              team1,
-
-              team2,
-
-              score,
-
-              series_id:
-                match?.series_id ||
-                match?.seriesId ||
-                "",
-
-              series_name:
-                match?.series_name ||
-                match?.seriesName ||
-                "",
-
-              matchStarted:
-                match?.matchStarted === true,
-
-              matchEnded:
-                match?.matchEnded === true
-            };
-          }
-        );
-
-        // ==========================================
-        // SORT
-        // LIVE FIRST
-        // UPCOMING SECOND
-        // RESULTS LAST
-        // ==========================================
-
-        function isLive(match) {
-          const s =
-            String(match?.status || "")
-              .toLowerCase();
-
-          return (
-            match?.matchStarted === true &&
-            match?.matchEnded !== true &&
-            (
-              s.includes("live") ||
-              s.includes("in progress") ||
-              s.includes("innings") ||
-              s.includes("batting") ||
-              s.includes("need") ||
-              s.includes("lead") ||
-              s.includes("trail")
-            )
-          );
-        }
-
-        function isResult(match) {
-          const s =
-            String(match?.status || "")
-              .toLowerCase();
-
-          return (
-            match?.matchEnded === true ||
-            s.includes("won") ||
-            s.includes("draw") ||
-            s.includes("abandoned") ||
-            s.includes("no result") ||
-            s.includes("complete") ||
-            s.includes("finished")
-          );
-        }
-
-        normalizedMatches.sort(
-          (a, b) => {
-            const aLive = isLive(a);
-            const bLive = isLive(b);
-
-            const aResult = isResult(a);
-            const bResult = isResult(b);
-
-            if (aLive && !bLive) return -1;
-            if (!aLive && bLive) return 1;
-
-            if (aResult && !bResult) return 1;
-            if (!aResult && bResult) return -1;
-
-            return 0;
-          }
-        );
-
-        // ==========================================
-        // NEVER RETURN API KEY
-        // ==========================================
-
-        return Response.json(
-          {
-            success: true,
-
-            data: {
-              data: normalizedMatches
-            },
-
-            source: "CricketData currentMatches",
-
-            updatedAt:
-              new Date().toISOString()
-          },
-          {
-            headers: {
-              "Cache-Control":
-                "no-store, no-cache, must-revalidate",
-              Pragma: "no-cache",
-              Expires: "0"
-            }
-          }
-        );
-      } catch (error) {
-        console.error(
-          "Live Score Error:",
-          error
-        );
-
-        return Response.json(
-          {
-            success: false,
-            error:
-              error?.message ||
-              "Live score API failed"
-          },
-          { status: 500 }
-        );
-      }
-    }
-
-    // =========================
-    // AI CRICKET IMAGE
-    // =========================
-    if (url.pathname === "/api/generate-image") {
-      if (request.method !== "POST") {
-        return Response.json(
-          {
-            success: false,
-            error: "Only POST requests are allowed"
-          },
-          { status: 405 }
-        );
-      }
-
-      try {
-        if (!env.AI) {
-          throw new Error(
-            "Workers AI binding 'AI' not found"
-          );
-        }
-
-        const body =
-          await request.json();
-
-        const player =
-          body.player ||
-          "Cricket Player";
-
-        const team =
-          body.team ||
-          "India";
-
-        const style =
-          body.style ||
-          "Realistic";
-
-        const pose =
-          body.pose ||
-          "Batting";
-
-        const jersey =
-          body.jersey ||
-          "18";
-
-        const stadium =
-          body.stadium ||
-          "Modern Cricket Stadium";
-
-        const matchTime =
-          body.matchTime ||
-          "Day Match";
-
-        const tournament =
-          body.tournament ||
-          "T20 Match";
-
-        const prompt = `
-Create a high quality ${style} professional cricket image.
-
-A professional cricket player.
-
-Player name: ${player}.
-
-The player represents ${team}.
-
-Player pose: ${pose}.
-
-Jersey number: ${jersey}.
-
-Tournament: ${tournament}.
-
-Match time: ${matchTime}.
-
-Stadium: ${stadium}.
-
-Professional ${team} cricket uniform.
-
-Professional cricket equipment.
-
-Exciting cricket atmosphere.
-
-Cinematic sports photography.
-
-Dramatic stadium lighting.
-
-Dynamic composition.
-
-Highly detailed.
-
-Sharp focus.
-
-High quality.
-
-No watermark.
-
-No text.
+        const data = await request.json();
+
+        let prompt = "";
+
+        // PLAYER IMAGE
+        if (!data.poster && !data.card) {
+
+          prompt = `
+Photorealistic professional cricket player portrait,
+player name ${data.playerName},
+representing ${data.team},
+${data.playerType},
+${data.hand},
+performing ${data.pose},
+wearing ${data.jersey} cricket jersey,
+jersey number ${data.number},
+playing at a ${data.stadium},
+${data.weather},
+${data.matchTime},
+${data.camera},
+tournament ${data.tournament},
+professional cricket photography,
+dramatic stadium lighting,
+high detail,
+realistic face,
+athletic body,
+cinematic sports photography,
+sharp focus,
+premium cricket sports poster,
+vertical composition,
+no text,
+no watermark
 `;
 
-        const aiResult =
-          await env.AI.run(
-            "@cf/black-forest-labs/flux-1-schnell",
-            {
-              prompt,
-              steps: 4
-            }
-          );
-
-        if (
-          !aiResult ||
-          !aiResult.image
-        ) {
-          throw new Error(
-            "AI did not return image data"
-          );
         }
 
-        const binaryString =
-          atob(aiResult.image);
+        // POSTER
+        else if (data.poster) {
 
-        const bytes =
-          Uint8Array.from(
-            binaryString,
-            char =>
-              char.charCodeAt(0)
-          );
+          prompt = `
+Professional cricket match poster,
+${data.playerName} representing ${data.team},
+${data.match},
+${data.tournament},
+${data.stadium},
+packed cricket stadium,
+dramatic floodlights,
+flying cricket ball,
+intense sports atmosphere,
+photorealistic cricket photography,
+cinematic lighting,
+high contrast,
+ultra detailed,
+vertical 9:16,
+large clean empty space at top for headline,
+no text,
+no watermark
+`;
 
-        return new Response(bytes, {
-          headers: {
-            "Content-Type":
-              "image/jpeg",
+        }
 
-            "Cache-Control":
-              "no-store"
-          }
-        });
-      } catch (error) {
-        console.error(
-          "AI Generation Error:",
-          error
-        );
+        // PLAYER CARD
+        else if (data.card) {
 
-        return Response.json(
+          prompt = `
+Professional cricket player trading card,
+player ${data.playerName},
+team ${data.team},
+role ${data.role},
+jersey number ${data.number},
+${data.hand},
+${data.level} cricket player,
+${data.jersey} cricket jersey,
+premium sports card design,
+dramatic cricket stadium background,
+professional cricket photography,
+cinematic lighting,
+ultra detailed,
+portrait composition,
+vertical 2:3,
+clean professional card layout,
+no readable text,
+no watermark
+`;
+
+        }
+
+        const aiResult = await env.AI.run(
+          "@cf/black-forest-labs/flux-1-schnell",
           {
-            success: false,
-            error:
-              "AI Error: " +
-              (
-                error?.message ||
-                "Unknown error"
-              )
-          },
-          { status: 500 }
+            prompt: prompt
+          }
         );
+
+        if (!aiResult || !aiResult.image) {
+
+          return jsonResponse({
+            error: "AI image was not returned"
+          }, 500);
+
+        }
+
+        /*
+        Cloudflare Workers AI normally returns
+        the generated image as base64.
+        */
+
+        const imageUrl =
+          "data:image/jpeg;base64," +
+          aiResult.image;
+
+        return jsonResponse({
+          success: true,
+          image: imageUrl
+        });
+
+      } catch (error) {
+
+        return jsonResponse({
+          error: error.message || "Image generation failed"
+        }, 500);
+
       }
+
     }
 
-    // =========================
-    // WEBSITE FILES
-    // =========================
+
+    /*
+    ==========================================
+    LIVE SCORE
+    ==========================================
+
+    फिलहाल sample structure रखा गया है।
+    यहां आपका real cricket API लगाया जा सकता है।
+    ==========================================
+    */
+
+    if (url.pathname === "/api/live-score") {
+
+      const matches = [
+        {
+          title: "India vs Australia",
+          status: "LIVE",
+          description: "Live Cricket Match",
+          teams: [
+            {
+              name: "India",
+              score: "120/3",
+              overs: "15.2"
+            },
+            {
+              name: "Australia",
+              score: "-",
+              overs: "-"
+            }
+          ],
+          venue: "International Cricket Stadium",
+          date: new Date().toLocaleDateString("en-IN")
+        },
+
+        {
+          title: "England vs South Africa",
+          status: "LIVE",
+          description: "International Cricket",
+          teams: [
+            {
+              name: "England",
+              score: "145/5",
+              overs: "18.1"
+            },
+            {
+              name: "South Africa",
+              score: "-",
+              overs: "-"
+            }
+          ],
+          venue: "International Cricket Ground",
+          date: new Date().toLocaleDateString("en-IN")
+        }
+      ];
+
+      return jsonResponse({
+        success: true,
+        matches: matches
+      });
+
+    }
+
+
+    /*
+    ==========================================
+    STATIC WEBSITE
+    ==========================================
+    */
 
     return env.ASSETS.fetch(request);
+
   }
 };
+
+
+/*
+==========================================
+JSON RESPONSE HELPER
+==========================================
+*/
+
+function jsonResponse(data, status = 200) {
+
+  return new Response(
+    JSON.stringify(data),
+    {
+      status,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store"
+      }
+    }
+  );
+
+}
