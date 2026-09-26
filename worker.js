@@ -1,239 +1,327 @@
 export default {
   async fetch(request, env) {
-
     const url = new URL(request.url);
 
-    /*
-    ==========================================
-    AI IMAGE GENERATOR
-    ==========================================
-    */
+    // ==========================================
+    // REAL LIVE CRICKET SCORE
+    // ==========================================
+    if (url.pathname === "/api/live-score") {
+      try {
+        if (!env.CRICKET_API_KEY) {
+          return json({
+            success: false,
+            error: "CRICKET_API_KEY is not configured in Cloudflare"
+          }, 500);
+        }
+
+        const apiUrl =
+          "https://api.cricapi.com/v1/currentMatches" +
+          "?apikey=" +
+          encodeURIComponent(env.CRICKET_API_KEY) +
+          "&offset=0";
+
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          return json({
+            success: false,
+            error: "Cricket API request failed",
+            status: response.status
+          }, 502);
+        }
+
+        const data = await response.json();
+
+        if (!data || data.status !== "success") {
+          return json({
+            success: false,
+            error: "Cricket API returned an error",
+            apiResponse: data
+          }, 502);
+        }
+
+        const matches = Array.isArray(data.data)
+          ? data.data
+          : [];
+
+        const formattedMatches = matches.map(match => {
+          const teams = Array.isArray(match.teams)
+            ? match.teams
+            : [];
+
+          const scores = Array.isArray(match.score)
+            ? match.score
+            : [];
+
+          const formattedTeams = teams.map(teamName => {
+            const teamScores = scores.filter(score => {
+              if (!score || !score.inning) return false;
+
+              return String(score.inning)
+                .toLowerCase()
+                .startsWith(
+                  String(teamName).toLowerCase()
+                );
+            });
+
+            const latest =
+              teamScores.length > 0
+                ? teamScores[teamScores.length - 1]
+                : null;
+
+            return {
+              name: teamName,
+
+              score: latest
+                ? `${latest.r}/${latest.w}`
+                : "-",
+
+              overs: latest
+                ? String(latest.o)
+                : "-"
+            };
+          });
+
+          // ======================================
+          // MATCH STATUS
+          // ======================================
+
+          let status = String(
+            match.status || ""
+          ).toUpperCase();
+
+          if (
+            status.includes("LIVE") ||
+            status.includes("IN PROGRESS")
+          ) {
+            status = "LIVE";
+
+          } else if (
+            status.includes("STUMPS")
+          ) {
+            status = "STUMPS";
+
+          } else if (
+            status.includes("DELAY")
+          ) {
+            status = "DELAYED";
+
+          } else if (
+            status.includes("RESULT") ||
+            status.includes("WON")
+          ) {
+            status = "RESULT";
+
+          } else {
+            status = match.matchStarted
+              ? "LIVE"
+              : "UPCOMING";
+          }
+
+          return {
+            id: match.id || "",
+
+            title:
+              match.name ||
+              `${teams[0] || "Team 1"} vs ${
+                teams[1] || "Team 2"
+              }`,
+
+            status: status,
+
+            description:
+              match.matchType
+                ? String(match.matchType).toUpperCase()
+                : "CRICKET MATCH",
+
+            teams: formattedTeams,
+
+            venue:
+              match.venue ||
+              "Cricket Stadium",
+
+            date:
+              match.date ||
+              new Date()
+                .toISOString()
+                .slice(0, 10),
+
+            matchType:
+              match.matchType || "",
+
+            series:
+              match.series_id || ""
+          };
+        });
+
+        // ======================================
+        // LIVE MATCHES FIRST
+        // ======================================
+
+        formattedMatches.sort((a, b) => {
+          const order = {
+            LIVE: 1,
+            STUMPS: 2,
+            DELAYED: 3,
+            UPCOMING: 4,
+            RESULT: 5
+          };
+
+          return (
+            (order[a.status] || 99) -
+            (order[b.status] || 99)
+          );
+        });
+
+        return json({
+          success: true,
+
+          updatedAt:
+            new Date().toISOString(),
+
+          count:
+            formattedMatches.length,
+
+          matches:
+            formattedMatches
+        });
+
+      } catch (error) {
+        return json({
+          success: false,
+          error:
+            "Unable to fetch live cricket scores",
+
+          message:
+            error.message
+        }, 500);
+      }
+    }
+
+
+    // ==========================================
+    // AI CRICKET IMAGE GENERATOR
+    // ==========================================
 
     if (
       url.pathname === "/api/generate-image" &&
       request.method === "POST"
     ) {
-
       try {
+        const body =
+          await request.json();
 
-        const data = await request.json();
+        const prompt =
+          body.prompt ||
+          "Professional photorealistic cricket player";
 
-        let prompt = "";
+        const result =
+          await env.AI.run(
+            "@cf/black-forest-labs/flux-1-schnell",
+            {
+              prompt: prompt
+            }
+          );
 
-        // PLAYER IMAGE
-        if (!data.poster && !data.card) {
+        const contentType =
+          result?.headers?.get(
+            "content-type"
+          ) || "image/jpeg";
 
-          prompt = `
-Photorealistic professional cricket player portrait,
-player name ${data.playerName},
-representing ${data.team},
-${data.playerType},
-${data.hand},
-performing ${data.pose},
-wearing ${data.jersey} cricket jersey,
-jersey number ${data.number},
-playing at a ${data.stadium},
-${data.weather},
-${data.matchTime},
-${data.camera},
-tournament ${data.tournament},
-professional cricket photography,
-dramatic stadium lighting,
-high detail,
-realistic face,
-athletic body,
-cinematic sports photography,
-sharp focus,
-premium cricket sports poster,
-vertical composition,
-no text,
-no watermark
-`;
+        const buffer =
+          await result.arrayBuffer();
 
-        }
+        const base64 =
+          arrayBufferToBase64(buffer);
 
-        // POSTER
-        else if (data.poster) {
-
-          prompt = `
-Professional cricket match poster,
-${data.playerName} representing ${data.team},
-${data.match},
-${data.tournament},
-${data.stadium},
-packed cricket stadium,
-dramatic floodlights,
-flying cricket ball,
-intense sports atmosphere,
-photorealistic cricket photography,
-cinematic lighting,
-high contrast,
-ultra detailed,
-vertical 9:16,
-large clean empty space at top for headline,
-no text,
-no watermark
-`;
-
-        }
-
-        // PLAYER CARD
-        else if (data.card) {
-
-          prompt = `
-Professional cricket player trading card,
-player ${data.playerName},
-team ${data.team},
-role ${data.role},
-jersey number ${data.number},
-${data.hand},
-${data.level} cricket player,
-${data.jersey} cricket jersey,
-premium sports card design,
-dramatic cricket stadium background,
-professional cricket photography,
-cinematic lighting,
-ultra detailed,
-portrait composition,
-vertical 2:3,
-clean professional card layout,
-no readable text,
-no watermark
-`;
-
-        }
-
-        const aiResult = await env.AI.run(
-          "@cf/black-forest-labs/flux-1-schnell",
-          {
-            prompt: prompt
-          }
-        );
-
-        if (!aiResult || !aiResult.image) {
-
-          return jsonResponse({
-            error: "AI image was not returned"
-          }, 500);
-
-        }
-
-        /*
-        Cloudflare Workers AI normally returns
-        the generated image as base64.
-        */
-
-        const imageUrl =
-          "data:image/jpeg;base64," +
-          aiResult.image;
-
-        return jsonResponse({
+        return json({
           success: true,
-          image: imageUrl
+
+          image:
+            `data:${contentType};base64,${base64}`
         });
 
       } catch (error) {
+        return json({
+          success: false,
 
-        return jsonResponse({
-          error: error.message || "Image generation failed"
+          error:
+            error.message
         }, 500);
-
       }
-
     }
 
 
-    /*
-    ==========================================
-    LIVE SCORE
-    ==========================================
-
-    फिलहाल sample structure रखा गया है।
-    यहां आपका real cricket API लगाया जा सकता है।
-    ==========================================
-    */
-
-    if (url.pathname === "/api/live-score") {
-
-      const matches = [
-        {
-          title: "India vs Australia",
-          status: "LIVE",
-          description: "Live Cricket Match",
-          teams: [
-            {
-              name: "India",
-              score: "120/3",
-              overs: "15.2"
-            },
-            {
-              name: "Australia",
-              score: "-",
-              overs: "-"
-            }
-          ],
-          venue: "International Cricket Stadium",
-          date: new Date().toLocaleDateString("en-IN")
-        },
-
-        {
-          title: "England vs South Africa",
-          status: "LIVE",
-          description: "International Cricket",
-          teams: [
-            {
-              name: "England",
-              score: "145/5",
-              overs: "18.1"
-            },
-            {
-              name: "South Africa",
-              score: "-",
-              overs: "-"
-            }
-          ],
-          venue: "International Cricket Ground",
-          date: new Date().toLocaleDateString("en-IN")
-        }
-      ];
-
-      return jsonResponse({
-        success: true,
-        matches: matches
-      });
-
-    }
-
-
-    /*
-    ==========================================
-    STATIC WEBSITE
-    ==========================================
-    */
+    // ==========================================
+    // WEBSITE FILES
+    // ==========================================
 
     return env.ASSETS.fetch(request);
-
   }
 };
 
 
-/*
-==========================================
-JSON RESPONSE HELPER
-==========================================
-*/
+// ==========================================
+// JSON RESPONSE FUNCTION
+// ==========================================
 
-function jsonResponse(data, status = 200) {
-
+function json(data, status = 200) {
   return new Response(
     JSON.stringify(data),
+
     {
-      status,
+      status: status,
+
       headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store"
+        "Content-Type":
+          "application/json; charset=utf-8",
+
+        "Cache-Control":
+          "no-store",
+
+        "Access-Control-Allow-Origin":
+          "*"
       }
     }
   );
-
 }
+
+
+// ==========================================
+// ARRAY BUFFER → BASE64
+// ==========================================
+
+function arrayBufferToBase64(buffer) {
+  const bytes =
+    new Uint8Array(buffer);
+
+  let binary = "";
+
+  const chunkSize = 0x8000;
+
+  for (
+    let i = 0;
+    i < bytes.length;
+    i += chunkSize
+  ) {
+    const chunk =
+      bytes.subarray(
+        i,
+        Math.min(
+          i + chunkSize,
+          bytes.length
+        )
+      );
+
+    binary += String.fromCharCode(
+      ...chunk
+    );
+  }
+
+  return btoa(binary);
+                }
