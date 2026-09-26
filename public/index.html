@@ -1265,551 +1265,377 @@ console.log(error);
 LIVE SCORE
 ========================================= */
 
-async function loadLiveScore(){
+async function loadLiveScore() {
 
-const updated=
-document.getElementById("scoreUpdated");
+  const updated = document.getElementById("scoreUpdated");
+  const list = document.getElementById("scoreList");
 
-const list=
-document.getElementById("scoreList");
+  updated.innerHTML = "⏳ Live scores loading...";
+  list.innerHTML = "";
 
-updated.innerHTML=
-"⏳ Live scores loading...";
+  try {
 
-list.innerHTML="";
+    const response = await fetch("/api/live-score", {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    let data;
 
-try{
+    try {
+      data = await response.json();
+    } catch (e) {
+      throw new Error("Live score server response invalid");
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || "Live score unavailable"
+      );
+    }
 
-const response=
-await fetch(
-"/api/live-score",
-{
-method:"GET",
-cache:"no-store"
-}
-);
+    if (
+      !data.matches ||
+      !Array.isArray(data.matches)
+    ) {
+      throw new Error("No matches found");
+    }
+
+    /*
+      पुराने matches हटाएँ।
+      आज और कल के आसपास के matches रखें।
+    */
 
-let data;
+    const today = new Date();
 
-try{
-data=await response.json();
-}catch(e){
-throw new Error(
-"Live score server response invalid"
-);
-}
+    today.setHours(0, 0, 0, 0);
 
-if(!response.ok){
-throw new Error(
-data.error ||
-"Live score unavailable"
-);
-}
+    const matches = data.matches.filter(match => {
 
-if(!data.matches ||
-!Array.isArray(data.matches)){
+      if (!match.date) {
+        return true;
+      }
 
-throw new Error(
-"No matches found"
-);
+      const matchDate = new Date(match.date);
 
-}
+      if (Number.isNaN(matchDate.getTime())) {
+        return true;
+      }
 
-updated.innerHTML=
-"Last updated: "+
-new Date().toLocaleTimeString()+
-" • "+
-data.matches.length+
-" matches • Auto refresh: 5 min";
+      matchDate.setHours(0, 0, 0, 0);
 
-if(data.matches.length===0){
+      const difference =
+        (today - matchDate) /
+        (1000 * 60 * 60 * 24);
 
-list.innerHTML=`
-<div class="info">
-अभी कोई cricket match उपलब्ध नहीं है।
-</div>
-`;
+      return difference <= 1;
+    });
 
-return;
+    /*
+      LIVE → STUMPS → DELAYED → UPCOMING → RESULT
+      India matches को ऊपर दिखाएँ।
+    */
 
-}
+    matches.sort((a, b) => {
 
-data.matches.forEach(match=>{
+      function priority(match) {
 
-const card=
-document.createElement("div");
+        const status =
+          String(match.status || "").toUpperCase();
 
-card.className="score-card";
+        const title =
+          String(match.title || "").toLowerCase();
 
-const status=
-String(match.status || "LIVE")
-.toUpperCase();
+        const teams = Array.isArray(match.teams)
+          ? match.teams
+          : [];
 
-let statusClass="";
+        let score = 50;
 
-if(status==="LIVE"){
-statusClass="live";
-}
+        if (status === "LIVE") {
+          score = 1;
+        }
+        else if (status === "STUMPS") {
+          score = 2;
+        }
+        else if (status === "DELAYED") {
+          score = 3;
+        }
+        else if (status === "UPCOMING") {
+          score = 4;
+        }
+        else if (
+          status === "RESULT" ||
+          status === "COMPLETED"
+        ) {
+          score = 5;
+        }
+
+        const indiaInTitle =
+          title.includes("india");
+
+        const indiaInTeams =
+          teams.some(team =>
+            String(team.name || "")
+              .toLowerCase()
+              .includes("india")
+          );
+
+        if (indiaInTitle || indiaInTeams) {
+          score -= 0.5;
+        }
+
+        return score;
+      }
+
+      return priority(a) - priority(b);
+    });
+
+    updated.innerHTML =
+      "Last updated: " +
+      new Date().toLocaleTimeString() +
+      " • " +
+      matches.length +
+      " matches • Auto refresh: 5 min";
+
+    /*
+      कोई current match नहीं
+    */
+
+    if (matches.length === 0) {
+
+      list.innerHTML = `
+
+        <div class="info">
+
+          🏏 अभी API में आज का कोई
+          Live/Upcoming cricket match उपलब्ध नहीं है।
 
-if(
-status==="RESULT" ||
-status==="COMPLETED"
-){
-statusClass="result";
-}
+          <br><br>
 
-if(
-status==="DELAYED" ||
-status==="RAIN DELAY"
-){
-statusClass="delay";
-}
+          🔄 कुछ मिनट बाद Refresh दबाकर
+          दोबारा check करें।
 
-const teams=
-Array.isArray(match.teams)
-? match.teams
-: [];
+        </div>
 
-card.innerHTML=`
+      `;
 
-<div class="score-top">
+      return;
+    }
 
-<div class="score-title">
-${escapeHTML(match.title || "Cricket Match")}
-</div>
+    /*
+      Match cards
+    */
 
-<span class="status ${statusClass}">
-${escapeHTML(status)}
-</span>
+    matches.forEach(match => {
 
-</div>
+      const card =
+        document.createElement("div");
 
-<div class="small">
-${escapeHTML(match.description || "")}
-</div>
+      card.className = "score-card";
 
-${teams.map(team=>`
+      const status =
+        String(
+          match.status || "LIVE"
+        ).toUpperCase();
 
-<div class="team-row">
+      let statusClass = "";
 
-<div>
+      if (status === "LIVE") {
+        statusClass = "live";
+      }
+      else if (
+        status === "RESULT" ||
+        status === "COMPLETED"
+      ) {
+        statusClass = "result";
+      }
+      else if (
+        status === "DELAYED" ||
+        status === "RAIN DELAY"
+      ) {
+        statusClass = "delay";
+      }
 
-<div class="team-name">
-${escapeHTML(team.name || "")}
-</div>
+      const teams =
+        Array.isArray(match.teams)
+          ? match.teams
+          : [];
 
-<div class="team-overs">
-${escapeHTML(team.overs || "")}
-</div>
+      const title =
+        String(
+          match.title ||
+          "Cricket Match"
+        );
 
-</div>
+      const indiaMatch =
+        title.toLowerCase().includes("india") ||
+        teams.some(team =>
+          String(team.name || "")
+            .toLowerCase()
+            .includes("india")
+        );
 
-<div class="team-score">
-${escapeHTML(team.score || "-")}
-</div>
+      const indiaBadge =
+        indiaMatch
+          ? `
+            <span style="
+              display:inline-block;
+              margin-top:6px;
+              padding:4px 8px;
+              border-radius:12px;
+              background:#15518c;
+              font-size:11px;
+            ">
+              🇮🇳 INDIA MATCH
+            </span>
+          `
+          : "";
 
-</div>
+      card.innerHTML = `
 
-`).join("")}
+        <div class="score-top">
 
-<div class="match-info">
+          <div class="score-title">
 
-📍 ${escapeHTML(match.venue || "Cricket Ground")}
+            ${escapeHTML(title)}
 
-<br>
+            ${indiaBadge}
 
-📅 ${escapeHTML(match.date || "")}
+          </div>
 
-</div>
+          <span class="status ${statusClass}">
 
-<div class="score-actions">
+            ${escapeHTML(status)}
 
-<button
-class="btn blue"
-onclick="shareScore(
-'${safeJS(match.title || "")}',
-'${safeJS(buildScoreText(teams))}'
-)">
+          </span>
 
-📤 Share
+        </div>
 
-</button>
+        <div class="small">
 
-<button
-class="btn dark"
-onclick="downloadScoreCard(this)">
+          ${escapeHTML(
+            match.description || ""
+          )}
 
-📺 16:9 Scoreboard
+        </div>
 
-</button>
+        ${teams.map(team => `
 
-</div>
+          <div class="team-row">
 
-`;
+            <div>
 
-list.appendChild(card);
+              <div class="team-name">
 
-});
+                ${escapeHTML(
+                  team.name || ""
+                )}
 
-}catch(error){
+              </div>
 
-updated.innerHTML="";
+              <div class="team-overs">
 
-list.innerHTML=`
+                ${
+                  team.overs &&
+                  team.overs !== "-"
+                    ? "Overs: " +
+                      escapeHTML(team.overs)
+                    : ""
+                }
 
-<div class="error">
+              </div>
 
-❌ ${escapeHTML(error.message)}
+            </div>
 
-<br><br>
+            <div class="team-score">
 
-Live Score API connect नहीं है।
+              ${escapeHTML(
+                team.score || "-"
+              )}
 
-</div>
+            </div>
 
-`;
+          </div>
 
-}
+        `).join("")}
 
-}
+        <div class="match-info">
 
+          📍 ${escapeHTML(
+            match.venue ||
+            "Cricket Ground"
+          )}
 
-/* =========================================
-SCORE TEXT
-========================================= */
+          <br>
 
-function buildScoreText(teams){
+          📅 ${escapeHTML(
+            match.date || ""
+          )}
 
-return teams
-.map(team=>
-(team.name || "")+
-" "+
-(team.score || "")
-)
-.join(" | ");
+        </div>
 
-}
+        <div class="score-actions">
 
+          <button
+            class="btn blue"
+            onclick="shareScore(
+              '${safeJS(title)}',
+              '${safeJS(buildScoreText(teams))}'
+            )"
+          >
 
-/* =========================================
-SHARE SCORE
-========================================= */
+            📤 Share
 
-async function shareScore(title,score){
+          </button>
 
-const text=
-title+
-"\n"+
-score+
-"\n\n"+
-"Cricket Short";
+          <button
+            class="btn dark"
+            onclick="downloadScoreCard(this)"
+          >
 
-try{
+            📺 16:9 Scoreboard
 
-if(navigator.share){
+          </button>
 
-await navigator.share({
+        </div>
 
-title:"Cricket Live Score",
+      `;
 
-text:text
+      list.appendChild(card);
 
-});
+    });
 
-}else{
+  }
+  catch (error) {
 
-await navigator.clipboard.writeText(text);
+    console.error(
+      "Live Score Error:",
+      error
+    );
 
-alert(
-"Scoreboard text copy हो गया।"
-);
+    updated.innerHTML = "";
 
-}
+    list.innerHTML = `
 
-}catch(e){
+      <div class="error">
 
-console.log(e);
+        ❌ ${escapeHTML(
+          error.message
+        )}
 
-}
+        <br><br>
 
-}
+        Live Score API से data प्राप्त नहीं हो सका।
 
+        <br><br>
 
-/* =========================================
-16:9 SCOREBOARD
-========================================= */
+        🔄 Refresh दबाकर फिर कोशिश करें।
 
-async function downloadScoreCard(button){
+      </div>
 
-const card=
-button.closest(".score-card");
+    `;
 
-if(!card){
+  }
 
-alert("Scoreboard unavailable");
-
-return;
-
-}
-
-try{
-
-const title=
-card.querySelector(".score-title")
-?.innerText || "Cricket Score";
-
-const rows=
-card.querySelectorAll(".team-row");
-
-let teamHTML="";
-
-rows.forEach(row=>{
-
-const name=
-row.querySelector(".team-name")
-?.innerText || "";
-
-const overs=
-row.querySelector(".team-overs")
-?.innerText || "";
-
-const score=
-row.querySelector(".team-score")
-?.innerText || "";
-
-teamHTML+=`
-
-<div style="
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:14px 0;
-border-bottom:1px solid #38516b;
-">
-
-<div>
-
-<div style="
-font-size:22px;
-font-weight:bold;
-">
-${escapeHTML(name)}
-</div>
-
-<div style="
-font-size:14px;
-color:#a9bdd0;
-">
-${escapeHTML(overs)}
-</div>
-
-</div>
-
-<div style="
-font-size:32px;
-font-weight:bold;
-">
-${escapeHTML(score)}
-</div>
-
-</div>
-
-`;
-
-});
-
-const canvas=
-document.createElement("canvas");
-
-canvas.width=1280;
-
-canvas.height=720;
-
-const ctx=
-canvas.getContext("2d");
-
-ctx.fillStyle="#07111f";
-
-ctx.fillRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-ctx.fillStyle="#0d47a1";
-
-ctx.fillRect(
-0,
-0,
-canvas.width,
-130
-);
-
-ctx.fillStyle="#ffffff";
-
-ctx.font=
-"bold 42px Arial";
-
-ctx.fillText(
-"🏏 Cricket Short",
-50,
-75
-);
-
-ctx.font=
-"bold 30px Arial";
-
-ctx.fillText(
-title,
-50,
-190
-);
-
-let y=270;
-
-rows.forEach(row=>{
-
-const name=
-row.querySelector(".team-name")
-?.innerText || "";
-
-const overs=
-row.querySelector(".team-overs")
-?.innerText || "";
-
-const score=
-row.querySelector(".team-score")
-?.innerText || "";
-
-ctx.fillStyle="#ffffff";
-
-ctx.font=
-"bold 30px Arial";
-
-ctx.fillText(
-name,
-60,
-y
-);
-
-ctx.font=
-"22px Arial";
-
-ctx.fillStyle="#a9bdd0";
-
-ctx.fillText(
-overs,
-60,
-y+35
-);
-
-ctx.font=
-"bold 40px Arial";
-
-ctx.fillStyle="#ffffff";
-
-ctx.fillText(
-score,
-1050,
-y+10
-);
-
-y+=120;
-
-});
-
-ctx.fillStyle="#8195aa";
-
-ctx.font=
-"20px Arial";
-
-ctx.fillText(
-"Cricket Short • Live Cricket Score",
-50,
-670
-);
-
-const link=
-document.createElement("a");
-
-link.download=
-"cricket-scoreboard-16x9.png";
-
-link.href=
-canvas.toDataURL("image/png");
-
-link.click();
-
-}catch(error){
-
-alert(
-"Scoreboard बनाने में समस्या हुई।"
-);
-
-}
-
-}
-
-
-/* =========================================
-ESCAPE HTML
-========================================= */
-
-function escapeHTML(value){
-
-return String(value)
-.replaceAll("&","&amp;")
-.replaceAll("<","&lt;")
-.replaceAll(">","&gt;")
-.replaceAll('"',"&quot;")
-.replaceAll("'","&#039;");
-
-}
-
-
-/* =========================================
-SAFE JS
-========================================= */
-
-function safeJS(value){
-
-return String(value)
-.replaceAll("\\","\\\\")
-.replaceAll("'","\\'")
-.replaceAll("\n","\\n")
-.replaceAll("\r","");
-
-}
-
-
-/* =========================================
-AUTO REFRESH EVERY 5 MINUTES
-========================================= */
-
-setInterval(()=>{
-
-const live=
-document.getElementById("live");
-
-if(live.classList.contains("active")){
-
-loadLiveScore();
-
-}
-
-},300000);
-
-
-/* =========================================
-INITIAL LOAD
-========================================= */
-
-console.log(
-"Cricket Short loaded successfully"
-);
-
-</script>
-
-</body>
-  </html>
+  }
