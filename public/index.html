@@ -2,17 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Cricket Short - AI Cricket Player, Live Score, Poster and Player Card Generator">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Cricket Short AI Cricket Player, Live Score, Poster and Player Card Generator">
 <title>Cricket Short</title>
 
 <style>
 *{
     box-sizing:border-box;
-}
-
-html{
-    scroll-behavior:smooth;
 }
 
 body{
@@ -24,9 +20,8 @@ body{
 
 header{
     text-align:center;
-    padding:22px 15px;
-    background:linear-gradient(135deg,#06101d,#102b4a);
-    border-bottom:1px solid #24415e;
+    padding:24px 15px;
+    background:linear-gradient(135deg,#06101d,#102b49);
 }
 
 header h1{
@@ -35,21 +30,20 @@ header h1{
 }
 
 header p{
-    margin:7px 0 0;
-    color:#b8c9da;
-    font-size:14px;
+    margin:8px 0 0;
+    opacity:.85;
 }
 
 nav{
     position:sticky;
     top:0;
-    z-index:100;
+    z-index:1000;
     display:flex;
+    gap:7px;
     overflow-x:auto;
-    gap:8px;
     padding:10px;
-    background:#081625;
-    border-bottom:1px solid #203b55;
+    background:#081522;
+    border-bottom:1px solid #1d344d;
 }
 
 nav button{
@@ -57,382 +51,523 @@ nav button{
     border:0;
     border-radius:10px;
     padding:11px 14px;
-    background:#12263b;
+    background:#13283e;
     color:#fff;
-    font-weight:bold;
+    font-weight:700;
     cursor:pointer;
 }
 
-nav button:hover{
-    background:#1d4162;
-}
-
 main{
-    max-width:1000px;
+    max-width:1100px;
     margin:auto;
-    padding:18px 12px 40px;
+    padding:18px;
 }
 
 section{
-    margin-bottom:28px;
+    margin-bottom:25px;
+    padding:20px;
+    background:#0c1b2d;
+    border-radius:18px;
+    border:1px solid #1a334c;
 }
 
-.section-title{
-    font-size:24px;
-    margin:10px 0 6px;
+h2{
+    margin-top:0;
 }
 
-.section-subtitle{
-    color:#9fb2c6;
-    margin-bottom:18px;
-    font-size:13px;
-}
-
-.card{
-    background:#0d1b2b;
-    border:1px solid #223c56;
-    border-radius:16px;
-    padding:16px;
-    margin-bottom:16px;
-    box-shadow:0 8px 25px rgba(0,0,0,.2);
+.subtitle{
+    opacity:.8;
+    margin-bottom:20px;
 }
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:12px;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
 }
 
 .field label{
-    display:block;
-    margin-bottom:6px;
-    font-size:13px;
-    color:#b8c9da;
+    font-weight:700;
 }
 
 input,select{
     width:100%;
-    padding:12px;
+    padding:13px;
     border-radius:10px;
-    border:1px solid #2b4863;
-    background:#071522;
+    border:1px solid #38536d;
+    background:#081522;
     color:#fff;
     outline:none;
 }
 
 input:focus,select:focus{
-    border-color:#4d8bc1;
+    border-color:#5aa9ff;
 }
 
-button.primary{
+.primary{
+    margin-top:18px;
     width:100%;
-    border:0;
-    border-radius:11px;
     padding:14px;
-    background:#1677d2;
+    border:0;
+    border-radius:12px;
+    background:#1479ff;
     color:#fff;
-    font-weight:bold;
-    cursor:pointer;
-    margin-top:14px;
-}
-
-button.primary:hover{
-    background:#2189eb;
-}
-
-button.secondary{
-    border:1px solid #31516e;
-    border-radius:9px;
-    padding:10px 13px;
-    background:#12283d;
-    color:#fff;
+    font-size:17px;
+    font-weight:800;
     cursor:pointer;
 }
 
-button.secondary:hover{
-    background:#1b3955;
+.secondary{
+    padding:11px 15px;
+    border:0;
+    border-radius:10px;
+    background:#173650;
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.result{
+    margin-top:18px;
+    text-align:center;
+}
+
+.result img{
+    max-width:100%;
+    border-radius:15px;
 }
 
 .actions{
     display:flex;
     flex-wrap:wrap;
-    gap:8px;
+    justify-content:center;
+    gap:10px;
     margin-top:12px;
 }
-
-.result{
-    text-align:center;
-    min-height:50px;
-}
-
-.result img{
-    max-width:100%;
-    border-radius:14px;
-    margin-top:12px;
-}
-
-.loading{
-    padding:25px;
-    text-align:center;
-    color:#aebfd0;
-}
-
-.error{
-    color:#ff9b9b;
-    text-align:center;
-}
-
-/* LIVE SCORE */
 
 .score-toolbar{
     display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
     flex-wrap:wrap;
-    margin-bottom:12px;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.score-toolbar button{
+    padding:11px 15px;
+    border:0;
+    border-radius:10px;
+    background:#1479ff;
+    color:#fff;
+    font-weight:800;
+}
+
+.live-mode-btn{
+    background:#d90429!important;
 }
 
 .last-updated{
-    color:#9fb2c6;
-    font-size:12px;
+    margin-bottom:15px;
+    opacity:.75;
 }
 
 .live-score-card{
-    background:linear-gradient(145deg,#0d1c2c,#0a1725);
-    border:1px solid #28435d;
-    border-radius:17px;
-    padding:16px;
-    margin-bottom:15px;
-    box-shadow:0 8px 25px rgba(0,0,0,.22);
+    background:#101f31;
+    border:1px solid #27435e;
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:18px;
 }
 
 .score-title{
-    text-align:center;
     font-size:18px;
-    font-weight:bold;
-    line-height:1.35;
-    margin-bottom:9px;
+    font-weight:800;
+    text-align:center;
+    margin-bottom:12px;
 }
 
 .score-status{
-    display:block;
     width:max-content;
-    margin:0 auto 15px;
-    padding:5px 11px;
+    margin:0 auto 18px;
+    padding:6px 13px;
     border-radius:20px;
-    background:#28394a;
-    font-size:12px;
-    font-weight:bold;
-}
-
-.score-status.live{
-    background:#a71919;
+    background:#d90429;
+    font-weight:800;
 }
 
 .score-status.stumps{
-    background:#745515;
+    background:#e09f00;
 }
 
 .score-status.delayed{
-    background:#5a3b16;
+    background:#6c63ff;
 }
 
 .score-status.result{
-    background:#245c3b;
+    background:#16803c;
 }
 
 .score-teams{
     display:grid;
-    grid-template-columns:1fr 55px 1fr;
+    grid-template-columns:1fr 60px 1fr;
     align-items:center;
-    gap:8px;
+    gap:10px;
 }
 
 .score-team{
     text-align:center;
-    min-width:0;
 }
 
 .score-team-name{
-    min-height:42px;
     display:flex;
     align-items:center;
     justify-content:center;
     gap:7px;
-    font-weight:bold;
-    font-size:16px;
+    font-size:19px;
+    font-weight:800;
 }
 
 .score-team-logo{
-    width:34px;
-    height:34px;
+    width:38px;
+    height:38px;
     object-fit:contain;
-    border-radius:50%;
 }
 
 .score-team-score{
-    margin-top:7px;
-    font-size:25px;
-    font-weight:bold;
+    margin-top:9px;
+    font-size:27px;
+    font-weight:900;
 }
 
 .score-crr{
-    color:#8dbbe2;
-    font-size:12px;
-    margin-top:4px;
+    margin-top:5px;
+    font-size:14px;
+    opacity:.8;
 }
 
 .score-vs{
     text-align:center;
-    color:#7d94aa;
-    font-weight:bold;
+    font-weight:900;
+    opacity:.6;
 }
 
 .score-extra{
-    margin-top:16px;
-    padding:12px;
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:12px;
-    background:#101f30;
-    border:1px solid #29445c;
+    margin-top:18px;
+    padding:13px;
+    text-align:center;
+    background:#172d44;
     border-radius:12px;
-    font-size:13px;
-}
-
-.score-extra strong{
-    color:#fff;
+    line-height:1.8;
 }
 
 .score-info{
-    margin-top:15px;
-    padding-top:13px;
-    border-top:1px solid #22384d;
-    color:#b8c7d5;
-    font-size:12px;
+    text-align:center;
+    margin-top:16px;
+    font-size:14px;
     line-height:1.8;
+    opacity:.8;
 }
 
 .score-actions{
     display:flex;
+    justify-content:center;
+    gap:10px;
     flex-wrap:wrap;
-    gap:8px;
-    margin-top:13px;
+    margin-top:16px;
 }
 
 .score-actions button{
-    flex:1;
-    min-width:120px;
-    border:1px solid #31516e;
+    padding:10px 14px;
+    border:0;
     border-radius:9px;
-    padding:10px;
-    background:#12283d;
+    background:#173650;
     color:#fff;
-    cursor:pointer;
+    font-weight:700;
 }
 
-.no-score{
-    text-align:center;
-    padding:30px 15px;
-    background:#0d1b2b;
-    border:1px solid #243d55;
-    border-radius:15px;
-    color:#b9c9d8;
-}
-
+.no-score,
 .loading-score{
     text-align:center;
     padding:30px;
-    color:#aebfd0;
+    background:#101f31;
+    border-radius:15px;
 }
 
-/* POSTER / CARD */
-
-.poster-preview{
-    min-height:260px;
-    border-radius:16px;
-    background:linear-gradient(145deg,#122d48,#07111f);
-    border:1px dashed #36536e;
+.news-buttons{
     display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:20px;
-    color:#9db0c2;
+    flex-wrap:wrap;
+    gap:10px;
 }
 
-.player-card-preview{
-    max-width:500px;
-    margin:15px auto;
-    padding:25px;
-    border-radius:20px;
-    background:linear-gradient(145deg,#14385a,#07111f);
-    border:1px solid #41627f;
-    text-align:center;
-}
-
-.player-card-preview h2{
-    margin:5px 0;
-}
-
-.rating{
-    font-size:30px;
-    font-weight:bold;
-    margin:12px 0;
-}
-
-.news-link{
-    display:block;
-    padding:15px;
-    margin:10px 0;
-    border:1px solid #29445d;
-    border-radius:12px;
-    background:#0d1b2b;
-    color:#fff;
+.news-buttons a{
     text-decoration:none;
-}
-
-.news-link:hover{
-    background:#15304a;
+    color:#fff;
+    padding:12px 16px;
+    border-radius:10px;
+    background:#173650;
+    font-weight:700;
 }
 
 footer{
     text-align:center;
-    padding:25px 10px;
-    color:#7890a7;
-    font-size:12px;
+    padding:25px;
+    opacity:.7;
 }
 
-.hidden{
+/* =====================================================
+   LIVE MODE
+===================================================== */
+
+.live-mode-overlay{
+    position:fixed;
+    inset:0;
+    z-index:99999;
     display:none;
+    overflow:auto;
+    background:#020a14;
+    color:#fff;
 }
 
-@media(max-width:650px){
+.live-mode-overlay.active{
+    display:block;
+}
+
+.live-mode-inner{
+    width:100%;
+    min-height:100vh;
+    padding:25px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.live-mode-top{
+    text-align:center;
+    margin-bottom:22px;
+}
+
+.live-mode-brand{
+    font-size:30px;
+    font-weight:900;
+}
+
+.live-mode-live{
+    display:inline-block;
+    margin-top:10px;
+    padding:7px 18px;
+    border-radius:30px;
+    background:#d90429;
+    font-weight:900;
+    animation:livePulse 1.5s infinite;
+}
+
+@keyframes livePulse{
+    0%{opacity:1}
+    50%{opacity:.5}
+    100%{opacity:1}
+}
+
+.live-mode-match{
+    text-align:center;
+    font-size:24px;
+    font-weight:800;
+    margin-bottom:20px;
+}
+
+.live-mode-scoreboard{
+    width:100%;
+    max-width:1200px;
+    margin:auto;
+    padding:35px;
+    background:#0b1b2d;
+    border:1px solid #294661;
+    border-radius:25px;
+    box-shadow:0 15px 60px rgba(0,0,0,.5);
+}
+
+.live-mode-teams{
+    display:grid;
+    grid-template-columns:1fr 100px 1fr;
+    align-items:center;
+    gap:20px;
+}
+
+.live-mode-team{
+    text-align:center;
+}
+
+.live-mode-logo{
+    display:block;
+    width:75px;
+    height:75px;
+    object-fit:contain;
+    margin:0 auto 12px;
+}
+
+.live-mode-team-name{
+    font-size:30px;
+    font-weight:900;
+}
+
+.live-mode-score{
+    margin-top:10px;
+    font-size:52px;
+    font-weight:900;
+}
+
+.live-mode-crr{
+    margin-top:7px;
+    font-size:21px;
+}
+
+.live-mode-vs{
+    text-align:center;
+    font-size:28px;
+    font-weight:900;
+    opacity:.6;
+}
+
+.live-mode-extra{
+    margin-top:28px;
+    padding:16px;
+    text-align:center;
+    background:#152b42;
+    border-radius:14px;
+    font-size:21px;
+    line-height:1.8;
+}
+
+.live-mode-info{
+    margin-top:22px;
+    text-align:center;
+    font-size:17px;
+    line-height:1.8;
+    opacity:.85;
+}
+
+.live-mode-update{
+    margin-top:20px;
+    text-align:center;
+    font-size:14px;
+    opacity:.6;
+}
+
+.live-mode-close{
+    position:fixed;
+    top:15px;
+    right:15px;
+    z-index:100001;
+    width:48px;
+    height:48px;
+    border:0;
+    border-radius:50%;
+    background:#d90429;
+    color:#fff;
+    font-size:21px;
+    font-weight:900;
+}
+
+.live-mode-fullscreen{
+    position:fixed;
+    top:15px;
+    left:15px;
+    z-index:100001;
+    padding:11px 15px;
+    border:0;
+    border-radius:10px;
+    background:#fff;
+    color:#06101d;
+    font-weight:800;
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:700px){
+
+    main{
+        padding:10px;
+    }
+
+    section{
+        padding:15px;
+    }
+
     .grid{
         grid-template-columns:1fr;
     }
 
     .score-teams{
-        grid-template-columns:1fr 35px 1fr;
-    }
-
-    .score-team-score{
-        font-size:21px;
+        grid-template-columns:1fr 40px 1fr;
     }
 
     .score-team-name{
+        font-size:16px;
+    }
+
+    .score-team-score{
+        font-size:23px;
+    }
+
+    .score-vs{
         font-size:14px;
     }
 
-    .score-team-logo{
-        width:29px;
-        height:29px;
+    .live-mode-inner{
+        padding:18px 8px;
     }
 
-    header h1{
-        font-size:26px;
+    .live-mode-brand{
+        font-size:22px;
+    }
+
+    .live-mode-match{
+        font-size:16px;
+    }
+
+    .live-mode-scoreboard{
+        padding:20px 8px;
+        border-radius:18px;
+    }
+
+    .live-mode-teams{
+        grid-template-columns:1fr 35px 1fr;
+        gap:4px;
+    }
+
+    .live-mode-logo{
+        width:50px;
+        height:50px;
+    }
+
+    .live-mode-team-name{
+        font-size:17px;
+    }
+
+    .live-mode-score{
+        font-size:30px;
+    }
+
+    .live-mode-crr{
+        font-size:14px;
+    }
+
+    .live-mode-vs{
+        font-size:15px;
+    }
+
+    .live-mode-extra{
+        font-size:15px;
+    }
+
+    .live-mode-info{
+        font-size:13px;
     }
 }
 </style>
@@ -455,351 +590,364 @@ footer{
 
 <main>
 
-<!-- AI PLAYER -->
+<!-- =====================================================
+     AI PLAYER
+===================================================== -->
 
 <section id="aiPlayer">
-    <div class="section-title">🏏 AI Cricket Player</div>
-    <div class="section-subtitle">
-        Create a realistic AI cricket player image.
-    </div>
 
-    <div class="card">
+<h2>🏏 AI Cricket Player</h2>
 
-        <div class="grid">
+<p class="subtitle">
+Create a realistic AI cricket player image.
+</p>
 
-            <div class="field">
-                <label>Player Name</label>
-                <input id="playerName" value="Cricket Star">
-            </div>
+<div class="grid">
 
-            <div class="field">
-                <label>Team</label>
-                <input id="playerTeam" value="India">
-            </div>
+<div class="field">
+<label>Player Name</label>
+<input id="playerName" value="Cricket Star">
+</div>
 
-            <div class="field">
-                <label>Pose</label>
-                <select id="playerPose">
-                    <option>Batting</option>
-                    <option>Bowling</option>
-                    <option>Fielding</option>
-                    <option>Wicket Keeping</option>
-                    <option>Celebration</option>
-                </select>
-            </div>
+<div class="field">
+<label>Team</label>
+<input id="playerTeam" value="India">
+</div>
 
-            <div class="field">
-                <label>Player Type</label>
-                <select id="playerType">
-                    <option>Batsman</option>
-                    <option>Bowler</option>
-                    <option>All-Rounder</option>
-                    <option>Wicket Keeper</option>
-                </select>
-            </div>
+<div class="field">
+<label>Pose</label>
+<select id="playerPose">
+<option>Batting</option>
+<option>Bowling</option>
+<option>Fielding</option>
+<option>Wicket Keeping</option>
+<option>Celebration</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Playing Hand</label>
-                <select id="playingHand">
-                    <option>Right</option>
-                    <option>Left</option>
-                </select>
-            </div>
+<div class="field">
+<label>Player Type</label>
+<select id="playerType">
+<option>Batsman</option>
+<option>Bowler</option>
+<option>All-Rounder</option>
+<option>Wicket Keeper</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Image Style</label>
-                <select id="imageStyle">
-                    <option>Realistic</option>
-                    <option>Cinematic</option>
-                    <option>Sports Poster</option>
-                    <option>Dramatic</option>
-                </select>
-            </div>
+<div class="field">
+<label>Playing Hand</label>
+<select id="playingHand">
+<option>Right</option>
+<option>Left</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Jersey Color</label>
-                <select id="jerseyColor">
-                    <option>Blue</option>
-                    <option>Black</option>
-                    <option>Red</option>
-                    <option>Green</option>
-                    <option>White</option>
-                </select>
-            </div>
+<div class="field">
+<label>Image Style</label>
+<select id="imageStyle">
+<option>Realistic</option>
+<option>Cinematic</option>
+<option>Sports Poster</option>
+<option>Dramatic</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Jersey Number</label>
-                <input id="jerseyNumber" value="18">
-            </div>
+<div class="field">
+<label>Jersey Color</label>
+<select id="jerseyColor">
+<option>Blue</option>
+<option>Black</option>
+<option>Red</option>
+<option>Green</option>
+<option>White</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Stadium</label>
-                <select id="stadium">
-                    <option>Modern Stadium</option>
-                    <option>International Stadium</option>
-                    <option>Night Stadium</option>
-                    <option>Historic Stadium</option>
-                </select>
-            </div>
+<div class="field">
+<label>Jersey Number</label>
+<input id="jerseyNumber" value="18">
+</div>
 
-            <div class="field">
-                <label>Weather</label>
-                <select id="weather">
-                    <option>Clear</option>
-                    <option>Cloudy</option>
-                    <option>Sunny</option>
-                    <option>Dramatic Clouds</option>
-                </select>
-            </div>
+<div class="field">
+<label>Stadium</label>
+<select id="stadium">
+<option>Modern Stadium</option>
+<option>International Stadium</option>
+<option>Night Stadium</option>
+<option>Historic Stadium</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Match Time</label>
-                <select id="matchTime">
-                    <option>Day</option>
-                    <option>Night</option>
-                    <option>Sunset</option>
-                </select>
-            </div>
+<div class="field">
+<label>Weather</label>
+<select id="weather">
+<option>Clear</option>
+<option>Cloudy</option>
+<option>Sunny</option>
+<option>Dramatic Clouds</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Camera Angle</label>
-                <select id="cameraAngle">
-                    <option>Front</option>
-                    <option>Side</option>
-                    <option>Low</option>
-                    <option>Close Up</option>
-                </select>
-            </div>
+<div class="field">
+<label>Match Time</label>
+<select id="matchTime">
+<option>Day</option>
+<option>Night</option>
+<option>Sunset</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Tournament</label>
-                <input id="tournament" value="T20 World Cup">
-            </div>
+<div class="field">
+<label>Camera Angle</label>
+<select id="cameraAngle">
+<option>Front</option>
+<option>Side</option>
+<option>Low</option>
+<option>Close Up</option>
+</select>
+</div>
 
-        </div>
+<div class="field">
+<label>Tournament</label>
+<input id="tournament" value="T20 World Cup">
+</div>
 
-        <button class="primary" onclick="generatePlayerImage()">
-            ✨ Generate AI Player
-        </button>
+</div>
 
-    </div>
+<button class="primary" onclick="generatePlayerImage()">
+✨ Generate AI Player
+</button>
 
-    <div class="card result" id="playerResult"></div>
+<div id="playerResult" class="result"></div>
+
 </section>
 
 
-<!-- LIVE SCORE -->
+<!-- =====================================================
+     LIVE SCORE
+===================================================== -->
 
 <section id="liveScore">
 
-    <div class="section-title">🔴 Live Cricket Score</div>
+<h2>🔴 Live Cricket Score</h2>
 
-    <div class="section-subtitle">
-        REAL-TIME CRICKET SCOREBOARD
-    </div>
+<p class="subtitle">
+REAL-TIME CRICKET SCOREBOARD
+</p>
 
-    <div class="score-toolbar">
+<div class="score-toolbar">
 
-        <button class="secondary" onclick="refreshScores()">
-            🔄 Refresh Score
-        </button>
+<button onclick="refreshScores()">
+🔄 Refresh Score
+</button>
 
-        <div class="last-updated" id="lastUpdated">
-            Live score loading...
-        </div>
+<button
+class="live-mode-btn"
+onclick="openLiveMode(0)">
+📺 Live Mode
+</button>
 
-    </div>
+</div>
 
-    <div id="scoreContainer">
-        <div class="loading-score">
-            🔄 Live score loading...
-        </div>
-    </div>
+<div id="lastUpdated" class="last-updated">
+Loading live score...
+</div>
+
+<div id="scoreContainer">
+<div class="loading-score">
+🔄 Live score loading...
+</div>
+</div>
 
 </section>
 
 
-<!-- POSTER -->
+<!-- =====================================================
+     POSTER
+===================================================== -->
 
 <section id="poster">
 
-    <div class="section-title">🎨 Cricket Poster Generator</div>
+<h2>🎨 Cricket Poster Generator</h2>
 
-    <div class="section-subtitle">
-        Create a cricket sports-news poster.
-    </div>
+<p class="subtitle">
+Create a cricket sports-news poster.
+</p>
 
-    <div class="card">
+<div class="grid">
 
-        <div class="grid">
+<div class="field">
+<label>Player</label>
+<input id="posterPlayer" value="Virat Kohli">
+</div>
 
-            <div class="field">
-                <label>Player</label>
-                <input id="posterPlayer" value="Virat Kohli">
-            </div>
+<div class="field">
+<label>Team</label>
+<input id="posterTeam" value="India">
+</div>
 
-            <div class="field">
-                <label>Team</label>
-                <input id="posterTeam" value="India">
-            </div>
+<div class="field">
+<label>Match</label>
+<input id="posterMatch" value="India vs West Indies">
+</div>
 
-            <div class="field">
-                <label>Match</label>
-                <input id="posterMatch" value="India vs West Indies">
-            </div>
+<div class="field">
+<label>Tournament</label>
+<input id="posterTournament" value="International Match">
+</div>
 
-            <div class="field">
-                <label>Tournament</label>
-                <input id="posterTournament" value="International Match">
-            </div>
+<div class="field">
+<label>Stadium</label>
+<input id="posterStadium" value="International Stadium">
+</div>
 
-            <div class="field">
-                <label>Stadium</label>
-                <input id="posterStadium" value="International Stadium">
-            </div>
+</div>
 
-        </div>
+<button class="primary" onclick="generatePoster()">
+🎨 Generate Poster
+</button>
 
-        <button class="primary" onclick="generatePoster()">
-            🎨 Generate Poster
-        </button>
-
-    </div>
-
-    <div class="card result" id="posterResult"></div>
+<div id="posterResult" class="result"></div>
 
 </section>
 
 
-<!-- PLAYER CARD -->
+<!-- =====================================================
+     PLAYER CARD
+===================================================== -->
 
 <section id="playerCard">
 
-    <div class="section-title">🪪 Player Card Generator</div>
+<h2>🪪 Player Card Generator</h2>
 
-    <div class="section-subtitle">
-        Create a cricket player profile card.
-    </div>
+<p class="subtitle">
+Create a cricket player profile card.
+</p>
 
-    <div class="card">
+<div class="grid">
 
-        <div class="grid">
+<div class="field">
+<label>Player Name</label>
+<input id="cardPlayer" value="Virat Kohli">
+</div>
 
-            <div class="field">
-                <label>Player Name</label>
-                <input id="cardPlayer" value="Virat Kohli">
-            </div>
+<div class="field">
+<label>Team</label>
+<input id="cardTeam" value="India">
+</div>
 
-            <div class="field">
-                <label>Team</label>
-                <input id="cardTeam" value="India">
-            </div>
+<div class="field">
+<label>Role</label>
+<select id="cardRole">
+<option>Batsman</option>
+<option>Bowler</option>
+<option>All-Rounder</option>
+<option>Wicket Keeper</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Role</label>
-                <select id="cardRole">
-                    <option>Batsman</option>
-                    <option>Bowler</option>
-                    <option>All-Rounder</option>
-                    <option>Wicket Keeper</option>
-                </select>
-            </div>
+<div class="field">
+<label>Jersey Number</label>
+<input id="cardNumber" value="18">
+</div>
 
-            <div class="field">
-                <label>Jersey Number</label>
-                <input id="cardNumber" value="18">
-            </div>
+<div class="field">
+<label>Playing Hand</label>
+<select id="cardHand">
+<option>Right</option>
+<option>Left</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Playing Hand</label>
-                <select id="cardHand">
-                    <option>Right</option>
-                    <option>Left</option>
-                </select>
-            </div>
+<div class="field">
+<label>Level</label>
+<select id="cardLevel">
+<option>International</option>
+<option>Domestic</option>
+<option>Club</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Level</label>
-                <select id="cardLevel">
-                    <option>International</option>
-                    <option>Domestic</option>
-                    <option>Club</option>
-                </select>
-            </div>
+<div class="field">
+<label>Jersey Color</label>
+<select id="cardColor">
+<option>Blue</option>
+<option>Black</option>
+<option>Red</option>
+<option>Green</option>
+<option>White</option>
+</select>
+</div>
 
-            <div class="field">
-                <label>Jersey Color</label>
-                <select id="cardColor">
-                    <option>Blue</option>
-                    <option>Black</option>
-                    <option>Red</option>
-                    <option>Green</option>
-                    <option>White</option>
-                </select>
-            </div>
+<div class="field">
+<label>Rating</label>
+<input id="cardRating" value="95" type="number">
+</div>
 
-            <div class="field">
-                <label>Rating</label>
-                <input id="cardRating" type="number" value="95" min="1" max="100">
-            </div>
+</div>
 
-        </div>
+<button class="primary" onclick="createPlayerCard()">
+🪪 Create Player Card
+</button>
 
-        <button class="primary" onclick="createPlayerCard()">
-            🪪 Create Player Card
-        </button>
-
-    </div>
-
-    <div class="card" id="playerCardResult"></div>
+<div id="cardResult" class="result"></div>
 
 </section>
 
 
-<!-- NEWS -->
+<!-- =====================================================
+     NEWS
+===================================================== -->
 
 <section id="news">
 
-    <div class="section-title">📰 Cricket News</div>
+<h2>📰 Cricket News</h2>
 
-    <div class="section-subtitle">
-        Latest cricket news sources.
-    </div>
+<p class="subtitle">
+Latest cricket news sources.
+</p>
 
-    <a class="news-link"
-       href="https://www.espncricinfo.com/"
-       target="_blank"
-       rel="noopener">
-        📰 ESPNcricinfo
-    </a>
+<div class="news-buttons">
 
-    <a class="news-link"
-       href="https://www.icc-cricket.com/"
-       target="_blank"
-       rel="noopener">
-        🏏 ICC Cricket
-    </a>
+<a
+href="https://www.espncricinfo.com/"
+target="_blank"
+rel="noopener">
+📰 ESPNcricinfo
+</a>
+
+<a
+href="https://www.icc-cricket.com/"
+target="_blank"
+rel="noopener">
+🏏 ICC Cricket
+</a>
+
+</div>
 
 </section>
 
 </main>
 
 <footer>
-    Cricket Short • AI Cricket Tools
+Cricket Short • AI Cricket Tools
 </footer>
 
 
 <script>
 
-/* =========================================================
+/* =====================================================
    GENERAL
-   ========================================================= */
+===================================================== */
 
 function goTo(id){
-    const el = document.getElementById(id);
 
-    if(el){
-        el.scrollIntoView({
+    const element =
+        document.getElementById(id);
+
+    if(element){
+        element.scrollIntoView({
             behavior:"smooth",
             block:"start"
         });
@@ -807,37 +955,37 @@ function goTo(id){
 }
 
 
-/* =========================================================
+/* =====================================================
    AI PLAYER IMAGE
-   ========================================================= */
+===================================================== */
 
 async function generatePlayerImage(){
 
     const result =
         document.getElementById("playerResult");
 
-    const playerName =
-        document.getElementById("playerName").value.trim();
+    const name =
+        document.getElementById("playerName").value;
 
     const team =
-        document.getElementById("playerTeam").value.trim();
+        document.getElementById("playerTeam").value;
 
     const pose =
         document.getElementById("playerPose").value;
 
-    const playerType =
+    const type =
         document.getElementById("playerType").value;
 
-    const playingHand =
+    const hand =
         document.getElementById("playingHand").value;
 
-    const imageStyle =
+    const style =
         document.getElementById("imageStyle").value;
 
-    const jerseyColor =
+    const jersey =
         document.getElementById("jerseyColor").value;
 
-    const jerseyNumber =
+    const number =
         document.getElementById("jerseyNumber").value;
 
     const stadium =
@@ -846,33 +994,43 @@ async function generatePlayerImage(){
     const weather =
         document.getElementById("weather").value;
 
-    const matchTime =
+    const time =
         document.getElementById("matchTime").value;
 
-    const cameraAngle =
+    const camera =
         document.getElementById("cameraAngle").value;
 
     const tournament =
-        document.getElementById("tournament").value.trim();
+        document.getElementById("tournament").value;
+
+
+    const prompt =
+        `Photorealistic professional cricket player,
+        player name ${name},
+        representing ${team},
+        ${pose} pose,
+        ${type},
+        ${hand}-handed player,
+        wearing ${jersey} cricket jersey,
+        jersey number ${number},
+        playing at ${stadium},
+        ${weather} weather,
+        ${time} match,
+        ${camera} camera angle,
+        tournament ${tournament},
+        realistic athletic body,
+        professional cricket stadium,
+        dramatic sports lighting,
+        ultra detailed,
+        realistic face,
+        cinematic sports photography,
+        high quality,
+        no watermark,
+        no text`;
 
     result.innerHTML =
-        `<div class="loading">✨ AI image generating...</div>`;
+        "<div class='loading-score'>✨ AI image generating...</div>";
 
-    const prompt = `
-Photorealistic professional cricket player named ${playerName},
-representing ${team}, ${playerType}, ${playingHand}-handed,
-wearing a ${jerseyColor} cricket jersey with jersey number ${jerseyNumber},
-performing ${pose} pose in a ${stadium},
-${weather} weather, ${matchTime} match,
-${cameraAngle} camera angle,
-${imageStyle} sports photography style,
-${tournament},
-dramatic stadium lighting, packed cricket stadium,
-ultra realistic face, realistic cricket equipment,
-professional sports photography, high detail,
-cinematic composition, 9:16 vertical image,
-no watermark, no text.
-`;
 
     try{
 
@@ -887,64 +1045,47 @@ no watermark, no text.
                 })
             });
 
+
         if(!response.ok){
-            throw new Error("HTTP " + response.status);
+            throw new Error(
+                "HTTP "+response.status
+            );
         }
+
 
         const data =
             await response.json();
 
-        let imageData =
-            data.image ||
-            data.imageData ||
-            data.result ||
-            data.base64 ||
-            data.data;
 
-        if(
-            imageData &&
-            typeof imageData === "object"
-        ){
-            imageData =
-                imageData.image ||
-                imageData.base64 ||
-                imageData.data;
+        if(!data.image){
+            throw new Error(
+                "Image not received"
+            );
         }
 
-        if(!imageData){
-            throw new Error("No image returned");
-        }
-
-        let src =
-            String(imageData);
-
-        if(!src.startsWith("data:image")){
-            src = "data:image/png;base64," + src;
-        }
 
         result.innerHTML = `
-            <h3>✨ AI Cricket Player</h3>
 
             <img
-                id="generatedPlayerImage"
-                src="${src}"
-                alt="AI Cricket Player"
-            >
+                src="data:image/png;base64,${data.image}"
+                alt="AI Cricket Player">
 
             <div class="actions">
 
-                <button class="secondary"
-                    onclick="downloadImage(
-                        'generatedPlayerImage',
+                <button
+                    class="secondary"
+                    onclick="downloadBase64Image(
+                        'data:image/png;base64,${data.image}',
                         'cricket-short-ai-player.png'
                     )">
                     ⬇️ Download
                 </button>
 
-                <button class="secondary"
-                    onclick="shareGeneratedImage(
-                        'generatedPlayerImage',
-                        '${escapeForJS(playerName)}'
+                <button
+                    class="secondary"
+                    onclick="shareImageData(
+                        'data:image/png;base64,${data.image}',
+                        'Cricket Short AI Player'
                     )">
                     📤 Share
                 </button>
@@ -956,26 +1097,26 @@ no watermark, no text.
 
         console.error(error);
 
-        result.innerHTML = `
-            <div class="error">
-                ❌ AI image generate नहीं हो सकी।
-                <br><br>
-                ${escapeHTML(error.message)}
-            </div>
-        `;
+        result.innerHTML =
+            "<div class='no-score'>"+
+            "❌ AI image generation failed."+
+            "<br><br>"+
+            "<button class='secondary' onclick='generatePlayerImage()'>"+
+            "🔄 Try Again"+
+            "</button>"+
+            "</div>";
     }
 }
 
 
-/* =========================================================
+/* =====================================================
    LIVE SCORE ENGINE
-   ========================================================= */
+===================================================== */
 
 let latestMatches = [];
 let scoreRefreshTimer = null;
+let liveModeMatchIndex = 0;
 
-
-/* ---------- Helpers ---------- */
 
 function safeNumber(value){
 
@@ -1016,16 +1157,20 @@ function formatScore(score){
     const overs =
         score.overs;
 
+
     if(runs === null){
         return "—";
     }
 
+
     let text =
         String(runs);
+
 
     if(wickets !== null){
         text += `/${wickets}`;
     }
+
 
     if(
         overs !== null &&
@@ -1035,22 +1180,23 @@ function formatScore(score){
         text += ` ${formatOvers(overs)}`;
     }
 
+
     return text;
 }
 
 
-/* ---------- Normalize Team ---------- */
+/* -----------------------------------------------------
+   TEAM SCORE
+----------------------------------------------------- */
 
 function normalizeTeamName(name){
 
     return String(name || "")
+        .trim()
         .toLowerCase()
-        .replace(/\s+/g," ")
-        .trim();
+        .replace(/\s+/g," ");
 }
 
-
-/* ---------- Find team score safely ---------- */
 
 function getTeamScore(match,teamName){
 
@@ -1059,118 +1205,44 @@ function getTeamScore(match,teamName){
         ? match.score
         : [];
 
+
     if(!scores.length){
         return null;
     }
 
+
     const wanted =
         normalizeTeamName(teamName);
 
-    if(!wanted){
-        return null;
-    }
 
-    /*
-      First try exact team match from innings name.
-    */
+    /* Exact innings/team matching first */
 
     let found =
-        scores.filter(item => {
+        scores.find(item => {
 
             const inning =
-                normalizeTeamName(item.inning);
+                normalizeTeamName(
+                    item.inning
+                );
 
             return (
-                inning.startsWith(wanted + " ") ||
-                inning === wanted
+                inning.includes(wanted)
             );
         });
 
-    if(found.length){
 
-        /*
-          If a team has multiple innings entries,
-          use the latest one.
-        */
-
-        return found[found.length - 1];
+    if(found){
+        return found;
     }
 
-    /*
-      Secondary safe match:
-      only match when the complete team name
-      appears in the innings label.
-    */
 
-    found =
-        scores.filter(item => {
-
-            const inning =
-                normalizeTeamName(item.inning);
-
-            return inning.includes(wanted);
-        });
-
-    return found.length
-        ? found[found.length - 1]
-        : null;
+    return null;
 }
 
 
-/* ---------- Run Rate ---------- */
-
-function calculateCRR(score){
-
-    if(!score){
-        return null;
-    }
-
-    const runs =
-        safeNumber(score.runs);
-
-    const oversText =
-        score.overs;
-
-    if(
-        runs === null ||
-        oversText === null ||
-        oversText === undefined
-    ){
-        return null;
-    }
-
-    const parts =
-        String(oversText).split(".");
-
-    const completedOvers =
-        Number(parts[0] || 0);
-
-    const balls =
-        Number(parts[1] || 0);
-
-    if(
-        !Number.isFinite(completedOvers) ||
-        !Number.isFinite(balls) ||
-        balls > 5
-    ){
-        return null;
-    }
-
-    const totalBalls =
-        completedOvers * 6 + balls;
-
-    if(totalBalls <= 0){
-        return null;
-    }
-
-    const crr =
-        (runs / totalBalls) * 6;
-
-    return crr.toFixed(2);
-}
-
-
-/* ---------- Overs to balls ---------- */
+/* -----------------------------------------------------
+   CRR
+----------------------------------------------------- */
 
 function oversToBalls(overs){
 
@@ -1182,147 +1254,122 @@ function oversToBalls(overs){
         return null;
     }
 
+
     const parts =
         String(overs).split(".");
+
 
     const completedOvers =
         Number(parts[0] || 0);
 
+
     const balls =
         Number(parts[1] || 0);
 
+
     if(
         !Number.isFinite(completedOvers) ||
-        !Number.isFinite(balls) ||
-        balls < 0 ||
-        balls > 5
+        !Number.isFinite(balls)
     ){
         return null;
     }
 
-    return completedOvers * 6 + balls;
+
+    return (
+        completedOvers * 6
+    ) + balls;
 }
 
 
-/* ---------- Target / Required / RRR ---------- */
+function calculateCRR(score){
 
-function getInningsInfo(match){
-
-    const scores =
-        Array.isArray(match.score)
-        ? match.score
-        : [];
-
-    if(scores.length < 2){
+    if(!score){
         return null;
     }
 
-    /*
-      CricketData usually returns innings
-      in chronological order.
 
-      Last score = current/latest innings.
-      Previous score = first innings.
+    const runs =
+        safeNumber(score.runs);
 
-      This avoids guessing based on which team
-      has fewer overs.
-    */
 
-    const first =
-        scores[scores.length - 2];
+    const balls =
+        oversToBalls(score.overs);
 
-    const current =
-        scores[scores.length - 1];
-
-    const firstRuns =
-        safeNumber(first.runs);
-
-    const currentRuns =
-        safeNumber(current.runs);
 
     if(
-        firstRuns === null ||
-        currentRuns === null
+        runs === null ||
+        balls === null ||
+        balls <= 0
     ){
         return null;
     }
 
-    const firstTeam =
-        getTeamFromInning(
-            match,
-            first.inning
-        );
 
-    const currentTeam =
-        getTeamFromInning(
-            match,
-            current.inning
-        );
+    return (
+        (runs / balls) * 6
+    ).toFixed(2);
+}
+
+
+/* -----------------------------------------------------
+   TARGET
+----------------------------------------------------- */
+
+function getTargetInfo(
+    match,
+    battingScore,
+    bowlingScore
+){
 
     if(
-        !firstTeam ||
-        !currentTeam ||
-        firstTeam === currentTeam
+        !battingScore ||
+        !bowlingScore
     ){
         return null;
     }
+
+
+    const bowlingRuns =
+        safeNumber(
+            bowlingScore.runs
+        );
+
+
+    const battingRuns =
+        safeNumber(
+            battingScore.runs
+        );
+
+
+    if(
+        bowlingRuns === null ||
+        battingRuns === null
+    ){
+        return null;
+    }
+
 
     const target =
-        firstRuns + 1;
+        bowlingRuns + 1;
+
 
     const requiredRuns =
         Math.max(
-            target - currentRuns,
+            target - battingRuns,
             0
         );
 
+
     return {
-        firstScore:first,
-        currentScore:current,
-        firstTeam:firstTeam,
-        currentTeam:currentTeam,
-        target:target,
-        requiredRuns:requiredRuns
+        target,
+        requiredRuns
     };
 }
 
 
-function getTeamFromInning(match,inning){
-
-    const text =
-        normalizeTeamName(inning);
-
-    const team1 =
-        normalizeTeamName(match.team1);
-
-    const team2 =
-        normalizeTeamName(match.team2);
-
-    if(
-        team1 &&
-        (
-            text.startsWith(team1 + " ") ||
-            text === team1 ||
-            text.includes(team1)
-        )
-    ){
-        return match.team1;
-    }
-
-    if(
-        team2 &&
-        (
-            text.startsWith(team2 + " ") ||
-            text === team2 ||
-            text.includes(team2)
-        )
-    ){
-        return match.team2;
-    }
-
-    return null;
-}
-
+/* -----------------------------------------------------
+   RRR
+----------------------------------------------------- */
 
 function calculateRRR(
     requiredRuns,
@@ -1338,51 +1385,68 @@ function calculateRRR(
         return null;
     }
 
+
     const currentBalls =
-        oversToBalls(currentOvers);
+        oversToBalls(
+            currentOvers
+        );
+
 
     if(currentBalls === null){
         return null;
     }
 
+
     const totalBalls =
         oversLimit * 6;
 
+
     const remainingBalls =
         totalBalls - currentBalls;
+
 
     if(remainingBalls <= 0){
         return null;
     }
 
-    const rrr =
-        (requiredRuns / remainingBalls) * 6;
 
-    return rrr.toFixed(2);
+    return (
+        requiredRuns /
+        remainingBalls *
+        6
+    ).toFixed(2);
 }
 
 
-/* ---------- Overs Limit ---------- */
+/* -----------------------------------------------------
+   OVERS LIMIT
+----------------------------------------------------- */
 
 function getOversLimit(match){
 
     const type =
-        String(match.matchType || "")
-            .toUpperCase();
+        String(
+            match.matchType || ""
+        ).toUpperCase();
+
 
     if(type === "T20"){
         return 20;
     }
 
+
     if(type === "ODI"){
         return 50;
     }
+
 
     return null;
 }
 
 
-/* ---------- Status ---------- */
+/* -----------------------------------------------------
+   STATUS
+----------------------------------------------------- */
 
 function getDisplayStatus(match){
 
@@ -1393,9 +1457,11 @@ function getDisplayStatus(match){
             ""
         ).toUpperCase();
 
+
     if(status.includes("LIVE")){
         return "LIVE";
     }
+
 
     if(
         status.includes("STUMP") ||
@@ -1404,12 +1470,14 @@ function getDisplayStatus(match){
         return "STUMPS";
     }
 
+
     if(
         status.includes("DELAY") ||
         status.includes("RAIN")
     ){
         return "DELAYED";
     }
+
 
     if(
         status.includes("RESULT") ||
@@ -1419,168 +1487,215 @@ function getDisplayStatus(match){
         return "RESULT";
     }
 
+
     return match.status || "LIVE";
 }
 
 
-/* ---------- Main Score Card ---------- */
+/* =====================================================
+   SCORE CARD
+===================================================== */
 
-function renderScoreCard(match,index){
+function renderScoreCard(
+    match,
+    index
+){
 
     const team1 =
-        match.team1 || "Team 1";
+        match.team1 ||
+        "Team 1";
+
 
     const team2 =
-        match.team2 || "Team 2";
+        match.team2 ||
+        "Team 2";
 
-    const team1Score =
+
+    const score1 =
         getTeamScore(
             match,
             team1
         );
 
-    const team2Score =
+
+    const score2 =
         getTeamScore(
             match,
             team2
         );
 
-    const team1CRR =
-        calculateCRR(team1Score);
 
-    const team2CRR =
-        calculateCRR(team2Score);
+    const crr1 =
+        calculateCRR(score1);
 
-    const oversLimit =
-        getOversLimit(match);
+
+    const crr2 =
+        calculateCRR(score2);
+
 
     let targetHTML = "";
 
-    const inningsInfo =
-        getInningsInfo(match);
 
-    if(inningsInfo){
+    /*
+       Target/RRR तभी दिखाएँ जब
+       दोनों innings उपलब्ध हों।
+    */
 
-        const currentScore =
-            inningsInfo.currentScore;
+    if(score1 && score2){
 
-        const target =
-            inningsInfo.target;
+        const overs1 =
+            safeNumber(score1.overs);
 
-        const required =
-            inningsInfo.requiredRuns;
 
-        let rrr = null;
+        const overs2 =
+            safeNumber(score2.overs);
 
-        if(oversLimit){
 
-            rrr =
-                calculateRRR(
-                    required,
-                    oversLimit,
-                    currentScore.overs
-                );
+        let battingScore =
+            score1;
+
+
+        let bowlingScore =
+            score2;
+
+
+        if(
+            overs1 !== null &&
+            overs2 !== null &&
+            overs2 < overs1
+        ){
+
+            battingScore =
+                score2;
+
+            bowlingScore =
+                score1;
         }
 
-        targetHTML = `
-            <div class="score-extra">
 
-                <div>
+        const target =
+            getTargetInfo(
+                match,
+                battingScore,
+                bowlingScore
+            );
+
+
+        if(target){
+
+            const oversLimit =
+                getOversLimit(match);
+
+
+            let rrr = null;
+
+
+            if(oversLimit){
+
+                rrr =
+                    calculateRRR(
+                        target.requiredRuns,
+                        oversLimit,
+                        battingScore.overs
+                    );
+            }
+
+
+            targetHTML = `
+
+                <div class="score-extra">
+
                     🎯 Target:
-                    <strong>${target}</strong>
-                </div>
+                    <strong>
+                        ${target.target}
+                    </strong>
 
-                <div>
+                    &nbsp;&nbsp;
+
                     🏃 Required:
-                    <strong>${required}</strong>
-                    runs
+                    <strong>
+                        ${target.requiredRuns}
+                    </strong>
+
+                    ${
+                        rrr
+                        ? `
+                            &nbsp;&nbsp;
+
+                            📈 RRR:
+                            <strong>
+                                ${rrr}
+                            </strong>
+                        `
+                        : ""
+                    }
+
                 </div>
 
-                ${
-                    rrr
-                    ? `
-                        <div>
-                            📈 RRR:
-                            <strong>${rrr}</strong>
-                        </div>
-                    `
-                    : ""
-                }
-
-            </div>
-        `;
+            `;
+        }
     }
 
 
     const status =
         getDisplayStatus(match);
 
+
     const statusClass =
-        String(status)
-            .toLowerCase()
-            .replace(/\s+/g,"-");
+        status
+        .toLowerCase()
+        .replace(/\s+/g,"-");
 
-    const date =
-        match.date || "";
-
-    const matchType =
-        match.matchType || "CRICKET";
-
-    const venue =
-        match.venue ||
-        "Venue unavailable";
-
-    const info =
-        match.statusText || "";
 
     return `
+
         <div class="live-score-card">
 
             <div class="score-title">
-                ${escapeHTML(
-                    match.name ||
-                    `${team1} vs ${team2}`
-                )}
+                ${match.name ||
+                `${team1} vs ${team2}`}
             </div>
 
+
             <div class="score-status ${statusClass}">
-                ${escapeHTML(status)}
+                ${status}
             </div>
+
 
             <div class="score-teams">
 
+
                 <div class="score-team">
 
+                    ${
+                        match.team1Logo
+                        ? `
+                            <img
+                                src="${match.team1Logo}"
+                                class="score-team-logo"
+                                alt="${team1}"
+                                onerror="this.style.display='none'"
+                            >
+                        `
+                        : ""
+                    }
+
+
                     <div class="score-team-name">
-
-                        ${
-                            match.team1Logo
-                            ? `
-                                <img
-                                    src="${escapeAttribute(match.team1Logo)}"
-                                    class="score-team-logo"
-                                    alt="${escapeAttribute(team1)}"
-                                    onerror="this.style.display='none'"
-                                >
-                            `
-                            : ""
-                        }
-
-                        <span>
-                            ${escapeHTML(team1)}
-                        </span>
-
+                        ${team1}
                     </div>
+
 
                     <div class="score-team-score">
-                        ${formatScore(team1Score)}
+                        ${formatScore(score1)}
                     </div>
 
+
                     ${
-                        team1CRR
+                        crr1
                         ? `
                             <div class="score-crr">
-                                CRR: ${team1CRR}
+                                CRR: ${crr1}
                             </div>
                         `
                         : ""
@@ -1596,36 +1711,35 @@ function renderScoreCard(match,index){
 
                 <div class="score-team">
 
+                    ${
+                        match.team2Logo
+                        ? `
+                            <img
+                                src="${match.team2Logo}"
+                                class="score-team-logo"
+                                alt="${team2}"
+                                onerror="this.style.display='none'"
+                            >
+                        `
+                        : ""
+                    }
+
+
                     <div class="score-team-name">
-
-                        ${
-                            match.team2Logo
-                            ? `
-                                <img
-                                    src="${escapeAttribute(match.team2Logo)}"
-                                    class="score-team-logo"
-                                    alt="${escapeAttribute(team2)}"
-                                    onerror="this.style.display='none'"
-                                >
-                            `
-                            : ""
-                        }
-
-                        <span>
-                            ${escapeHTML(team2)}
-                        </span>
-
+                        ${team2}
                     </div>
+
 
                     <div class="score-team-score">
-                        ${formatScore(team2Score)}
+                        ${formatScore(score2)}
                     </div>
 
+
                     ${
-                        team2CRR
+                        crr2
                         ? `
                             <div class="score-crr">
-                                CRR: ${team2CRR}
+                                CRR: ${crr2}
                             </div>
                         `
                         : ""
@@ -1635,54 +1749,77 @@ function renderScoreCard(match,index){
 
             </div>
 
+
             ${targetHTML}
+
 
             <div class="score-info">
 
-                <div>
-                    🏟️ ${escapeHTML(venue)}
-                </div>
-
-                <div>
-                    📅 ${escapeHTML(date)}
-                    •
-                    ${escapeHTML(matchType)}
-                </div>
+                ${
+                    match.venue
+                    ? `
+                        🏟️ ${match.venue}
+                        <br>
+                    `
+                    : ""
+                }
 
                 ${
-                    info
+                    match.date
                     ? `
-                        <div>
-                            ℹ️ ${escapeHTML(info)}
-                        </div>
+                        📅 ${match.date}
+                    `
+                    : ""
+                }
+
+                ${
+                    match.matchType
+                    ? ` • ${match.matchType}`
+                    : ""
+                }
+
+                ${
+                    match.statusText
+                    ? `
+                        <br>
+                        ℹ️ ${match.statusText}
                     `
                     : ""
                 }
 
             </div>
 
+
             <div class="score-actions">
 
                 <button
-                    onclick="shareMatch(${index})"
-                >
+                    onclick="shareMatch(${index})">
                     📤 Share
                 </button>
 
+
                 <button
-                    onclick="shareScoreImage(${index})"
-                >
+                    onclick="shareScoreImage(${index})">
                     🖼️ 16:9
+                </button>
+
+
+                <button
+                    onclick="openLiveMode(${index})">
+                    📺 Live Mode
                 </button>
 
             </div>
 
         </div>
+
     `;
 }
 
 
-/* ---------- Render Scores ---------- */
+/* =====================================================
+   RENDER LIVE SCORES
+===================================================== */
 
 function renderLiveScores(matches){
 
@@ -1691,40 +1828,71 @@ function renderLiveScores(matches){
         ? matches
         : [];
 
+
     const container =
         document.getElementById(
             "scoreContainer"
         );
 
+
     if(!container){
         return;
     }
 
+
     if(!latestMatches.length){
 
         container.innerHTML = `
+
             <div class="no-score">
-                🏏 अभी कोई Live Cricket Match उपलब्ध नहीं है।
+
+                🏏 अभी कोई Live Cricket Match
+                उपलब्ध नहीं है।
+
             </div>
+
         `;
 
         return;
     }
 
+
     container.innerHTML =
         latestMatches
-            .map(
-                (match,index) =>
-                    renderScoreCard(
-                        match,
-                        index
-                    )
-            )
-            .join("");
+        .map(
+            (match,index) =>
+                renderScoreCard(
+                    match,
+                    index
+                )
+        )
+        .join("");
+
+
+    /*
+       अगर Live Mode पहले से खुला है,
+       तो नया score तुरंत दिखाएँ।
+    */
+
+    const overlay =
+        document.getElementById(
+            "liveModeOverlay"
+        );
+
+
+    if(
+        overlay &&
+        overlay.classList.contains("active")
+    ){
+
+        renderLiveMode();
+    }
 }
 
 
-/* ---------- Fetch Live Score ---------- */
+/* =====================================================
+   LOAD LIVE SCORE
+===================================================== */
 
 async function loadLiveScores(){
 
@@ -1733,14 +1901,18 @@ async function loadLiveScores(){
             "scoreContainer"
         );
 
+
     if(container){
 
         container.innerHTML = `
+
             <div class="loading-score">
                 🔄 Live score loading...
             </div>
+
         `;
     }
+
 
     try{
 
@@ -1753,43 +1925,51 @@ async function loadLiveScores(){
                 }
             );
 
+
         if(!response.ok){
 
             throw new Error(
-                `HTTP ${response.status}`
+                "HTTP "+response.status
             );
         }
 
+
         const data =
             await response.json();
+
 
         const matches =
             Array.isArray(data.matches)
             ? data.matches
             : [];
 
+
         renderLiveScores(matches);
+
 
         const update =
             document.getElementById(
                 "lastUpdated"
             );
 
+
         if(update){
 
-            const now =
-                new Date();
-
             update.textContent =
-                `Last updated: ${now.toLocaleTimeString(
-                    "en-IN",
-                    {
-                        hour:"2-digit",
-                        minute:"2-digit",
-                        second:"2-digit"
-                    }
-                )} • ${matches.length} matches • Auto refresh: 5 min`;
+                `Last updated: ${
+                    new Date().toLocaleTimeString(
+                        "en-IN",
+                        {
+                            hour:"2-digit",
+                            minute:"2-digit",
+                            second:"2-digit"
+                        }
+                    )
+                } • ${
+                    matches.length
+                } matches • Auto refresh: 5 min`;
         }
+
 
     }catch(error){
 
@@ -1798,9 +1978,11 @@ async function loadLiveScores(){
             error
         );
 
+
         if(container){
 
             container.innerHTML = `
+
                 <div class="no-score">
 
                     ❌ Live score load नहीं हो सका।
@@ -1809,34 +1991,36 @@ async function loadLiveScores(){
 
                     <button
                         class="secondary"
-                        onclick="loadLiveScores()"
-                    >
+                        onclick="loadLiveScores()">
                         🔄 Try Again
                     </button>
 
                 </div>
+
             `;
         }
     }
 }
 
 
-/* ---------- Manual Refresh ---------- */
-
 function refreshScores(){
     loadLiveScores();
 }
 
 
-/* ---------- 5 Minute Auto Refresh ---------- */
+/* =====================================================
+   5 MIN AUTO REFRESH
+===================================================== */
 
 function startScoreAutoRefresh(){
 
     if(scoreRefreshTimer){
+
         clearInterval(
             scoreRefreshTimer
         );
     }
+
 
     scoreRefreshTimer =
         setInterval(
@@ -1847,18 +2031,38 @@ function startScoreAutoRefresh(){
                         "liveScore"
                     );
 
+
                 if(!section){
                     return;
                 }
 
+
                 const rect =
                     section.getBoundingClientRect();
 
+
                 const visible =
-                    rect.top < window.innerHeight &&
+                    rect.top <
+                    window.innerHeight &&
                     rect.bottom > 0;
 
-                if(visible){
+
+                const liveMode =
+                    document
+                    .getElementById(
+                        "liveModeOverlay"
+                    );
+
+
+                if(
+                    visible ||
+                    (
+                        liveMode &&
+                        liveMode.classList
+                        .contains("active")
+                    )
+                ){
+
                     loadLiveScores();
                 }
 
@@ -1868,17 +2072,21 @@ function startScoreAutoRefresh(){
 }
 
 
-/* =========================================================
-   SHARE LIVE SCORE
-   ========================================================= */
+/* =====================================================
+   SHARE SCORE TEXT
+===================================================== */
 
 function buildScoreText(match){
 
     const team1 =
-        match.team1 || "Team 1";
+        match.team1 ||
+        "Team 1";
+
 
     const team2 =
-        match.team2 || "Team 2";
+        match.team2 ||
+        "Team 2";
+
 
     const score1 =
         getTeamScore(
@@ -1886,106 +2094,105 @@ function buildScoreText(match){
             team1
         );
 
+
     const score2 =
         getTeamScore(
             match,
             team2
         );
 
+
     const status =
         getDisplayStatus(match);
 
+
     let text =
-        `🏏 ${match.name || `${team1} vs ${team2}`}\n\n`;
+        `🏏 ${
+            match.name ||
+            `${team1} vs ${team2}`
+        }\n\n`;
+
 
     text +=
-        `${team1}: ${formatScore(score1)}\n`;
+        `${team1}: ${
+            formatScore(score1)
+        }\n`;
+
 
     text +=
-        `${team2}: ${formatScore(score2)}\n`;
+        `${team2}: ${
+            formatScore(score2)
+        }\n\n`;
 
-    const inningsInfo =
-        getInningsInfo(match);
-
-    if(inningsInfo){
-
-        text +=
-            `\n🎯 Target: ${inningsInfo.target}`;
-
-        text +=
-            `\n🏃 Required: ${inningsInfo.requiredRuns}`;
-
-        const limit =
-            getOversLimit(match);
-
-        if(limit){
-
-            const rrr =
-                calculateRRR(
-                    inningsInfo.requiredRuns,
-                    limit,
-                    inningsInfo.currentScore.overs
-                );
-
-            if(rrr){
-                text +=
-                    `\n📈 RRR: ${rrr}`;
-            }
-        }
-    }
 
     text +=
-        `\n\n🔴 ${status}`;
+        `🔴 ${status}\n`;
+
 
     if(match.venue){
+
         text +=
-            `\n🏟️ ${match.venue}`;
+            `🏟️ ${match.venue}\n`;
     }
 
+
     if(match.date){
+
         text +=
-            `\n📅 ${match.date}`;
+            `📅 ${match.date}`;
     }
+
 
     return text;
 }
 
 
-/* ---------- Share Match ---------- */
+/* =====================================================
+   SHARE MATCH
+===================================================== */
 
 async function shareMatch(index){
 
     const match =
         latestMatches[index];
 
+
     if(!match){
         return;
     }
 
+
     const text =
         buildScoreText(match);
 
+
     try{
 
-        if(navigator.share){
+        if(
+            navigator.share
+        ){
 
             await navigator.share({
+
                 title:
                     match.name ||
                     "Cricket Live Score",
+
                 text:text
+
             });
 
         }else{
 
-            await navigator.clipboard.writeText(
-                text
-            );
+            await navigator.clipboard
+                .writeText(text);
+
 
             alert(
                 "Score copied successfully!"
             );
         }
+
 
     }catch(error){
 
@@ -1996,24 +2203,30 @@ async function shareMatch(index){
 }
 
 
-/* =========================================================
+/* =====================================================
    16:9 SCORE IMAGE
-   ========================================================= */
+===================================================== */
 
 async function shareScoreImage(index){
 
     const match =
         latestMatches[index];
 
+
     if(!match){
         return;
     }
 
+
     const team1 =
-        match.team1 || "Team 1";
+        match.team1 ||
+        "Team 1";
+
 
     const team2 =
-        match.team2 || "Team 2";
+        match.team2 ||
+        "Team 2";
+
 
     const score1 =
         formatScore(
@@ -2023,6 +2236,7 @@ async function shareScoreImage(index){
             )
         );
 
+
     const score2 =
         formatScore(
             getTeamScore(
@@ -2031,19 +2245,24 @@ async function shareScoreImage(index){
             )
         );
 
+
     const canvas =
         document.createElement(
             "canvas"
         );
 
+
     canvas.width = 1600;
     canvas.height = 900;
+
 
     const ctx =
         canvas.getContext("2d");
 
+
     ctx.fillStyle =
         "#07111f";
+
 
     ctx.fillRect(
         0,
@@ -2052,14 +2271,18 @@ async function shareScoreImage(index){
         900
     );
 
+
     ctx.fillStyle =
         "#ffffff";
+
 
     ctx.textAlign =
         "center";
 
+
     ctx.font =
         "bold 52px Arial";
+
 
     ctx.fillText(
         "🏏 CRICKET SHORT",
@@ -2067,101 +2290,76 @@ async function shareScoreImage(index){
         100
     );
 
+
     ctx.font =
-        "bold 42px Arial";
+        "bold 40px Arial";
 
-    let title =
-        match.name ||
-        `${team1} vs ${team2}`;
-
-    if(title.length > 55){
-        title =
-            title.substring(0,55) + "...";
-    }
 
     ctx.fillText(
-        title,
+        match.name ||
+        `${team1} vs ${team2}`,
         800,
-        190
+        180
     );
+
 
     ctx.font =
         "bold 32px Arial";
 
+
     ctx.fillText(
-        getDisplayStatus(match),
+        "🔴 "+getDisplayStatus(match),
         800,
-        260
+        250
     );
 
+
     ctx.font =
-        "bold 55px Arial";
+        "bold 58px Arial";
+
 
     ctx.fillText(
-        `${team1}: ${score1}`,
+        `${team1}    ${score1}`,
         800,
         400
     );
 
+
     ctx.fillText(
-        `${team2}: ${score2}`,
+        `${team2}    ${score2}`,
         800,
         510
     );
 
-    const inningsInfo =
-        getInningsInfo(match);
-
-    if(inningsInfo){
-
-        const limit =
-            getOversLimit(match);
-
-        let extra =
-            `Target: ${inningsInfo.target} • Required: ${inningsInfo.requiredRuns}`;
-
-        if(limit){
-
-            const rrr =
-                calculateRRR(
-                    inningsInfo.requiredRuns,
-                    limit,
-                    inningsInfo.currentScore.overs
-                );
-
-            if(rrr){
-                extra +=
-                    ` • RRR: ${rrr}`;
-            }
-        }
-
-        ctx.font =
-            "bold 28px Arial";
-
-        ctx.fillText(
-            extra,
-            800,
-            590
-        );
-    }
 
     ctx.font =
         "30px Arial";
 
-    ctx.fillText(
-        `🏟️ ${match.venue || "Cricket Stadium"}`,
-        800,
-        680
-    );
 
     ctx.fillText(
-        `📅 ${match.date || ""} • ${match.matchType || ""}`,
+        `🏟️ ${
+            match.venue ||
+            "Cricket Stadium"
+        }`,
         800,
-        735
+        650
     );
+
+
+    ctx.fillText(
+        `📅 ${
+            match.date || ""
+        } • ${
+            match.matchType || ""
+        }`,
+        800,
+        710
+    );
+
 
     ctx.font =
         "26px Arial";
+
 
     ctx.fillText(
         "Real-Time Cricket Scoreboard",
@@ -2169,12 +2367,14 @@ async function shareScoreImage(index){
         820
     );
 
+
     canvas.toBlob(
         async blob => {
 
             if(!blob){
                 return;
             }
+
 
             const file =
                 new File(
@@ -2184,6 +2384,7 @@ async function shareScoreImage(index){
                         type:"image/png"
                     }
                 );
+
 
             try{
 
@@ -2196,10 +2397,13 @@ async function shareScoreImage(index){
                 ){
 
                     await navigator.share({
+
                         title:
                             match.name ||
                             "Cricket Score",
+
                         files:[file]
+
                     });
 
                 }else{
@@ -2209,15 +2413,18 @@ async function shareScoreImage(index){
                             blob
                         );
 
+
                     const a =
                         document.createElement(
                             "a"
                         );
 
+
                     a.href = url;
 
                     a.download =
                         "cricket-short-score.png";
+
 
                     document.body.appendChild(a);
 
@@ -2225,8 +2432,10 @@ async function shareScoreImage(index){
 
                     a.remove();
 
+
                     setTimeout(
-                        () => URL.revokeObjectURL(url),
+                        () =>
+                            URL.revokeObjectURL(url),
                         1000
                     );
                 }
@@ -2244,9 +2453,631 @@ async function shareScoreImage(index){
 }
 
 
-/* =========================================================
+/* =====================================================
+   LIVE MODE — CREATE
+===================================================== */
+
+function createLiveMode(){
+
+    if(
+        document.getElementById(
+            "liveModeOverlay"
+        )
+    ){
+        return;
+    }
+
+
+    const html = `
+
+        <div
+            id="liveModeOverlay"
+            class="live-mode-overlay">
+
+
+            <button
+                class="live-mode-fullscreen"
+                onclick="toggleLiveFullscreen()">
+
+                ⛶ Full Screen
+
+            </button>
+
+
+            <button
+                class="live-mode-close"
+                onclick="closeLiveMode()">
+
+                ✕
+
+            </button>
+
+
+            <div class="live-mode-inner">
+
+
+                <div class="live-mode-top">
+
+                    <div class="live-mode-brand">
+                        🏏 CRICKET SHORT
+                    </div>
+
+
+                    <div
+                        id="liveModeStatus"
+                        class="live-mode-live">
+
+                        🔴 LIVE
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="liveModeMatch"
+                    class="live-mode-match">
+
+                    Loading Match...
+
+                </div>
+
+
+                <div class="live-mode-scoreboard">
+
+
+                    <div
+                        id="liveModeTeams"
+                        class="live-mode-teams">
+
+                        Loading...
+
+                    </div>
+
+
+                    <div
+                        id="liveModeExtra"
+                        class="live-mode-extra">
+
+                    </div>
+
+
+                    <div
+                        id="liveModeInfo"
+                        class="live-mode-info">
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="liveModeUpdate"
+                    class="live-mode-update">
+
+                    🔄 Waiting for live score...
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        html
+    );
+}
+
+
+/* =====================================================
+   OPEN LIVE MODE
+===================================================== */
+
+function openLiveMode(index=0){
+
+    liveModeMatchIndex =
+        index;
+
+
+    createLiveMode();
+
+
+    const overlay =
+        document.getElementById(
+            "liveModeOverlay"
+        );
+
+
+    if(!overlay){
+        return;
+    }
+
+
+    overlay.classList.add(
+        "active"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+
+
+    renderLiveMode();
+}
+
+
+/* =====================================================
+   CLOSE LIVE MODE
+===================================================== */
+
+function closeLiveMode(){
+
+    const overlay =
+        document.getElementById(
+            "liveModeOverlay"
+        );
+
+
+    if(overlay){
+
+        overlay.classList.remove(
+            "active"
+        );
+    }
+
+
+    document.body.style.overflow =
+        "";
+
+
+    if(
+        document.fullscreenElement
+    ){
+
+        document.exitFullscreen()
+            .catch(
+                () => {}
+            );
+    }
+}
+
+
+/* =====================================================
+   RENDER LIVE MODE
+===================================================== */
+
+function renderLiveMode(){
+
+    if(
+        !Array.isArray(
+            latestMatches
+        ) ||
+        !latestMatches.length
+    ){
+
+        const teams =
+            document.getElementById(
+                "liveModeTeams"
+            );
+
+
+        if(teams){
+
+            teams.innerHTML =
+                "🏏 No Live Match Available";
+        }
+
+
+        return;
+    }
+
+
+    const match =
+        latestMatches[
+            liveModeMatchIndex
+        ];
+
+
+    if(!match){
+        return;
+    }
+
+
+    const team1 =
+        match.team1 ||
+        "Team 1";
+
+
+    const team2 =
+        match.team2 ||
+        "Team 2";
+
+
+    const score1 =
+        getTeamScore(
+            match,
+            team1
+        );
+
+
+    const score2 =
+        getTeamScore(
+            match,
+            team2
+        );
+
+
+    const scoreText1 =
+        formatScore(score1);
+
+
+    const scoreText2 =
+        formatScore(score2);
+
+
+    const crr1 =
+        calculateCRR(score1);
+
+
+    const crr2 =
+        calculateCRR(score2);
+
+
+    const status =
+        getDisplayStatus(match);
+
+
+    /* Match */
+
+    const matchTitle =
+        document.getElementById(
+            "liveModeMatch"
+        );
+
+
+    if(matchTitle){
+
+        matchTitle.textContent =
+            match.name ||
+            `${team1} vs ${team2}`;
+    }
+
+
+    /* Status */
+
+    const statusElement =
+        document.getElementById(
+            "liveModeStatus"
+        );
+
+
+    if(statusElement){
+
+        statusElement.textContent =
+            status === "LIVE"
+            ? "🔴 LIVE"
+            : status;
+    }
+
+
+    /* Teams */
+
+    const teamsElement =
+        document.getElementById(
+            "liveModeTeams"
+        );
+
+
+    if(teamsElement){
+
+        teamsElement.innerHTML = `
+
+            <div class="live-mode-team">
+
+                ${
+                    match.team1Logo
+                    ? `
+                        <img
+                            src="${match.team1Logo}"
+                            class="live-mode-logo"
+                            alt="${team1}"
+                            onerror="this.style.display='none'"
+                        >
+                    `
+                    : ""
+                }
+
+
+                <div class="live-mode-team-name">
+                    ${team1}
+                </div>
+
+
+                <div class="live-mode-score">
+                    ${scoreText1}
+                </div>
+
+
+                ${
+                    crr1
+                    ? `
+                        <div class="live-mode-crr">
+                            CRR: ${crr1}
+                        </div>
+                    `
+                    : ""
+                }
+
+            </div>
+
+
+            <div class="live-mode-vs">
+                VS
+            </div>
+
+
+            <div class="live-mode-team">
+
+                ${
+                    match.team2Logo
+                    ? `
+                        <img
+                            src="${match.team2Logo}"
+                            class="live-mode-logo"
+                            alt="${team2}"
+                            onerror="this.style.display='none'"
+                        >
+                    `
+                    : ""
+                }
+
+
+                <div class="live-mode-team-name">
+                    ${team2}
+                </div>
+
+
+                <div class="live-mode-score">
+                    ${scoreText2}
+                </div>
+
+
+                ${
+                    crr2
+                    ? `
+                        <div class="live-mode-crr">
+                            CRR: ${crr2}
+                        </div>
+                    `
+                    : ""
+                }
+
+            </div>
+
+        `;
+    }
+
+
+    /* Target / RRR */
+
+    const extra =
+        document.getElementById(
+            "liveModeExtra"
+        );
+
+
+    if(extra){
+
+        extra.innerHTML = "";
+
+
+        if(score1 && score2){
+
+            const overs1 =
+                safeNumber(
+                    score1.overs
+                );
+
+
+            const overs2 =
+                safeNumber(
+                    score2.overs
+                );
+
+
+            let battingScore =
+                score1;
+
+
+            let bowlingScore =
+                score2;
+
+
+            if(
+                overs1 !== null &&
+                overs2 !== null &&
+                overs2 < overs1
+            ){
+
+                battingScore =
+                    score2;
+
+                bowlingScore =
+                    score1;
+            }
+
+
+            const target =
+                getTargetInfo(
+                    match,
+                    battingScore,
+                    bowlingScore
+                );
+
+
+            if(target){
+
+                const oversLimit =
+                    getOversLimit(match);
+
+
+                let rrr = null;
+
+
+                if(oversLimit){
+
+                    rrr =
+                        calculateRRR(
+                            target.requiredRuns,
+                            oversLimit,
+                            battingScore.overs
+                        );
+                }
+
+
+                extra.innerHTML = `
+
+                    🎯 Target:
+                    <strong>
+                        ${target.target}
+                    </strong>
+
+                    &nbsp;&nbsp;
+
+                    🏃 Required:
+                    <strong>
+                        ${target.requiredRuns}
+                    </strong>
+
+                    ${
+                        rrr
+                        ? `
+                            &nbsp;&nbsp;
+
+                            📈 RRR:
+                            <strong>
+                                ${rrr}
+                            </strong>
+                        `
+                        : ""
+                    }
+
+                `;
+            }
+        }
+    }
+
+
+    /* Info */
+
+    const info =
+        document.getElementById(
+            "liveModeInfo"
+        );
+
+
+    if(info){
+
+        info.innerHTML = `
+
+            ${
+                match.venue
+                ? `🏟️ ${match.venue}`
+                : ""
+            }
+
+            ${
+                match.date
+                ? `<br>📅 ${match.date}`
+                : ""
+            }
+
+            ${
+                match.matchType
+                ? ` • ${match.matchType}`
+                : ""
+            }
+
+            ${
+                match.statusText
+                ? `<br>ℹ️ ${match.statusText}`
+                : ""
+            }
+
+        `;
+    }
+
+
+    /* Update */
+
+    const update =
+        document.getElementById(
+            "liveModeUpdate"
+        );
+
+
+    if(update){
+
+        update.textContent =
+            "🔄 Live Score • Auto Update: 5 min • "+
+            new Date().toLocaleTimeString(
+                "en-IN",
+                {
+                    hour:"2-digit",
+                    minute:"2-digit",
+                    second:"2-digit"
+                }
+            );
+    }
+}
+
+
+/* =====================================================
+   FULL SCREEN
+===================================================== */
+
+async function toggleLiveFullscreen(){
+
+    const element =
+        document.getElementById(
+            "liveModeOverlay"
+        );
+
+
+    if(!element){
+        return;
+    }
+
+
+    try{
+
+        if(!document.fullscreenElement){
+
+            await element.requestFullscreen();
+
+        }else{
+
+            await document.exitFullscreen();
+
+        }
+
+    }catch(error){
+
+        console.log(
+            "Fullscreen error:",
+            error
+        );
+    }
+}
+
+
+/* =====================================================
    POSTER GENERATOR
-   ========================================================= */
+===================================================== */
 
 async function generatePoster(){
 
@@ -2255,52 +3086,60 @@ async function generatePoster(){
             "posterResult"
         );
 
+
     const player =
         document.getElementById(
             "posterPlayer"
-        ).value.trim();
+        ).value;
+
 
     const team =
         document.getElementById(
             "posterTeam"
-        ).value.trim();
+        ).value;
+
 
     const match =
         document.getElementById(
             "posterMatch"
-        ).value.trim();
+        ).value;
+
 
     const tournament =
         document.getElementById(
             "posterTournament"
-        ).value.trim();
+        ).value;
+
 
     const stadium =
         document.getElementById(
             "posterStadium"
-        ).value.trim();
+        ).value;
+
+
+    const prompt =
+        `Photorealistic breaking cricket sports news poster,
+        ${player} wearing ${team} cricket jersey,
+        ${match},
+        ${tournament},
+        at ${stadium},
+        dramatic cricket stadium,
+        packed crowd,
+        floodlights,
+        flying cricket ball,
+        intense professional sports atmosphere,
+        cinematic lighting,
+        ultra realistic,
+        high contrast,
+        vertical 9:16,
+        clean empty space at top for Hindi headline,
+        no text,
+        no watermark`;
+
 
     result.innerHTML =
-        `<div class="loading">🎨 Poster generating...</div>`;
+        "<div class='loading-score'>🎨 Poster generating...</div>";
 
-    const prompt = `
-Photorealistic breaking cricket news poster,
-${player} in ${team} cricket jersey,
-India cricket sports news style,
-${match},
-${tournament},
-${stadium},
-massive packed cricket stadium,
-dramatic floodlights,
-flying cricket ball,
-cinematic sports photography,
-high contrast,
-ultra detailed realistic face,
-professional cricket news thumbnail,
-vertical 9:16,
-large clean empty space at top for Hindi headline,
-no text, no watermark.
-`;
 
     try{
 
@@ -2319,458 +3158,304 @@ no text, no watermark.
                 }
             );
 
+
         if(!response.ok){
+
             throw new Error(
-                "HTTP " + response.status
+                "HTTP "+response.status
             );
         }
+
 
         const data =
             await response.json();
 
-        let imageData =
-            data.image ||
-            data.imageData ||
-            data.result ||
-            data.base64 ||
-            data.data;
 
-        if(
-            imageData &&
-            typeof imageData === "object"
-        ){
-            imageData =
-                imageData.image ||
-                imageData.base64 ||
-                imageData.data;
-        }
+        if(!data.image){
 
-        if(!imageData){
             throw new Error(
-                "No image returned"
+                "Image missing"
             );
         }
 
-        let src =
-            String(imageData);
 
-        if(!src.startsWith("data:image")){
-            src =
-                "data:image/png;base64," +
-                src;
-        }
+        const image =
+            "data:image/png;base64,"+
+            data.image;
+
 
         result.innerHTML = `
-            <h3>🎨 Cricket Poster</h3>
 
             <img
-                id="generatedPoster"
-                src="${src}"
-                alt="Cricket Poster"
-            >
+                src="${image}"
+                alt="Cricket Poster">
 
             <div class="actions">
 
-                <button class="secondary"
-                    onclick="downloadImage(
-                        'generatedPoster',
+                <button
+                    class="secondary"
+                    onclick="downloadBase64Image(
+                        '${image}',
                         'cricket-short-poster.png'
                     )">
                     ⬇️ Download
                 </button>
 
-                <button class="secondary"
-                    onclick="shareGeneratedImage(
-                        'generatedPoster',
-                        'Cricket Poster'
+                <button
+                    class="secondary"
+                    onclick="shareImageData(
+                        '${image}',
+                        'Cricket Short Poster'
                     )">
                     📤 Share
                 </button>
 
             </div>
+
         `;
 
     }catch(error){
 
         console.error(error);
 
-        result.innerHTML = `
-            <div class="error">
-                ❌ Poster generate नहीं हो सका।
-                <br><br>
-                ${escapeHTML(error.message)}
-            </div>
-        `;
+        result.innerHTML =
+            "<div class='no-score'>"+
+            "❌ Poster generation failed."+
+            "</div>";
     }
 }
 
 
-/* =========================================================
+/* =====================================================
    PLAYER CARD
-   ========================================================= */
+===================================================== */
 
 function createPlayerCard(){
 
-    const name =
+    const result =
+        document.getElementById(
+            "cardResult"
+        );
+
+
+    const player =
         document.getElementById(
             "cardPlayer"
-        ).value.trim();
+        ).value;
+
 
     const team =
         document.getElementById(
             "cardTeam"
-        ).value.trim();
+        ).value;
+
 
     const role =
         document.getElementById(
             "cardRole"
         ).value;
 
+
     const number =
         document.getElementById(
             "cardNumber"
         ).value;
+
 
     const hand =
         document.getElementById(
             "cardHand"
         ).value;
 
+
     const level =
         document.getElementById(
             "cardLevel"
         ).value;
 
-    const color =
+
+    const jersey =
         document.getElementById(
             "cardColor"
         ).value;
 
-    const rating =
-        Math.max(
-            1,
-            Math.min(
-                100,
-                Number(
-                    document.getElementById(
-                        "cardRating"
-                    ).value
-                ) || 1
-            )
-        );
 
-    const result =
+    const rating =
         document.getElementById(
-            "playerCardResult"
-        );
+            "cardRating"
+        ).value;
+
 
     result.innerHTML = `
 
         <div
-            class="player-card-preview"
-            id="playerCardCanvas"
+            id="playerCardVisual"
+            style="
+                max-width:500px;
+                margin:auto;
+                padding:25px;
+                border-radius:22px;
+                background:linear-gradient(
+                    145deg,
+                    #102d4b,
+                    #07111f
+                );
+                border:2px solid #355b7d;
+                text-align:center;
+            "
         >
 
-            <div style="font-size:14px;color:#a9bdd0;">
+            <div style="font-size:18px;opacity:.8;">
                 🏏 CRICKET SHORT
             </div>
 
-            <h2>
-                ${escapeHTML(name)}
-            </h2>
-
-            <div>
-                ${escapeHTML(team)}
+            <div
+                style="
+                    margin-top:15px;
+                    font-size:32px;
+                    font-weight:900;
+                "
+            >
+                ${player}
             </div>
 
-            <div class="rating">
-                ⭐ ${rating}
+            <div
+                style="
+                    margin-top:8px;
+                    font-size:20px;
+                "
+            >
+                🇮🇳 ${team}
             </div>
 
-            <div style="font-size:16px;margin:8px;">
-                ${escapeHTML(role)}
+            <div
+                style="
+                    margin:25px 0;
+                    font-size:65px;
+                    font-weight:900;
+                "
+            >
+                #${number}
             </div>
 
-            <div style="line-height:1.8;color:#b7c8d8;">
-                Jersey #${escapeHTML(number)}
-                <br>
-                ${escapeHTML(hand)} Hand
-                <br>
-                ${escapeHTML(level)}
-                <br>
-                Jersey: ${escapeHTML(color)}
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:1fr 1fr;
+                    gap:10px;
+                    text-align:left;
+                "
+            >
+
+                <div>Role<br><strong>${role}</strong></div>
+
+                <div>Hand<br><strong>${hand}</strong></div>
+
+                <div>Level<br><strong>${level}</strong></div>
+
+                <div>Jersey<br><strong>${jersey}</strong></div>
+
+            </div>
+
+            <div
+                style="
+                    margin-top:22px;
+                    font-size:28px;
+                    font-weight:900;
+                "
+            >
+                ⭐ ${rating}/100
             </div>
 
         </div>
+
 
         <div class="actions">
 
             <button
                 class="secondary"
-                onclick="downloadPlayerCard()"
-            >
+                onclick="downloadPlayerCard()">
                 ⬇️ Download
             </button>
 
-            <button
-                class="secondary"
-                onclick="sharePlayerCard()"
-            >
-                📤 Share
-            </button>
-
         </div>
+
     `;
 }
 
 
+/* =====================================================
+   DOWNLOAD PLAYER CARD
+===================================================== */
+
 async function downloadPlayerCard(){
 
-    const card =
+    const element =
         document.getElementById(
-            "playerCardCanvas"
+            "playerCardVisual"
         );
 
-    if(!card){
+
+    if(!element){
         return;
     }
+
 
     /*
-      Use html2canvas if available.
-      Otherwise create a simple canvas.
+       html2canvas उपलब्ध न होने पर
+       browser print/share fallback.
     */
 
-    if(typeof html2canvas === "function"){
-
-        const canvas =
-            await html2canvas(card);
-
-        const a =
-            document.createElement("a");
-
-        a.download =
-            "cricket-short-player-card.png";
-
-        a.href =
-            canvas.toDataURL("image/png");
-
-        a.click();
-
-        return;
-    }
-
-    const canvas =
-        document.createElement("canvas");
-
-    canvas.width = 1000;
-    canvas.height = 1200;
-
-    const ctx =
-        canvas.getContext("2d");
-
-    ctx.fillStyle =
-        "#12385a";
-
-    ctx.fillRect(
-        0,
-        0,
-        1000,
-        1200
-    );
-
-    ctx.fillStyle =
-        "#ffffff";
-
-    ctx.textAlign =
-        "center";
-
-    ctx.font =
-        "bold 55px Arial";
-
-    const name =
-        document.getElementById(
-            "cardPlayer"
-        ).value;
-
-    const team =
-        document.getElementById(
-            "cardTeam"
-        ).value;
-
-    ctx.fillText(
-        "CRICKET SHORT",
-        500,
-        150
-    );
-
-    ctx.font =
-        "bold 70px Arial";
-
-    ctx.fillText(
-        name,
-        500,
-        300
-    );
-
-    ctx.font =
-        "45px Arial";
-
-    ctx.fillText(
-        team,
-        500,
-        370
-    );
-
-    ctx.font =
-        "bold 60px Arial";
-
-    ctx.fillText(
-        "⭐ " +
-        document.getElementById(
-            "cardRating"
-        ).value,
-        500,
-        500
-    );
-
-    ctx.font =
-        "35px Arial";
-
-    ctx.fillText(
-        document.getElementById(
-            "cardRole"
-        ).value,
-        500,
-        600
-    );
-
-    ctx.fillText(
-        "Jersey #" +
-        document.getElementById(
-            "cardNumber"
-        ).value,
-        500,
-        680
-    );
-
-    ctx.fillText(
-        document.getElementById(
-            "cardLevel"
-        ).value,
-        500,
-        760
-    );
-
-    const a =
-        document.createElement("a");
-
-    a.download =
-        "cricket-short-player-card.png";
-
-    a.href =
-        canvas.toDataURL("image/png");
-
-    a.click();
-}
-
-
-async function sharePlayerCard(){
-
-    const card =
-        document.getElementById(
-            "playerCardCanvas"
-        );
-
     if(
-        !card ||
-        typeof html2canvas !== "function"
+        typeof html2canvas ===
+        "undefined"
     ){
+
         alert(
-            "Player Card ready है। Download करके share करें।"
+            "Player Card तैयार है। Screenshot लेकर save कर सकते हैं।"
         );
+
         return;
     }
 
+
     const canvas =
-        await html2canvas(card);
+        await html2canvas(
+            element
+        );
 
-    canvas.toBlob(
-        async blob => {
 
-            if(!blob){
-                return;
-            }
+    const url =
+        canvas.toDataURL(
+            "image/png"
+        );
 
-            const file =
-                new File(
-                    [blob],
-                    "cricket-short-player-card.png",
-                    {
-                        type:"image/png"
-                    }
-                );
 
-            try{
-
-                if(
-                    navigator.share &&
-                    navigator.canShare &&
-                    navigator.canShare({
-                        files:[file]
-                    })
-                ){
-
-                    await navigator.share({
-                        title:"Cricket Player Card",
-                        files:[file]
-                    });
-
-                }else{
-
-                    alert(
-                        "Download करके share करें।"
-                    );
-                }
-
-            }catch(error){
-
-                console.log(
-                    "Share cancelled"
-                );
-            }
-
-        },
-        "image/png"
+    downloadBase64Image(
+        url,
+        "cricket-short-player-card.png"
     );
 }
 
 
-/* =========================================================
-   IMAGE DOWNLOAD / SHARE
-   ========================================================= */
+/* =====================================================
+   IMAGE HELPERS
+===================================================== */
 
-function downloadImage(
-    imageId,
+function downloadBase64Image(
+    dataUrl,
     filename
 ){
 
-    const img =
-        document.getElementById(
-            imageId
+    const a =
+        document.createElement(
+            "a"
         );
 
-    if(!img){
-        return;
-    }
 
-    const a =
-        document.createElement("a");
+    a.href = dataUrl;
 
-    a.href =
-        img.src;
-
-    a.download =
-        filename;
+    a.download = filename;
 
     document.body.appendChild(a);
 
@@ -2780,36 +3465,32 @@ function downloadImage(
 }
 
 
-async function shareGeneratedImage(
-    imageId,
+async function shareImageData(
+    dataUrl,
     title
 ){
-
-    const img =
-        document.getElementById(
-            imageId
-        );
-
-    if(!img){
-        return;
-    }
 
     try{
 
         const response =
-            await fetch(img.src);
+            await fetch(
+                dataUrl
+            );
+
 
         const blob =
             await response.blob();
+
 
         const file =
             new File(
                 [blob],
                 "cricket-short-image.png",
                 {
-                    type:blob.type || "image/png"
+                    type:blob.type
                 }
             );
+
 
         if(
             navigator.share &&
@@ -2820,68 +3501,38 @@ async function shareGeneratedImage(
         ){
 
             await navigator.share({
+
                 title:title,
                 files:[file]
+
             });
 
         }else{
 
-            downloadImage(
-                imageId,
+            downloadBase64Image(
+                dataUrl,
                 "cricket-short-image.png"
-            );
-
-            alert(
-                "Image downloaded. अब इसे share कर सकते हैं।"
             );
         }
 
     }catch(error){
 
-        console.error(error);
+        console.log(
+            "Share error:",
+            error
+        );
 
-        downloadImage(
-            imageId,
+        downloadBase64Image(
+            dataUrl,
             "cricket-short-image.png"
         );
     }
 }
 
 
-/* =========================================================
-   SECURITY / TEXT HELPERS
-   ========================================================= */
-
-function escapeHTML(value){
-
-    return String(value ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-}
-
-
-function escapeAttribute(value){
-
-    return escapeHTML(value);
-}
-
-
-function escapeForJS(value){
-
-    return String(value ?? "")
-        .replace(/\\/g,"\\\\")
-        .replace(/'/g,"\\'")
-        .replace(/"/g,'\\"')
-        .replace(/\n/g," ");
-}
-
-
-/* =========================================================
-   START APP
-   ========================================================= */
+/* =====================================================
+   START
+===================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -2897,4 +3548,4 @@ document.addEventListener(
 </script>
 
 </body>
-               </html>
+    </html>
