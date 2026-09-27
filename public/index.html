@@ -1793,45 +1793,14 @@ async function loadLiveScore(){
 
         if(!match.date){
           return true;
-        }
+       const matches = Array.isArray(data.matches)
+  ? [...data.matches]
+  : []; 
 
 
-        const matchDate =
-          new Date(match.date);
+        
 
-
-        if(
-          Number.isNaN(
-            matchDate.getTime()
-          )
-        ){
-
-          return true;
-
-        }
-
-
-        matchDate.setHours(
-          0,0,0,0
-        );
-
-
-        const difference =
-          (
-            today -
-            matchDate
-          ) /
-          (
-            1000 *
-            60 *
-            60 *
-            24
-          );
-
-
-        return difference <= 1;
-
-      });
+      
 
 
     /*
