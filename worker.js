@@ -3,17 +3,32 @@ export default {
     const url = new URL(request.url);
 
     // ==========================================
-    // REAL LIVE CRICKET SCORE
+    // REAL-TIME CRICKET SCORE — CRICKETDATA.ORG
     // ==========================================
     if (url.pathname === "/api/live-score") {
+      // Only GET is allowed
+      if (request.method !== "GET") {
+        return json({
+          success: false,
+          error: "Only GET requests are allowed"
+        }, 405);
+      }
+
       try {
+        // --------------------------------------
+        // CHECK API KEY
+        // --------------------------------------
         if (!env.CRICKET_API_KEY) {
           return json({
             success: false,
-            error: "CRICKET_API_KEY is not configured in Cloudflare"
+            error:
+              "CRICKET_API_KEY is not configured in Cloudflare Worker Secrets"
           }, 500);
         }
 
+        // --------------------------------------
+        // CRICKETDATA CURRENT MATCHES API
+        // --------------------------------------
         const apiUrl =
           "https://api.cricapi.com/v1/currentMatches" +
           "?apikey=" +
@@ -27,27 +42,39 @@ export default {
           }
         });
 
+        // --------------------------------------
+        // API HTTP ERROR
+        // --------------------------------------
         if (!response.ok) {
           return json({
             success: false,
-            error: "Cricket API request failed",
-            status: response.status
+            error: "CricketData API request failed",
+            status: response.status,
+            statusText: response.statusText
           }, 502);
         }
 
+        // --------------------------------------
+        // READ JSON
+        // --------------------------------------
         const data = await response.json();
 
         if (!data || data.status !== "success") {
           return json({
             success: false,
-            error: "Cricket API returned an error",
-            apiResponse: data
+            error: "CricketData API returned an error",
+            apiStatus: data?.status || "unknown",
+            apiInfo: data?.info || null
           }, 502);
         }
 
         const matches = Array.isArray(data.data)
           ? data.data
           : [];
+
+        // ======================================
+        // FORMAT MATCHES
+        // ======================================
 
         const formattedMatches = matches.map(match => {
           const teams = Array.isArray(match.teams)
@@ -58,32 +85,65 @@ export default {
             ? match.score
             : [];
 
+          // ------------------------------------
+          // TEAM SCORES
+          // ------------------------------------
           const formattedTeams = teams.map(teamName => {
             const teamScores = scores.filter(score => {
-              if (!score || !score.inning) return false;
+              if (!score || !score.inning) {
+                return false;
+              }
 
-              return String(score.inning)
-                .toLowerCase()
-                .startsWith(
-                  String(teamName).toLowerCase()
-                );
+              const inning = String(
+                score.inning
+              ).toLowerCase();
+
+              const team = String(
+                teamName
+              ).toLowerCase();
+
+              return (
+                inning === team ||
+                inning.startsWith(team)
+              );
             });
 
+            // Latest score for this team
             const latest =
               teamScores.length > 0
                 ? teamScores[teamScores.length - 1]
                 : null;
 
+            let scoreText = "-";
+            let oversText = "-";
+
+            if (latest) {
+              const runs =
+                latest.r !== undefined
+                  ? latest.r
+                  : 0;
+
+              const wickets =
+                latest.w !== undefined
+                  ? latest.w
+                  : 0;
+
+              const overs =
+                latest.o !== undefined
+                  ? latest.o
+                  : 0;
+
+              scoreText =
+                `${runs}/${wickets}`;
+
+              oversText =
+                String(overs);
+            }
+
             return {
               name: teamName,
-
-              score: latest
-                ? `${latest.r}/${latest.w}`
-                : "-",
-
-              overs: latest
-                ? String(latest.o)
-                : "-"
+              score: scoreText,
+              overs: oversText
             };
           });
 
@@ -91,92 +151,166 @@ export default {
           // MATCH STATUS
           // ======================================
 
-          let status = String(
-            match.status || ""
-          ).toUpperCase();
+          const rawStatus =
+            String(
+              match.status || ""
+            ).trim();
 
+          const statusText =
+            rawStatus.toUpperCase();
+
+          let status = "UPCOMING";
+
+          // LIVE
           if (
-            status.includes("LIVE") ||
-            status.includes("IN PROGRESS")
+            statusText.includes("LIVE") ||
+            statusText.includes("IN PROGRESS") ||
+            statusText.includes("PLAYING") ||
+            statusText.includes("DAY") &&
+            statusText.includes("SESSION")
           ) {
             status = "LIVE";
-
-          } else if (
-            status.includes("STUMPS")
-          ) {
-            status = "STUMPS";
-
-          } else if (
-            status.includes("DELAY")
-          ) {
-            status = "DELAYED";
-
-          } else if (
-            status.includes("RESULT") ||
-            status.includes("WON")
-          ) {
-            status = "RESULT";
-
-          } else {
-            status = match.matchStarted
-              ? "LIVE"
-              : "UPCOMING";
           }
 
-          return {
-            id: match.id || "",
+          // STUMPS / BREAK
+          else if (
+            statusText.includes("STUMPS") ||
+            statusText.includes("STUMP") ||
+            statusText.includes("LUNCH") ||
+            statusText.includes("TEA") ||
+            statusText.includes("BREAK")
+          ) {
+            status = "STUMPS";
+          }
 
-            title:
-              match.name ||
-              `${teams[0] || "Team 1"} vs ${
-                teams[1] || "Team 2"
-              }`,
+          // DELAYED
+          else if (
+            statusText.includes("DELAY") ||
+            statusText.includes("RAIN") ||
+            statusText.includes("ABANDONED") &&
+            !statusText.includes("WON")
+          ) {
+            status = "DELAYED";
+          }
+
+          // RESULT
+          else if (
+            statusText.includes("RESULT") ||
+            statusText.includes("WON BY") ||
+            statusText.includes("WON") ||
+            statusText.includes("DRAWN") ||
+            statusText.includes("TIED") ||
+            statusText.includes("NO RESULT")
+          ) {
+            status = "RESULT";
+          }
+
+          // FALLBACK
+          else if (match.matchStarted === true) {
+            status = "LIVE";
+          }
+
+          // ------------------------------------
+          // MATCH TYPE
+          // ------------------------------------
+          let matchType =
+            match.matchType || "cricket";
+
+          matchType =
+            String(matchType)
+              .toUpperCase();
+
+          // ------------------------------------
+          // DATE
+          // ------------------------------------
+          let matchDate =
+            match.date || "";
+
+          if (!matchDate) {
+            matchDate =
+              new Date()
+                .toISOString()
+                .slice(0, 10);
+          }
+
+          // ------------------------------------
+          // TITLE
+          // ------------------------------------
+          const title =
+            match.name ||
+            (
+              teams.length >= 2
+                ? `${teams[0]} vs ${teams[1]}`
+                : "Cricket Match"
+            );
+
+          return {
+            id:
+              match.id ||
+              `${title}-${matchDate}`,
+
+            title: title,
 
             status: status,
 
-            description:
-              match.matchType
-                ? String(match.matchType).toUpperCase()
-                : "CRICKET MATCH",
+            statusText: rawStatus,
 
-            teams: formattedTeams,
+            description:
+              matchType,
+
+            teams:
+              formattedTeams,
 
             venue:
               match.venue ||
               "Cricket Stadium",
 
             date:
-              match.date ||
-              new Date()
-                .toISOString()
-                .slice(0, 10),
+              matchDate,
 
             matchType:
-              match.matchType || "",
+              match.matchType ||
+              "",
 
             series:
-              match.series_id || ""
+              match.series_id ||
+              "",
+
+            seriesName:
+              match.series_name ||
+              "",
+
+            matchStarted:
+              Boolean(match.matchStarted),
+
+            matchEnded:
+              Boolean(match.matchEnded)
           };
         });
 
         // ======================================
-        // LIVE MATCHES FIRST
+        // SORT
+        // LIVE FIRST
         // ======================================
 
-        formattedMatches.sort((a, b) => {
-          const order = {
-            LIVE: 1,
-            STUMPS: 2,
-            DELAYED: 3,
-            UPCOMING: 4,
-            RESULT: 5
-          };
+        const order = {
+          LIVE: 1,
+          STUMPS: 2,
+          DELAYED: 3,
+          UPCOMING: 4,
+          RESULT: 5
+        };
 
+        formattedMatches.sort((a, b) => {
           return (
             (order[a.status] || 99) -
             (order[b.status] || 99)
           );
         });
+
+        // ======================================
+        // RESPONSE
+        // ======================================
 
         return json({
           success: true,
@@ -194,15 +328,16 @@ export default {
       } catch (error) {
         return json({
           success: false,
+
           error:
             "Unable to fetch live cricket scores",
 
           message:
-            error.message
+            error?.message ||
+            "Unknown error"
         }, 500);
       }
     }
-
 
     // ==========================================
     // AI CRICKET IMAGE GENERATOR
@@ -217,8 +352,16 @@ export default {
           await request.json();
 
         const prompt =
-          body.prompt ||
+          body?.prompt ||
           "Professional photorealistic cricket player";
+
+        if (!env.AI) {
+          return json({
+            success: false,
+            error:
+              "Cloudflare AI binding is not configured"
+          }, 500);
+        }
 
         const result =
           await env.AI.run(
@@ -251,14 +394,14 @@ export default {
           success: false,
 
           error:
-            error.message
+            error?.message ||
+            "AI image generation failed"
         }, 500);
       }
     }
 
-
     // ==========================================
-    // WEBSITE FILES
+    // WEBSITE / PUBLIC FILES
     // ==========================================
 
     return env.ASSETS.fetch(request);
@@ -267,13 +410,12 @@ export default {
 
 
 // ==========================================
-// JSON RESPONSE FUNCTION
+// JSON RESPONSE
 // ==========================================
 
 function json(data, status = 200) {
   return new Response(
     JSON.stringify(data),
-
     {
       status: status,
 
@@ -282,10 +424,16 @@ function json(data, status = 200) {
           "application/json; charset=utf-8",
 
         "Cache-Control":
-          "no-store",
+          "no-store, no-cache, must-revalidate",
 
         "Access-Control-Allow-Origin":
-          "*"
+          "*",
+
+        "Access-Control-Allow-Headers":
+          "Content-Type",
+
+        "Access-Control-Allow-Methods":
+          "GET, POST, OPTIONS"
       }
     }
   );
