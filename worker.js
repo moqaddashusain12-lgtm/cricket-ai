@@ -2,37 +2,27 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // ==========================================
-    // REAL-TIME CRICKET SCORE — CRICKETDATA.ORG
-    // ==========================================
+    // ==============================
+    // LIVE CRICKET SCORE API
+    // ==============================
     if (url.pathname === "/api/live-score") {
-      // Only GET is allowed
       if (request.method !== "GET") {
+        return json({ success: false, error: "GET request required" }, 405);
+      }
+
+      const apiKey = env.CRICKET_API_KEY;
+
+      if (!apiKey) {
         return json({
           success: false,
-          error: "Only GET requests are allowed"
-        }, 405);
+          error: "CRICKET_API_KEY is not configured in Cloudflare Worker"
+        }, 500);
       }
 
       try {
-        // --------------------------------------
-        // CHECK API KEY
-        // --------------------------------------
-        if (!env.CRICKET_API_KEY) {
-          return json({
-            success: false,
-            error:
-              "CRICKET_API_KEY is not configured in Cloudflare Worker Secrets"
-          }, 500);
-        }
-
-        // --------------------------------------
-        // CRICKETDATA CURRENT MATCHES API
-        // --------------------------------------
         const apiUrl =
-          "https://api.cricapi.com/v1/currentMatches" +
-          "?apikey=" +
-          encodeURIComponent(env.CRICKET_API_KEY) +
+          "https://api.cricapi.com/v1/currentMatches?apikey=" +
+          encodeURIComponent(apiKey) +
           "&offset=0";
 
         const response = await fetch(apiUrl, {
@@ -42,258 +32,26 @@ export default {
           }
         });
 
-        // --------------------------------------
-        // API HTTP ERROR
-        // --------------------------------------
         if (!response.ok) {
           return json({
             success: false,
-            error: "CricketData API request failed",
-            status: response.status,
-            statusText: response.statusText
+            error: "Cricket API returned HTTP " + response.status
           }, 502);
         }
 
-        // --------------------------------------
-        // READ JSON
-        // --------------------------------------
-        const data = await response.json();
+        const apiData = await response.json();
 
-        if (!data || data.status !== "success") {
+        if (!apiData || !Array.isArray(apiData.data)) {
           return json({
             success: false,
-            error: "CricketData API returned an error",
-            apiStatus: data?.status || "unknown",
-            apiInfo: data?.info || null
+            error: "Invalid cricket API response"
           }, 502);
         }
 
-        const matches = Array.isArray(data.data)
-          ? data.data
-          : [];
+        const matches = apiData.data.map(formatMatch);
 
-        // ======================================
-        // FORMAT MATCHES
-        // ======================================
-
-        const formattedMatches = matches.map(match => {
-          const teams = Array.isArray(match.teams)
-            ? match.teams
-            : [];
-
-          const scores = Array.isArray(match.score)
-            ? match.score
-            : [];
-
-          // ------------------------------------
-          // TEAM SCORES
-          // ------------------------------------
-          const formattedTeams = teams.map(teamName => {
-            const teamScores = scores.filter(score => {
-              if (!score || !score.inning) {
-                return false;
-              }
-
-              const inning = String(
-                score.inning
-              ).toLowerCase();
-
-              const team = String(
-                teamName
-              ).toLowerCase();
-
-              return (
-                inning === team ||
-                inning.startsWith(team)
-              );
-            });
-
-            // Latest score for this team
-            const latest =
-              teamScores.length > 0
-                ? teamScores[teamScores.length - 1]
-                : null;
-
-            let scoreText = "-";
-            let oversText = "-";
-
-            if (latest) {
-              const runs =
-                latest.r !== undefined
-                  ? latest.r
-                  : 0;
-
-              const wickets =
-                latest.w !== undefined
-                  ? latest.w
-                  : 0;
-
-              const overs =
-                latest.o !== undefined
-                  ? latest.o
-                  : 0;
-
-              scoreText =
-                `${runs}/${wickets}`;
-
-              oversText =
-                String(overs);
-            }
-
-            return {
-              name: teamName,
-              score: scoreText,
-              overs: oversText
-            };
-          });
-
-          // ======================================
-          // MATCH STATUS
-          // ======================================
-
-          const rawStatus =
-            String(
-              match.status || ""
-            ).trim();
-
-          const statusText =
-            rawStatus.toUpperCase();
-
-          let status = "UPCOMING";
-
-          // LIVE
-          if (
-            statusText.includes("LIVE") ||
-            statusText.includes("IN PROGRESS") ||
-            statusText.includes("PLAYING") ||
-            statusText.includes("DAY") &&
-            statusText.includes("SESSION")
-          ) {
-            status = "LIVE";
-          }
-
-          // STUMPS / BREAK
-          else if (
-            statusText.includes("STUMPS") ||
-            statusText.includes("STUMP") ||
-            statusText.includes("LUNCH") ||
-            statusText.includes("TEA") ||
-            statusText.includes("BREAK")
-          ) {
-            status = "STUMPS";
-          }
-
-          // DELAYED
-          else if (
-            statusText.includes("DELAY") ||
-            statusText.includes("RAIN") ||
-            statusText.includes("ABANDONED") &&
-            !statusText.includes("WON")
-          ) {
-            status = "DELAYED";
-          }
-
-          // RESULT
-          else if (
-            statusText.includes("RESULT") ||
-            statusText.includes("WON BY") ||
-            statusText.includes("WON") ||
-            statusText.includes("DRAWN") ||
-            statusText.includes("TIED") ||
-            statusText.includes("NO RESULT")
-          ) {
-            status = "RESULT";
-          }
-
-          // FALLBACK
-          else if (match.matchStarted === true) {
-            status = "LIVE";
-          }
-
-          // ------------------------------------
-          // MATCH TYPE
-          // ------------------------------------
-          let matchType =
-            match.matchType || "cricket";
-
-          matchType =
-            String(matchType)
-              .toUpperCase();
-
-          // ------------------------------------
-          // DATE
-          // ------------------------------------
-          let matchDate =
-            match.date || "";
-
-          if (!matchDate) {
-            matchDate =
-              new Date()
-                .toISOString()
-                .slice(0, 10);
-          }
-
-          // ------------------------------------
-          // TITLE
-          // ------------------------------------
-          const title =
-            match.name ||
-            (
-              teams.length >= 2
-                ? `${teams[0]} vs ${teams[1]}`
-                : "Cricket Match"
-            );
-
-          return {
-            id:
-              match.id ||
-              `${title}-${matchDate}`,
-
-            title: title,
-
-            status: status,
-
-            statusText: rawStatus,
-
-            description:
-              matchType,
-
-            teams:
-              formattedTeams,
-
-            venue:
-              match.venue ||
-              "Cricket Stadium",
-
-            date:
-              matchDate,
-
-            matchType:
-              match.matchType ||
-              "",
-
-            series:
-              match.series_id ||
-              "",
-
-            seriesName:
-              match.series_name ||
-              "",
-
-            matchStarted:
-              Boolean(match.matchStarted),
-
-            matchEnded:
-              Boolean(match.matchEnded)
-          };
-        });
-
-        // ======================================
-        // SORT
-        // LIVE FIRST
-        // ======================================
-
-        const order = {
+        // LIVE → STUMPS → DELAYED → UPCOMING → RESULT
+        const priority = {
           LIVE: 1,
           STUMPS: 2,
           DELAYED: 3,
@@ -301,175 +59,278 @@ export default {
           RESULT: 5
         };
 
-        formattedMatches.sort((a, b) => {
-          return (
-            (order[a.status] || 99) -
-            (order[b.status] || 99)
-          );
-        });
+        matches.sort((a, b) => {
+          const pa = priority[a.status] || 9;
+          const pb = priority[b.status] || 9;
 
-        // ======================================
-        // RESPONSE
-        // ======================================
+          if (pa !== pb) return pa - pb;
+
+          // India matches first
+          const ai = /india/i.test(a.name) ? 0 : 1;
+          const bi = /india/i.test(b.name) ? 0 : 1;
+
+          return ai - bi;
+        });
 
         return json({
           success: true,
-
-          updatedAt:
-            new Date().toISOString(),
-
-          count:
-            formattedMatches.length,
-
-          matches:
-            formattedMatches
+          updatedAt: new Date().toISOString(),
+          count: matches.length,
+          matches
         });
 
       } catch (error) {
         return json({
           success: false,
-
-          error:
-            "Unable to fetch live cricket scores",
-
-          message:
-            error?.message ||
-            "Unknown error"
+          error: error?.message || "Unable to fetch live cricket score"
         }, 500);
       }
     }
 
-    // ==========================================
-    // AI CRICKET IMAGE GENERATOR
-    // ==========================================
+    // ==============================
+    // AI IMAGE GENERATOR
+    // ==============================
+    if (url.pathname === "/api/generate-image") {
+      if (request.method !== "POST") {
+        return json({
+          success: false,
+          error: "Only POST requests are allowed"
+        }, 405);
+      }
 
-    if (
-      url.pathname === "/api/generate-image" &&
-      request.method === "POST"
-    ) {
       try {
-        const body =
-          await request.json();
+        const body = await request.json();
+        const prompt = String(body?.prompt || "").trim();
 
-        const prompt =
-          body?.prompt ||
-          "Professional photorealistic cricket player";
-
-        if (!env.AI) {
+        if (!prompt) {
           return json({
             success: false,
-            error:
-              "Cloudflare AI binding is not configured"
-          }, 500);
+            error: "Prompt is required"
+          }, 400);
         }
 
-        const result =
-          await env.AI.run(
-            "@cf/black-forest-labs/flux-1-schnell",
-            {
-              prompt: prompt
-            }
-          );
+        const result = await env.AI.run(
+          "@cf/black-forest-labs/flux-1-schnell",
+          {
+            prompt
+          }
+        );
 
-        const contentType =
-          result?.headers?.get(
-            "content-type"
-          ) || "image/jpeg";
+        let imageBytes;
 
-        const buffer =
-          await result.arrayBuffer();
+        if (result instanceof ArrayBuffer) {
+          imageBytes = result;
+        } else if (result?.image) {
+          imageBytes = base64ToArrayBuffer(result.image);
+        } else {
+          return json({
+            success: false,
+            error: "AI image response was empty"
+          }, 502);
+        }
 
-        const base64 =
-          arrayBufferToBase64(buffer);
+        const base64 = arrayBufferToBase64(imageBytes);
 
         return json({
           success: true,
-
-          image:
-            `data:${contentType};base64,${base64}`
+          image: "data:image/png;base64," + base64
         });
 
       } catch (error) {
         return json({
           success: false,
-
-          error:
-            error?.message ||
-            "AI image generation failed"
+          error: error?.message || "Image generation failed"
         }, 500);
       }
     }
 
-    // ==========================================
-    // WEBSITE / PUBLIC FILES
-    // ==========================================
-
+    // ==============================
+    // STATIC WEBSITE
+    // ==============================
     return env.ASSETS.fetch(request);
   }
 };
 
 
-// ==========================================
-// JSON RESPONSE
-// ==========================================
+// =====================================
+// FORMAT CRICKET MATCH
+// =====================================
+function formatMatch(match) {
+  const teams = Array.isArray(match.teamInfo)
+    ? match.teamInfo
+    : [];
 
-function json(data, status = 200) {
-  return new Response(
-    JSON.stringify(data),
-    {
-      status: status,
+  const team1 =
+    match.teams?.[0] ||
+    teams?.[0]?.name ||
+    "Team 1";
 
-      headers: {
-        "Content-Type":
-          "application/json; charset=utf-8",
+  const team2 =
+    match.teams?.[1] ||
+    teams?.[1]?.name ||
+    "Team 2";
 
-        "Cache-Control":
-          "no-store, no-cache, must-revalidate",
+  const score = Array.isArray(match.score)
+    ? match.score
+    : [];
 
-        "Access-Control-Allow-Origin":
-          "*",
+  return {
+    id: match.id || crypto.randomUUID(),
 
-        "Access-Control-Allow-Headers":
-          "Content-Type",
+    name: match.name || `${team1} vs ${team2}`,
 
-        "Access-Control-Allow-Methods":
-          "GET, POST, OPTIONS"
-      }
-    }
-  );
+    seriesName:
+      match.series_id ||
+      match.seriesName ||
+      "",
+
+    team1,
+    team2,
+
+    team1Logo:
+      teams?.[0]?.img ||
+      "",
+
+    team2Logo:
+      teams?.[1]?.img ||
+      "",
+
+    score: score.map(s => ({
+      inning: s.inning || "",
+      runs: Number.isFinite(Number(s.r))
+        ? Number(s.r)
+        : null,
+      wickets: Number.isFinite(Number(s.w))
+        ? Number(s.w)
+        : null,
+      overs: s.o ?? null
+    })),
+
+    venue:
+      match.venue ||
+      "Venue not available",
+
+    date:
+      match.date ||
+      "",
+
+    dateTimeGMT:
+      match.dateTimeGMT ||
+      "",
+
+    matchType:
+      String(match.matchType || "CRICKET")
+        .toUpperCase(),
+
+    statusText:
+      match.status ||
+      "",
+
+    status:
+      getStatus(match),
+
+    matchStarted:
+      Boolean(match.matchStarted),
+
+    matchEnded:
+      Boolean(match.matchEnded),
+
+    toss:
+      match.tossWinner
+        ? `${match.tossWinner} won the toss`
+        : "",
+
+    rawStatus:
+      match.status || ""
+  };
 }
 
 
-// ==========================================
-// ARRAY BUFFER → BASE64
-// ==========================================
+// =====================================
+// STATUS
+// =====================================
+function getStatus(match) {
+  const status = String(match.status || "").toLowerCase();
 
+  if (
+    status.includes("won by") ||
+    status.includes("won") ||
+    status.includes("draw") ||
+    status.includes("tied") ||
+    status.includes("no result") ||
+    status.includes("abandoned")
+  ) {
+    return "RESULT";
+  }
+
+  if (
+    status.includes("stumps") ||
+    status.includes("lunch") ||
+    status.includes("tea") ||
+    status.includes("innings break") ||
+    status.includes("break")
+  ) {
+    return "STUMPS";
+  }
+
+  if (
+    status.includes("delay") ||
+    status.includes("rain") ||
+    status.includes("bad light") ||
+    status.includes("weather")
+  ) {
+    return "DELAYED";
+  }
+
+  if (match.matchStarted && !match.matchEnded) {
+    return "LIVE";
+  }
+
+  return "UPCOMING";
+}
+
+
+// =====================================
+// JSON RESPONSE
+// =====================================
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "Pragma": "no-cache",
+      "Access-Control-Allow-Origin": "*"
+    }
+  });
+}
+
+
+// =====================================
+// BASE64 HELPERS
+// =====================================
 function arrayBufferToBase64(buffer) {
-  const bytes =
-    new Uint8Array(buffer);
-
+  const bytes = new Uint8Array(buffer);
   let binary = "";
 
   const chunkSize = 0x8000;
 
-  for (
-    let i = 0;
-    i < bytes.length;
-    i += chunkSize
-  ) {
-    const chunk =
-      bytes.subarray(
-        i,
-        Math.min(
-          i + chunkSize,
-          bytes.length
-        )
-      );
-
+  for (let i = 0; i < bytes.length; i += chunkSize) {
     binary += String.fromCharCode(
-      ...chunk
+      ...bytes.subarray(i, i + chunkSize)
     );
   }
 
   return btoa(binary);
-                }
+}
+
+function base64ToArrayBuffer(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return bytes.buffer;
+                     }
