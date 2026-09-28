@@ -42,7 +42,6 @@ no text,
 no watermark.
 `;
 
-        // Run Cloudflare Workers AI
         const result = await env.AI.run(
           "@cf/black-forest-labs/flux-1-schnell",
           {
@@ -50,7 +49,6 @@ no watermark.
           }
         );
 
-        // Check AI response
         if (!result || !result.image) {
           return Response.json(
             {
@@ -58,11 +56,15 @@ no watermark.
               error: "Workers AI did not return an image.",
               details: result
             },
-            { status: 500 }
+            {
+              status: 500,
+              headers: {
+                "Access-Control-Allow-Origin": "*"
+              }
+            }
           );
         }
 
-        // Convert Base64 image to binary
         const binaryString = atob(result.image);
 
         const imageBytes = Uint8Array.from(
@@ -70,7 +72,6 @@ no watermark.
           char => char.charCodeAt(0)
         );
 
-        // Return generated image
         return new Response(imageBytes, {
           status: 200,
           headers: {
@@ -105,7 +106,6 @@ no watermark.
       try {
         const apiKey = env.CRICKET_API_KEY;
 
-        // Check API key
         if (!apiKey) {
           return Response.json(
             {
@@ -121,7 +121,6 @@ no watermark.
           );
         }
 
-        // CricAPI current matches endpoint
         const apiUrl =
           "https://api.cricapi.com/v1/currentMatches?apikey=" +
           encodeURIComponent(apiKey) +
@@ -194,7 +193,7 @@ no watermark.
 
 
     // =========================================
-    // FRONTEND
+    // FRONTEND FILES
     // =========================================
     if (env.ASSETS) {
       return env.ASSETS.fetch(request);
