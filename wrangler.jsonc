@@ -9,5 +9,12 @@
 
   "assets": {
     "directory": "./public"
+  },
+
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
   }
 }
