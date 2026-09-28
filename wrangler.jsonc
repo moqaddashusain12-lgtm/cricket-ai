@@ -1,13 +1,1 @@
-{
-  "name": "cricket-ai-app",
-  "main": "worker.js",
-  "compatibility_date": "2026-09-24",
-
-  "ai": {
-    "binding": "AI"
-  },
-
-  "assets": {
-    "directory": "./public"
-  }
-}
+return env.ASSETS.fetch(request);
