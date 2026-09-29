@@ -1,20 +1,17 @@
 {
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
   "name": "cricket-ai-app",
+
   "main": "worker.js",
-  "compatibility_date": "2026-09-24",
+
+  "compatibility_date": "2026-09-25",
+
+  "assets": {
+    "directory": "./public/"
+  },
 
   "ai": {
     "binding": "AI"
-  },
-
-  "assets": {
-    "directory": "./public"
-  },
-
-  "observability": {
-    "logs": {
-      "enabled": true,
-      "invocation_logs": true
-    }
   }
 }
