@@ -181,7 +181,6 @@ body{
   .info{
     font-size:9px;
   }
-
 }
 </style>
 </head>
@@ -202,9 +201,9 @@ const API_URL = "/api/live-score";
 const REFRESH_TIME = 300000;
 
 
-/* ================================
+/* =========================================
    SAFE TEXT
-================================ */
+========================================= */
 
 function safe(value){
 
@@ -221,63 +220,154 @@ function safe(value){
 }
 
 
-/* ================================
-   NORMALIZE TEAM NAME
-================================ */
+/* =========================================
+   CLEAN TEAM NAME
+========================================= */
 
 function cleanTeamName(name){
 
   return String(name || "")
     .toLowerCase()
-    .replace(/\b(cricket|team)\b/g,"")
+    .replace(/\b(cricket|team|innings|inning)\b/g,"")
     .replace(/[^a-z0-9]/g,"")
     .trim();
 }
 
 
-/* ================================
-   GET OVERS
-================================ */
+/* =========================================
+   GET TEAM NAMES
+========================================= */
 
-function getOvers(score, fallback){
+function getTeams(match){
 
-  if(score && typeof score === "object"){
+  let team1 =
+    match.team1 ||
+    match.team1Name ||
+    "";
 
-    const values = [
-      score.o,
-      score.overs,
-      score.over,
-      score.overCount,
-      score.oversCount
-    ];
+  let team2 =
+    match.team2 ||
+    match.team2Name ||
+    "";
 
-    for(const value of values){
 
-      if(
-        value !== undefined &&
-        value !== null &&
-        String(value).trim() !== ""
-      ){
+  /*
+    Some APIs return teams as array
+  */
 
-        return String(value)
-          .replace(/[()]/g,"")
-          .replace(/\s*ov$/i,"")
-          .trim();
-      }
+  if(
+    (!team1 || !team2) &&
+    Array.isArray(match.teams)
+  ){
+
+    team1 =
+      team1 ||
+      match.teams[0] ||
+      "";
+
+    team2 =
+      team2 ||
+      match.teams[1] ||
+      "";
+  }
+
+
+  /*
+    Sometimes team names are inside
+    a "teamInfo" array.
+  */
+
+  if(
+    (!team1 || !team2) &&
+    Array.isArray(match.teamInfo)
+  ){
+
+    if(!team1){
+      team1 =
+        match.teamInfo[0]?.name ||
+        match.teamInfo[0]?.shortname ||
+        "";
+    }
+
+    if(!team2){
+      team2 =
+        match.teamInfo[1]?.name ||
+        match.teamInfo[1]?.shortname ||
+        "";
     }
   }
 
 
+  /*
+    Last fallback: match name
+  */
+
   if(
-    fallback !== undefined &&
-    fallback !== null &&
-    String(fallback).trim() !== ""
+    (!team1 || !team2) &&
+    match.name
   ){
 
-    return String(fallback)
-      .replace(/[()]/g,"")
-      .replace(/\s*ov$/i,"")
-      .trim();
+    const parts =
+      String(match.name)
+        .split(" vs ");
+
+
+    if(!team1){
+      team1 = parts[0] || "Team 1";
+    }
+
+    if(!team2){
+      team2 = parts[1] || "Team 2";
+    }
+  }
+
+
+  return {
+    team1: team1 || "Team 1",
+    team2: team2 || "Team 2"
+  };
+}
+
+
+/* =========================================
+   GET OVERS
+========================================= */
+
+function getOvers(score){
+
+  if(!score || typeof score !== "object"){
+    return "";
+  }
+
+
+  const values = [
+
+    score.o,
+
+    score.overs,
+
+    score.over,
+
+    score.overCount,
+
+    score.oversCount
+
+  ];
+
+
+  for(const value of values){
+
+    if(
+      value !== undefined &&
+      value !== null &&
+      String(value).trim() !== ""
+    ){
+
+      return String(value)
+        .replace(/[()]/g,"")
+        .replace(/\s*ov$/i,"")
+        .trim();
+    }
   }
 
 
@@ -285,75 +375,11 @@ function getOvers(score, fallback){
 }
 
 
-/* ================================
-   FORMAT SCORE OBJECT
-================================ */
+/* =========================================
+   FORMAT SCORE
+========================================= */
 
-function objectScore(score, fallbackOvers){
-
-  if(!score || typeof score !== "object"){
-    return "";
-  }
-
-
-  const runs =
-    score.r ??
-    score.runs ??
-    score.score ??
-    score.total ??
-    score.run ??
-    "";
-
-
-  const wickets =
-    score.w ??
-    score.wickets ??
-    score.wicket ??
-    score.wkts ??
-    "";
-
-
-  const overs =
-    getOvers(score,fallbackOvers);
-
-
-  if(
-    runs === "" &&
-    wickets === "" &&
-    !overs
-  ){
-    return "";
-  }
-
-
-  let result = "";
-
-
-  if(runs !== ""){
-    result += runs;
-  }
-
-
-  if(wickets !== ""){
-    result += "/" + wickets;
-  }
-
-
-  if(overs){
-
-    result += " (" + overs + " ov)";
-  }
-
-
-  return result;
-}
-
-
-/* ================================
-   FORMAT ANY SCORE
-================================ */
-
-function formatScore(score,fallbackOvers){
+function formatScore(score){
 
   if(
     score === null ||
@@ -365,32 +391,18 @@ function formatScore(score,fallbackOvers){
   }
 
 
-  /* STRING */
+  /*
+    STRING SCORE
+  */
 
   if(typeof score === "string"){
 
-    const text = score.trim();
+    const text =
+      score.trim();
+
 
     if(!text){
       return "";
-    }
-
-
-    /*
-      If string already contains overs
-    */
-
-    if(/\(\s*[\d.]+\s*ov\s*\)/i.test(text)){
-      return text;
-    }
-
-
-    if(fallbackOvers){
-
-      return text +
-        " (" +
-        fallbackOvers +
-        " ov)";
     }
 
 
@@ -398,14 +410,65 @@ function formatScore(score,fallbackOvers){
   }
 
 
-  /* OBJECT */
+  /*
+    OBJECT SCORE
+  */
 
   if(typeof score === "object"){
 
-    return objectScore(
-      score,
-      fallbackOvers
-    );
+    const runs =
+      score.r ??
+      score.runs ??
+      score.score ??
+      score.total ??
+      score.run ??
+      "";
+
+
+    const wickets =
+      score.w ??
+      score.wickets ??
+      score.wicket ??
+      score.wkts ??
+      "";
+
+
+    const overs =
+      getOvers(score);
+
+
+    if(
+      runs === "" &&
+      wickets === ""
+    ){
+
+      return "";
+    }
+
+
+    let result = "";
+
+
+    if(runs !== ""){
+      result += runs;
+    }
+
+
+    if(wickets !== ""){
+      result += "/" + wickets;
+    }
+
+
+    if(overs){
+
+      result +=
+        " (" +
+        overs +
+        " ov)";
+    }
+
+
+    return result;
   }
 
 
@@ -413,51 +476,66 @@ function formatScore(score,fallbackOvers){
 }
 
 
-/* ================================
-   GET TEAM SCORE FROM SCORE ARRAY
-================================ */
+/* =========================================
+   GET SCORE TEAM NAME FROM INNING
+========================================= */
 
-function findScoreForTeam(match,teamName,index){
+function getInningTeam(item){
 
-  const scores = match.score;
+  if(!item || typeof item !== "object"){
+    return "";
+  }
 
 
-  if(!Array.isArray(scores) || scores.length === 0){
+  return (
+    item.team ||
+    item.teamName ||
+    item.inning ||
+    item.innings ||
+    item.name ||
+    ""
+  );
+}
+
+
+/* =========================================
+   FIND SCORE FOR TEAM
+========================================= */
+
+function findTeamScore(scores,teamName,index){
+
+  if(
+    !Array.isArray(scores) ||
+    scores.length === 0
+  ){
+
     return null;
   }
 
 
-  const wanted = cleanTeamName(teamName);
+  const wanted =
+    cleanTeamName(teamName);
 
 
   /*
-    First try exact/team-name matching
+    STEP 1
+    Exact / partial team matching
   */
 
-  for(const item of scores){
+  if(wanted){
 
-    if(!item || typeof item !== "object"){
-      continue;
-    }
+    for(const item of scores){
 
-
-    const possibleNames = [
-      item.team,
-      item.teamName,
-      item.inning,
-      item.innings,
-      item.name
-    ];
+      const inningTeam =
+        getInningTeam(item);
 
 
-    for(const name of possibleNames){
-
-      const clean = cleanTeamName(name);
+      const clean =
+        cleanTeamName(inningTeam);
 
 
       if(
         clean &&
-        wanted &&
         (
           clean === wanted ||
           clean.includes(wanted) ||
@@ -472,44 +550,98 @@ function findScoreForTeam(match,teamName,index){
 
 
   /*
-    If API doesn't provide team name,
-    use array position.
+    STEP 2
+    POSITION BASED FALLBACK
+
+    Very important:
+    score[0] = first innings
+    score[1] = second innings
   */
 
-  return scores[index] || null;
+  if(scores[index]){
+
+    return scores[index];
+  }
+
+
+  return null;
 }
 
 
-/* ================================
+/* =========================================
+   GET SCORE ARRAY
+========================================= */
+
+function getScoreArray(match){
+
+  if(
+    Array.isArray(match.score) &&
+    match.score.length
+  ){
+
+    return match.score;
+  }
+
+
+  if(
+    Array.isArray(match.scores) &&
+    match.scores.length
+  ){
+
+    return match.scores;
+  }
+
+
+  if(
+    Array.isArray(match.innings) &&
+    match.innings.length
+  ){
+
+    return match.innings;
+  }
+
+
+  if(
+    Array.isArray(match.inning) &&
+    match.inning.length
+  ){
+
+    return match.inning;
+  }
+
+
+  return [];
+}
+
+
+/* =========================================
    GET MATCH SCORES
-================================ */
+========================================= */
 
 function getMatchScores(match){
 
+  const teams =
+    getTeams(match);
+
+
   const team1 =
-    match.team1 ||
-    match.team1Name ||
-    match.teams?.[0] ||
-    "Team 1";
+    teams.team1;
 
 
   const team2 =
-    match.team2 ||
-    match.team2Name ||
-    match.teams?.[1] ||
-    "Team 2";
+    teams.team2;
+
+
+  const scores =
+    getScoreArray(match);
 
 
   let score1 = null;
   let score2 = null;
 
 
-  let overs1 = "";
-  let overs2 = "";
-
-
   /*
-    DIRECT CUSTOM FIELDS
+    Direct fields first
   */
 
   if(match.team1Score !== undefined){
@@ -522,30 +654,11 @@ function getMatchScores(match){
   }
 
 
-  overs1 =
-    match.team1Overs ??
-    match.team1Over ??
-    "";
-
-
-  overs2 =
-    match.team2Overs ??
-    match.team2Over ??
-    "";
-
-
   /*
     SCORE ARRAY
   */
 
-  if(
-    Array.isArray(match.score) &&
-    match.score.length > 0
-  ){
-
-    /*
-      Only replace missing scores.
-    */
+  if(scores.length){
 
     if(
       score1 === null ||
@@ -554,8 +667,8 @@ function getMatchScores(match){
     ){
 
       score1 =
-        findScoreForTeam(
-          match,
+        findTeamScore(
+          scores,
           team1,
           0
         );
@@ -569,8 +682,8 @@ function getMatchScores(match){
     ){
 
       score2 =
-        findScoreForTeam(
-          match,
+        findTeamScore(
+          scores,
           team2,
           1
         );
@@ -578,140 +691,18 @@ function getMatchScores(match){
   }
 
 
-  /*
-    EXTRA FALLBACK:
-    some APIs use innings[]
-  */
-
-  const innings =
-    match.innings ||
-    match.inning ||
-    match.scores;
-
-
-  if(Array.isArray(innings)){
-
-    if(
-      !score1
-    ){
-
-      score1 =
-        findScoreFromArray(
-          innings,
-          team1
-        );
-    }
-
-
-    if(
-      !score2
-    ){
-
-      score2 =
-        findScoreFromArray(
-          innings,
-          team2
-        );
-    }
-  }
-
-
-  /*
-    GET OVERS FROM SCORE OBJECT
-  */
-
-  if(
-    score1 &&
-    typeof score1 === "object"
-  ){
-
-    overs1 =
-      getOvers(
-        score1,
-        overs1
-      );
-  }
-
-
-  if(
-    score2 &&
-    typeof score2 === "object"
-  ){
-
-    overs2 =
-      getOvers(
-        score2,
-        overs2
-      );
-  }
-
-
   return {
     team1,
     team2,
     score1,
-    score2,
-    overs1,
-    overs2
+    score2
   };
 }
 
 
-/* ================================
-   SEARCH SCORE FROM ARRAY
-================================ */
-
-function findScoreFromArray(array,teamName){
-
-  const wanted =
-    cleanTeamName(teamName);
-
-
-  for(const item of array){
-
-    if(!item || typeof item !== "object"){
-      continue;
-    }
-
-
-    const names = [
-      item.team,
-      item.teamName,
-      item.inning,
-      item.innings,
-      item.name
-    ];
-
-
-    for(const name of names){
-
-      const clean =
-        cleanTeamName(name);
-
-
-      if(
-        clean &&
-        wanted &&
-        (
-          clean === wanted ||
-          clean.includes(wanted) ||
-          wanted.includes(clean)
-        )
-      ){
-
-        return item;
-      }
-    }
-  }
-
-
-  return null;
-}
-
-
-/* ================================
+/* =========================================
    PICK LIVE MATCH
-================================ */
+========================================= */
 
 function pickMatch(matches){
 
@@ -738,8 +729,8 @@ function pickMatch(matches){
 
       return (
         status.includes("live") ||
-        status.includes("stumps") ||
-        status.includes("in progress")
+        status.includes("in progress") ||
+        status.includes("stumps")
       );
 
     });
@@ -750,34 +741,13 @@ function pickMatch(matches){
   }
 
 
-  const delayed =
-    matches.find(match => {
-
-      const status =
-        String(
-          match.status ||
-          match.matchStatus ||
-          ""
-        ).toLowerCase();
-
-
-      return status.includes("delay");
-
-    });
-
-
-  if(delayed){
-    return delayed;
-  }
-
-
   return matches[0];
 }
 
 
-/* ================================
+/* =========================================
    RENDER
-================================ */
+========================================= */
 
 function renderMatch(match){
 
@@ -803,75 +773,12 @@ function renderMatch(match){
     getMatchScores(match);
 
 
-  let score1 =
-    formatScore(
-      scores.score1,
-      scores.overs1
-    );
+  const score1 =
+    formatScore(scores.score1);
 
 
-  let score2 =
-    formatScore(
-      scores.score2,
-      scores.overs2
-    );
-
-
-  /*
-    IMPORTANT:
-    Don't show overs if there is
-    no actual score.
-  */
-
-  if(
-    !score1 &&
-    scores.overs1
-  ){
-
-    score1 =
-      "—";
-  }
-
-
-  if(
-    !score2 &&
-    scores.overs2
-  ){
-
-    score2 =
-      "—";
-  }
-
-
-  /*
-    If score exists but overs are
-    not already inside it.
-  */
-
-  if(
-    score1 &&
-    scores.overs1 &&
-    !/\(\s*[\d.]+\s*ov\s*\)/i.test(score1)
-  ){
-
-    score1 +=
-      " (" +
-      safe(scores.overs1) +
-      " ov)";
-  }
-
-
-  if(
-    score2 &&
-    scores.overs2 &&
-    !/\(\s*[\d.]+\s*ov\s*\)/i.test(score2)
-  ){
-
-    score2 +=
-      " (" +
-      safe(scores.overs2) +
-      " ov)";
-  }
+  const score2 =
+    formatScore(scores.score2);
 
 
   const status =
@@ -996,9 +903,9 @@ function renderMatch(match){
 }
 
 
-/* ================================
+/* =========================================
    LOAD SCORE
-================================ */
+========================================= */
 
 async function loadScore(){
 
@@ -1089,16 +996,16 @@ async function loadScore(){
 }
 
 
-/* ================================
+/* =========================================
    FIRST LOAD
-================================ */
+========================================= */
 
 loadScore();
 
 
-/* ================================
-   EVERY 5 MINUTES
-================================ */
+/* =========================================
+   AUTO REFRESH - 5 MINUTES
+========================================= */
 
 setInterval(
   loadScore,
@@ -1106,9 +1013,9 @@ setInterval(
 );
 
 
-/* ================================
-   WHEN PRISM BECOMES VISIBLE
-================================ */
+/* =========================================
+   PRISM VISIBILITY
+========================================= */
 
 document.addEventListener(
   "visibilitychange",
