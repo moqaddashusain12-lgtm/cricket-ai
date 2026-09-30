@@ -1,13 +1,41 @@
+// ======================================================
+// 🏏 CRICKET SHORT - CLOUDFLARE WORKER
+// AI IMAGE + LIVE CRICKET SCORE
+// ======================================================
+
+const AI_MODEL = "@cf/black-forest-labs/flux-1-schnell";
+const CRICKET_API =
+  "https://api.cricapi.com/v1/cricScore";
+
+
+// ======================================================
+// MAIN FETCH
+// ======================================================
+
 export default {
   async fetch(request, env) {
+
     const url = new URL(request.url);
+
+    // --------------------------------------------------
+    // CORS
+    // --------------------------------------------------
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders()
+      });
+    }
 
     try {
 
-      // =====================================================
-      // HEALTH
-      // =====================================================
+      // =================================================
+      // HEALTH CHECK
+      // =================================================
+
       if (url.pathname === "/api/health") {
+
         return json({
           success: true,
           worker: "Cricket Short Worker",
@@ -19,56 +47,116 @@ export default {
       }
 
 
-      // =====================================================
-      // LIVE / UPCOMING / RESULT CRICKET SCORE
-      // =====================================================
+      // =================================================
+      // LIVE CRICKET SCORE
+      // =================================================
+
       if (url.pathname === "/api/live-score") {
 
         if (!env.CRICKET_API_KEY) {
           return json({
             success: false,
-            error: "CRICKET_API_KEY is missing"
+            error: "CRICKET_API_KEY Secret नहीं मिला।"
           }, 500);
         }
 
         const apiUrl =
-          "https://api.cricapi.com/v1/cricScore?apikey=" +
-          encodeURIComponent(env.CRICKET_API_KEY);
+          `${CRICKET_API}?apikey=${encodeURIComponent(
+            env.CRICKET_API_KEY
+          )}&offset=0`;
 
-        const response = await fetch(apiUrl, {
+        const apiResponse = await fetch(apiUrl, {
           method: "GET",
           headers: {
             "Accept": "application/json"
+          },
+          cf: {
+            cacheTtl: 0,
+            cacheEverything: false
           }
         });
 
-        const raw = await response.text();
+        const rawText = await apiResponse.text();
 
-        let apiData;
+        if (!rawText) {
+          return json({
+            success: false,
+            error: "Cricket API ने खाली response दिया।"
+          }, 502);
+        }
+
+        let data;
 
         try {
-          apiData = JSON.parse(raw);
+          data = JSON.parse(rawText);
         } catch (e) {
+
           return json({
             success: false,
-            error: "Cricket API returned invalid JSON",
-            httpStatus: response.status,
-            rawPreview: raw.slice(0, 1000)
+            error: "Cricket API ने valid JSON नहीं भेजा।",
+            httpStatus: apiResponse.status,
+            response: rawText.slice(0, 500)
           }, 502);
         }
 
-        if (!Array.isArray(apiData?.data)) {
+        if (!apiResponse.ok) {
           return json({
             success: false,
-            error: "Cricket API data array not found",
-            apiResponse: apiData
+            error: "Cricket API request failed.",
+            httpStatus: apiResponse.status,
+            response: data
           }, 502);
         }
 
-        const matches = apiData.data
+        if (
+          data.status !== "success" ||
+          !Array.isArray(data.data)
+        ) {
+
+          return json({
+            success: false,
+            error: "Cricket API से मैच data नहीं मिला।",
+            apiStatus: data.status || null
+          }, 502);
+        }
+
+
+        // -----------------------------------------------
+        // FORMAT MATCHES
+        // -----------------------------------------------
+
+        const matches = data.data
           .map(formatCricScoreMatch)
-          .filter(Boolean)
-          .sort(sortMatches);
+          .filter(Boolean);
+
+
+        // -----------------------------------------------
+        // IMPORTANT:
+        // LIVE MATCHES ALWAYS FIRST
+        // -----------------------------------------------
+
+        const priority = {
+          LIVE: 1,
+          STUMPS: 2,
+          DELAYED: 3,
+          UPCOMING: 4,
+          RESULT: 5
+        };
+
+        matches.sort((a, b) => {
+
+          const pa = priority[a.status] || 99;
+          const pb = priority[b.status] || 99;
+
+          if (pa !== pb) {
+            return pa - pb;
+          }
+
+          return String(a.dateTimeGMT || "")
+            .localeCompare(
+              String(b.dateTimeGMT || "")
+            );
+        });
 
 
         return json({
@@ -76,29 +164,28 @@ export default {
           count: matches.length,
           updatedAt: new Date().toISOString(),
           source: "cricScore",
-          range: "Last 7 days + Next 7 days + Current Live",
+          liveCount: matches.filter(
+            m => m.status === "LIVE"
+          ).length,
           matches
         });
       }
 
 
-      // =====================================================
-      // AI IMAGE GENERATOR
-      // =====================================================
-      if (url.pathname === "/api/generate-image") {
+      // =================================================
+      // AI IMAGE GENERATION
+      // =================================================
+
+      if (
+        url.pathname === "/api/generate-image" &&
+        request.method === "POST"
+      ) {
 
         if (!env.AI) {
           return json({
             success: false,
-            error: "Workers AI binding is missing"
+            error: "Workers AI binding 'AI' नहीं मिला।"
           }, 500);
-        }
-
-        if (request.method !== "POST") {
-          return json({
-            success: false,
-            error: "Only POST requests are allowed"
-          }, 405);
         }
 
         let body;
@@ -106,151 +193,238 @@ export default {
         try {
           body = await request.json();
         } catch (e) {
+
           return json({
             success: false,
-            error: "Invalid JSON request"
+            error: "Invalid JSON request."
           }, 400);
         }
 
-        const prompt = String(body?.prompt || "").trim();
+        const prompt = String(
+          body?.prompt || ""
+        ).trim();
+
 
         if (!prompt) {
+
           return json({
             success: false,
-            error: "Prompt is required"
+            error: "Image prompt खाली है।"
           }, 400);
+        }
+
+
+        // -----------------------------------------------
+        // AI GENERATE
+        // -----------------------------------------------
+
+        const result = await env.AI.run(
+          AI_MODEL,
+          {
+            prompt: prompt,
+            steps: 4
+          }
+        );
+
+
+        if (!result || !result.image) {
+
+          return json({
+            success: false,
+            error: "AI ने image data नहीं लौटाया।"
+          }, 500);
+        }
+
+
+        // -----------------------------------------------
+        // BASE64 → BINARY IMAGE
+        // -----------------------------------------------
+
+        let base64 = String(result.image);
+
+        // अगर API ने data:image/... prefix भेजा हो
+        if (base64.includes(",")) {
+          base64 = base64.split(",").pop();
         }
 
         try {
 
-          const result = await env.AI.run(
-            "@cf/black-forest-labs/flux-1-schnell",
-            {
-              prompt: prompt
-            }
+          const binaryString = atob(base64);
+
+          const bytes = new Uint8Array(
+            binaryString.length
           );
 
-          if (!result || !result.image) {
-            return json({
-              success: false,
-              error: "Workers AI returned no image"
-            }, 502);
+          for (
+            let i = 0;
+            i < binaryString.length;
+            i++
+          ) {
+            bytes[i] =
+              binaryString.charCodeAt(i);
           }
 
-          const base64 = arrayBufferToBase64(result.image);
 
-          return json({
-            success: true,
-            image: "data:image/jpeg;base64," + base64
+          // -------------------------------------------
+          // DIRECT IMAGE RESPONSE
+          // Browser इसे सीधे image की तरह पढ़ेगा
+          // -------------------------------------------
+
+          return new Response(bytes, {
+
+            status: 200,
+
+            headers: {
+              "Content-Type": "image/jpeg",
+              "Content-Length": String(bytes.length),
+
+              "Cache-Control":
+                "no-store, no-cache, must-revalidate",
+
+              "Pragma": "no-cache",
+
+              "Access-Control-Allow-Origin": "*",
+
+              "Access-Control-Allow-Methods":
+                "GET,POST,OPTIONS",
+
+              "Access-Control-Allow-Headers":
+                "Content-Type"
+            }
+
           });
 
         } catch (error) {
 
           return json({
             success: false,
-            error: "AI generation failed",
-            details: error?.message || String(error)
+            error:
+              "AI image को binary image में convert नहीं किया जा सका।",
+            details: String(error)
           }, 500);
         }
       }
 
 
-      // =====================================================
+      // =================================================
       // STATIC WEBSITE
-      // =====================================================
+      // =================================================
+
       if (env.ASSETS) {
+
         return env.ASSETS.fetch(request);
       }
 
-      return new Response(
-        "Cricket Short Worker is running.",
-        {
-          status: 200,
-          headers: {
-            "content-type": "text/plain;charset=UTF-8"
-          }
-        }
-      );
+
+      return json({
+        success: false,
+        error: "ASSETS binding उपलब्ध नहीं है।"
+      }, 500);
+
 
     } catch (error) {
 
       return json({
         success: false,
-        error: error?.message || String(error)
+        error: "Worker internal error.",
+        details: String(error)
       }, 500);
     }
   }
 };
 
 
-// =========================================================
-// CRICSCORE PARSER
-// =========================================================
+// ======================================================
+// CRICKET MATCH FORMATTER
+// ======================================================
 
 function formatCricScoreMatch(m) {
 
-  if (!m || !m.id) return null;
+  if (!m || !m.id) {
+    return null;
+  }
+
 
   const team1 = cleanTeamName(m.t1);
   const team2 = cleanTeamName(m.t2);
 
-  const statusRaw = String(m.status || "").trim();
-  const mode = String(m.ms || "").toLowerCase();
+  const statusRaw =
+    String(m.status || "").trim();
 
-  const status = getStatus(mode, statusRaw);
+  const mode =
+    String(m.ms || "").toLowerCase();
 
-  const score1 = parseScore(m.t1s);
-  const score2 = parseScore(m.t2s);
 
-  const matchName =
-    team1 && team2
-      ? `${team1} vs ${team2}`
-      : "Cricket Match";
+  const status =
+    getStatus(mode, statusRaw);
+
+
+  const score1 =
+    parseScore(m.t1s);
+
+  const score2 =
+    parseScore(m.t2s);
+
 
   return {
+
     id: String(m.id),
 
-    name: matchName,
+    name:
+      `${team1 || "Team 1"} vs ${team2 || "Team 2"}`,
 
-    team1: team1 || "Team 1",
-    team2: team2 || "Team 2",
+    team1:
+      team1 || "Team 1",
 
-    team1Logo: m.t1img || "",
-    team2Logo: m.t2img || "",
+    team2:
+      team2 || "Team 2",
 
-    score: [
+    team1Logo:
+      m.t1img || "",
+
+    team2Logo:
+      m.t2img || "",
+
+    score:
+      [score1, score2].filter(Boolean),
+
+    team1Score:
       score1,
-      score2
-    ].filter(Boolean),
 
-    team1Score: score1,
-    team2Score: score2,
+    team2Score:
+      score2,
 
-    status: status,
+    status,
 
-    statusText: statusRaw,
+    statusText:
+      statusRaw,
 
-    venue: m.venue || "Cricket Stadium",
+    venue:
+      m.venue || "Venue not available",
 
     date:
       m.date ||
-      (m.dateTimeGMT
-        ? String(m.dateTimeGMT).slice(0, 10)
-        : ""),
+      (
+        m.dateTimeGMT
+          ? String(m.dateTimeGMT).slice(0, 10)
+          : ""
+      ),
 
-    dateTimeGMT: m.dateTimeGMT || "",
+    dateTimeGMT:
+      m.dateTimeGMT || "",
 
     matchType:
-      String(m.matchType || "cricket").toUpperCase(),
+      String(
+        m.matchType || "cricket"
+      ).toUpperCase(),
 
-    series: m.series || "",
+    series:
+      m.series || "",
 
     matchStarted:
-      mode === "live" ||
-      mode === "result" ||
-      mode === "completed" ||
-      !!score1 ||
-      !!score2,
+      status === "LIVE" ||
+      status === "STUMPS" ||
+      status === "RESULT",
 
     matchEnded:
       status === "RESULT"
@@ -258,262 +432,251 @@ function formatCricScoreMatch(m) {
 }
 
 
-// =========================================================
-// TEAM NAME
-// =========================================================
-
-function cleanTeamName(value) {
-
-  if (!value) return "";
-
-  return String(value)
-    .replace(/\s*\[[A-Z0-9]+\]\s*$/i, "")
-    .trim();
-}
-
-
-// =========================================================
-// STATUS
-// =========================================================
+// ======================================================
+// STATUS DETECTION
+// ======================================================
 
 function getStatus(mode, text) {
 
-  const s = String(text || "").toLowerCase();
+  const s =
+    String(text || "").toLowerCase();
+
+
+  // ----------------------------------------------------
+  // RESULT MUST BE CHECKED FIRST
+  // ----------------------------------------------------
 
   if (
-    mode === "live" ||
-    s.includes("live") ||
-    s.includes("playing") ||
-    s.includes("innings")
+
+    mode === "result" ||
+
+    mode === "completed" ||
+
+    s.includes("won by") ||
+
+    s.includes("lost by") ||
+
+    s.includes("match drawn") ||
+
+    s.includes("no result") ||
+
+    s.includes("tied") ||
+
+    s.includes("abandoned")
+
   ) {
-    return "LIVE";
+
+    return "RESULT";
   }
+
+
+  // ----------------------------------------------------
+  // STUMPS
+  // ----------------------------------------------------
 
   if (
     s.includes("stumps") ||
     s.includes("stump")
   ) {
+
     return "STUMPS";
   }
 
+
+  // ----------------------------------------------------
+  // DELAYED
+  // ----------------------------------------------------
+
   if (
     s.includes("delay") ||
-    s.includes("delayed")
+    s.includes("delayed") ||
+    s.includes("rain")
   ) {
+
     return "DELAYED";
   }
 
+
+  // ----------------------------------------------------
+  // UPCOMING
+  // ----------------------------------------------------
+
   if (
+
     mode === "fixture" ||
+
     s.includes("match starts") ||
-    s.includes("starts at")
+
+    s.includes("starts at") ||
+
+    s.includes("scheduled")
+
   ) {
+
     return "UPCOMING";
   }
 
+
+  // ----------------------------------------------------
+  // LIVE
+  // IMPORTANT:
+  // "innings" alone is NOT enough to call LIVE
+  // ----------------------------------------------------
+
   if (
-    mode === "result" ||
-    mode === "completed" ||
-    s.includes("won by") ||
-    s.includes("match drawn") ||
-    s.includes("no result") ||
-    s.includes("tied")
+
+    mode === "live" ||
+
+    s.includes("live") ||
+
+    s.includes("playing") ||
+
+    s.includes("in progress")
+
   ) {
-    return "RESULT";
+
+    return "LIVE";
   }
+
+
+  // ----------------------------------------------------
+  // DEFAULT
+  // ----------------------------------------------------
 
   return "UPCOMING";
 }
 
 
-// =========================================================
-// SCORE PARSER
-// =========================================================
+// ======================================================
+// TEAM NAME CLEANER
+// ======================================================
 
-function parseScore(value) {
+function cleanTeamName(value) {
 
-  if (!value) return null;
-
-  const text = String(value).trim();
-
-  if (!text) return null;
-
-  /*
-    Examples supported:
-
-    300/2
-    300/2 (41.4)
-    300/2 (41.4 ov)
-    168/1 (28.2)
-    295/7 (50)
-    120/3
-  */
-
-  const runMatch = text.match(/(\d+)\s*\/\s*(\d+)/);
-
-  if (!runMatch) {
-
-    // Sometimes API may return only runs
-    const onlyRuns = text.match(/^\s*(\d+)\s*$/);
-
-    if (!onlyRuns) {
-      return {
-        raw: text,
-        runs: null,
-        wickets: null,
-        overs: null,
-        display: text
-      };
-    }
-
-    return {
-      raw: text,
-      runs: Number(onlyRuns[1]),
-      wickets: null,
-      overs: null,
-      display: text
-    };
-  }
-
-  const runs = Number(runMatch[1]);
-  const wickets = Number(runMatch[2]);
-
-  let overs = null;
-
-  const overMatch = text.match(
-    /\(\s*(\d+(?:\.\d+)?)\s*(?:ov|overs?)?\s*\)/i
-  );
-
-  if (overMatch) {
-    overs = Number(overMatch[1]);
-  }
-
-  const display =
-    overs !== null
-      ? `${runs}/${wickets} (${formatOvers(overs)} ov)`
-      : `${runs}/${wickets}`;
-
-  return {
-    raw: text,
-    runs,
-    wickets,
-    overs,
-    display
-  };
-}
-
-
-// =========================================================
-// OVERS FORMAT
-// =========================================================
-
-function formatOvers(value) {
-
-  if (value === null || value === undefined) {
+  if (!value) {
     return "";
   }
 
-  const number = Number(value);
-
-  if (!Number.isFinite(number)) {
-    return String(value);
-  }
-
-  return String(number);
+  return String(value)
+    .replace(/\s*\[[A-Z]{2,4}\]\s*$/i, "")
+    .trim();
 }
 
 
-// =========================================================
-// MATCH SORTING
-// =========================================================
+// ======================================================
+// SCORE PARSER
+// ======================================================
 
-function sortMatches(a, b) {
+function parseScore(value) {
 
-  const priority = {
-    LIVE: 1,
-    STUMPS: 2,
-    DELAYED: 3,
-    UPCOMING: 4,
-    RESULT: 5
+  if (!value) {
+    return null;
+  }
+
+  const text =
+    String(value).trim();
+
+  if (!text) {
+    return null;
+  }
+
+
+  // Examples:
+  // 120/3
+  // 120/3 (15.2)
+  // 300/2 (41.4 ov)
+  // 168/10 (56.1 ov)
+
+  const match =
+    text.match(
+      /^(\d+)(?:\/(\d+))?(?:\s*\(([^)]*)\))?/
+    );
+
+
+  if (!match) {
+
+    return {
+      raw: text,
+      runs: null,
+      wickets: null,
+      overs: ""
+    };
+  }
+
+
+  return {
+
+    raw: text,
+
+    runs:
+      match[1]
+        ? Number(match[1])
+        : null,
+
+    wickets:
+      match[2] !== undefined
+        ? Number(match[2])
+        : null,
+
+    overs:
+      match[3]
+        ? String(match[3])
+            .replace(/\s*ov.*/i, "")
+            .trim()
+        : ""
   };
-
-  const pa = priority[a.status] || 9;
-  const pb = priority[b.status] || 9;
-
-  if (pa !== pb) {
-    return pa - pb;
-  }
-
-  const indiaA =
-    /india/i.test(a.team1) ||
-    /india/i.test(a.team2);
-
-  const indiaB =
-    /india/i.test(b.team1) ||
-    /india/i.test(b.team2);
-
-  if (indiaA && !indiaB) return -1;
-  if (!indiaA && indiaB) return 1;
-
-  const da =
-    new Date(a.dateTimeGMT || 0).getTime();
-
-  const db =
-    new Date(b.dateTimeGMT || 0).getTime();
-
-  if (a.status === "UPCOMING") {
-    return da - db;
-  }
-
-  return db - da;
 }
 
 
-// =========================================================
-// JSON
-// =========================================================
+// ======================================================
+// JSON RESPONSE
+// ======================================================
 
 function json(data, status = 200) {
 
   return new Response(
     JSON.stringify(data),
+
     {
       status,
+
       headers: {
-        "content-type": "application/json; charset=UTF-8",
-        "cache-control": "no-store",
-        "access-control-allow-origin": "*"
+        "Content-Type":
+          "application/json; charset=UTF-8",
+
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate",
+
+        "Access-Control-Allow-Origin": "*",
+
+        "Access-Control-Allow-Methods":
+          "GET,POST,OPTIONS",
+
+        "Access-Control-Allow-Headers":
+          "Content-Type"
       }
     }
   );
 }
 
 
-// =========================================================
-// ARRAYBUFFER → BASE64
-// =========================================================
+// ======================================================
+// CORS
+// ======================================================
 
-function arrayBufferToBase64(buffer) {
+function corsHeaders() {
 
-  const bytes = new Uint8Array(buffer);
+  return {
 
-  let binary = "";
+    "Access-Control-Allow-Origin": "*",
 
-  const chunkSize = 0x8000;
+    "Access-Control-Allow-Methods":
+      "GET,POST,OPTIONS",
 
-  for (
-    let i = 0;
-    i < bytes.length;
-    i += chunkSize
-  ) {
+    "Access-Control-Allow-Headers":
+      "Content-Type",
 
-    binary += String.fromCharCode(
-      ...bytes.subarray(
-        i,
-        Math.min(i + chunkSize, bytes.length)
-      )
-    );
-  }
-
-  return btoa(binary);
-              }
+    "Access-Control-Max-Age":
+      "86400"
+  };
+    }
