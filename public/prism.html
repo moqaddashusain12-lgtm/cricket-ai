@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Cricket Short - PRISM Score</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  background:transparent !important;
+  overflow:hidden;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+
+#app{
+  width:100%;
+  padding:8px;
+  display:flex;
+  justify-content:center;
+}
+
+.scoreboard{
+  width:min(900px,100%);
+  background:rgba(3,12,22,.86);
+  border:1px solid rgba(100,170,220,.65);
+  border-radius:14px;
+  padding:10px 12px;
+  box-shadow:0 5px 20px rgba(0,0,0,.35);
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:5px;
+}
+
+.brand{
+  font-size:11px;
+  font-weight:800;
+  color:#dcefff;
+}
+
+.status{
+  font-size:10px;
+  font-weight:800;
+  padding:4px 8px;
+  border-radius:20px;
+  background:#45515c;
+  color:white;
+}
+
+.status.live{
+  background:#c51f2d;
+}
+
+.status.live::before{
+  content:"";
+  display:inline-block;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:white;
+  margin-right:4px;
+}
+
+.match-name{
+  text-align:center;
+  color:#a9c1d4;
+  font-size:10px;
+  margin-bottom:7px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.teams{
+  display:grid;
+  grid-template-columns:1fr 42px 1fr;
+  align-items:center;
+  gap:6px;
+}
+
+.team{
+  text-align:center;
+  min-width:0;
+}
+
+.team-name{
+  color:white;
+  font-size:13px;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.score{
+  color:white;
+  font-size:22px;
+  font-weight:900;
+  margin-top:3px;
+}
+
+.vs{
+  text-align:center;
+  color:#7891a5;
+  font-size:10px;
+  font-weight:800;
+}
+
+.info{
+  text-align:center;
+  margin-top:7px;
+  color:#a9c0d1;
+  font-size:10px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.updated{
+  text-align:right;
+  margin-top:4px;
+  color:#70899d;
+  font-size:8px;
+}
+
+.loading,
+.error,
+.no-match{
+  text-align:center;
+  color:white;
+  font-size:12px;
+  padding:14px;
+}
+
+.error{
+  color:#ffd1d1;
+}
+
+@media(max-width:500px){
+
+  #app{
+    padding:5px;
+  }
+
+  .scoreboard{
+    padding:8px 9px;
+    border-radius:11px;
+  }
+
+  .team-name{
+    font-size:11px;
+  }
+
+  .score{
+    font-size:18px;
+  }
+
+  .match-name{
+    font-size:9px;
+  }
+
+  .info{
+    font-size:9px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+  <div class="scoreboard">
+    <div class="loading">Loading live score...</div>
+  </div>
+</div>
+
+<script>
+
+const API_URL = "/api/live-score";
+
+/*
+  5 MINUTES AUTO REFRESH
+  5 minutes = 300000 milliseconds
+*/
+const REFRESH_TIME = 300000;
+
+
+/* ----------------------------------
+   HTML SAFE TEXT
+---------------------------------- */
+
+function safe(value){
+
+  if(value === null || value === undefined){
+    return "";
+  }
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+
+/* ----------------------------------
+   GET OVERS
+---------------------------------- */
+
+function getOvers(score, matchOvers){
+
+  if(score && typeof score === "object"){
+
+    const possible = [
+      score.o,
+      score.overs,
+      score.over,
+      score.overCount,
+      score.oversCount
+    ];
+
+    for(const value of possible){
+
+      if(
+        value !== undefined &&
+        value !== null &&
+        String(value).trim() !== ""
+      ){
+
+        return String(value)
+          .replace(/[()]/g,"")
+          .replace(/\s*ov$/i,"")
+          .trim();
+      }
+    }
+  }
+
+
+  if(
+    matchOvers !== undefined &&
+    matchOvers !== null &&
+    String(matchOvers).trim() !== ""
+  ){
+
+    return String(matchOvers)
+      .replace(/[()]/g,"")
+      .replace(/\s*ov$/i,"")
+      .trim();
+  }
+
+
+  return "";
+}
+
+
+/* ----------------------------------
+   SCORE FORMAT
+---------------------------------- */
+
+function formatScore(score, matchOvers){
+
+  if(score === null || score === undefined){
+    return "—";
+  }
+
+
+  /* String score */
+
+  if(typeof score === "string"){
+
+    let text = score.trim();
+
+    if(!text){
+      return "—";
+    }
+
+    /* Already contains overs */
+
+    if(/\(\s*[\d.]+\s*ov\s*\)/i.test(text)){
+      return safe(text);
+    }
+
+    /* Detect overs */
+
+    const match = text.match(/\(([\d.]+)\s*ov\)/i);
+
+    if(match){
+      return safe(text);
+    }
+
+    return safe(text);
+  }
+
+
+  /* Object score */
+
+  if(typeof score === "object"){
+
+    const runs =
+      score.r ??
+      score.runs ??
+      score.score ??
+      score.total ??
+      "";
+
+    const wickets =
+      score.w ??
+      score.wickets ??
+      score.wicket ??
+      "";
+
+    const overs =
+      getOvers(score,matchOvers);
+
+
+    let result = "";
+
+    if(runs !== ""){
+      result += runs;
+    }
+
+    if(wickets !== ""){
+      result += "/" + wickets;
+    }
+
+
+    if(overs){
+
+      result += " (" + overs + " ov)";
+    }
+
+
+    if(result){
+      return safe(result);
+    }
+  }
+
+
+  return safe(String(score));
+}
+
+
+/* ----------------------------------
+   GET TEAM SCORES
+---------------------------------- */
+
+function getMatchScores(match){
+
+  let team1 = null;
+  let team2 = null;
+
+  let team1Overs = "";
+  let team2Overs = "";
+
+
+  /*
+    Format:
+    team1Score / team2Score
+  */
+
+  if(match.team1Score !== undefined){
+    team1 = match.team1Score;
+  }
+
+  if(match.team2Score !== undefined){
+    team2 = match.team2Score;
+  }
+
+
+  /*
+    Score array format
+  */
+
+  if(
+    (!team1 || !team2) &&
+    Array.isArray(match.score)
+  ){
+
+    team1 = match.score[0] || null;
+    team2 = match.score[1] || null;
+  }
+
+
+  /*
+    Direct overs
+  */
+
+  team1Overs =
+    match.team1Overs ??
+    match.team1Over ??
+    "";
+
+  team2Overs =
+    match.team2Overs ??
+    match.team2Over ??
+    "";
+
+
+  /*
+    Sometimes API provides score objects
+  */
+
+  if(team1 && typeof team1 === "object"){
+
+    team1Overs = getOvers(team1,team1Overs);
+  }
+
+  if(team2 && typeof team2 === "object"){
+
+    team2Overs = getOvers(team2,team2Overs);
+  }
+
+
+  return {
+    team1,
+    team2,
+    team1Overs,
+    team2Overs
+  };
+}
+
+
+/* ----------------------------------
+   PICK MATCH
+---------------------------------- */
+
+function pickMatch(matches){
+
+  if(!Array.isArray(matches) || matches.length === 0){
+    return null;
+  }
+
+
+  const live = matches.find(m => {
+
+    const status = String(
+      m.status ||
+      m.matchStatus ||
+      m.state ||
+      ""
+    ).toLowerCase();
+
+    return (
+      status.includes("live") ||
+      status.includes("stumps") ||
+      status.includes("in progress")
+    );
+  });
+
+
+  if(live){
+    return live;
+  }
+
+
+  const delayed = matches.find(m => {
+
+    const status = String(
+      m.status ||
+      m.matchStatus ||
+      ""
+    ).toLowerCase();
+
+    return status.includes("delay");
+  });
+
+
+  if(delayed){
+    return delayed;
+  }
+
+
+  return matches[0];
+}
+
+
+/* ----------------------------------
+   RENDER
+---------------------------------- */
+
+function renderMatch(match){
+
+  const app = document.getElementById("app");
+
+
+  if(!match){
+
+    app.innerHTML = `
+      <div class="scoreboard">
+        <div class="no-match">
+          No cricket match available
+        </div>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const team1 =
+    match.team1 ||
+    match.team1Name ||
+    match.teams?.[0] ||
+    "Team 1";
+
+
+  const team2 =
+    match.team2 ||
+    match.team2Name ||
+    match.teams?.[1] ||
+    "Team 2";
+
+
+  const scores = getMatchScores(match);
+
+
+  const score1 = formatScore(
+    scores.team1,
+    scores.team1Overs
+  );
+
+
+  const score2 = formatScore(
+    scores.team2,
+    scores.team2Overs
+  );
+
+
+  /*
+    If score string does not contain overs,
+    try direct team overs.
+  */
+
+  let finalScore1 = score1;
+
+  let finalScore2 = score2;
+
+
+  if(
+    scores.team1Overs &&
+    !/\(\s*[\d.]+\s*ov\s*\)/i.test(score1)
+  ){
+
+    finalScore1 =
+      score1 +
+      " (" +
+      safe(scores.team1Overs) +
+      " ov)";
+  }
+
+
+  if(
+    scores.team2Overs &&
+    !/\(\s*[\d.]+\s*ov\s*\)/i.test(score2)
+  ){
+
+    finalScore2 =
+      score2 +
+      " (" +
+      safe(scores.team2Overs) +
+      " ov)";
+  }
+
+
+  const status =
+    match.status ||
+    match.matchStatus ||
+    match.state ||
+    "LIVE";
+
+
+  const statusLower =
+    String(status).toLowerCase();
+
+
+  const isLive =
+    statusLower.includes("live") ||
+    statusLower.includes("in progress") ||
+    statusLower.includes("stumps");
+
+
+  const matchName =
+    match.name ||
+    match.matchName ||
+    match.matchType ||
+    "Cricket Match";
+
+
+  const series =
+    match.series ||
+    match.seriesName ||
+    match.tour ||
+    "";
+
+
+  const venue =
+    match.venue ||
+    match.venueName ||
+    "";
+
+
+  app.innerHTML = `
+
+    <div class="scoreboard">
+
+      <div class="top">
+
+        <div class="brand">
+          🏏 CRICKET SHORT
+        </div>
+
+        <div class="status ${isLive ? "live" : ""}">
+          ${safe(status)}
+        </div>
+
+      </div>
+
+
+      <div class="match-name">
+        ${safe(matchName)}
+      </div>
+
+
+      <div class="teams">
+
+        <div class="team">
+
+          <div class="team-name">
+            ${safe(team1)}
+          </div>
+
+          <div class="score">
+            ${finalScore1}
+          </div>
+
+        </div>
+
+
+        <div class="vs">
+          VS
+        </div>
+
+
+        <div class="team">
+
+          <div class="team-name">
+            ${safe(team2)}
+          </div>
+
+          <div class="score">
+            ${finalScore2}
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="info">
+
+        ${safe(series)}
+
+        ${series && venue ? " • " : ""}
+
+        ${safe(venue)}
+
+      </div>
+
+
+      <div class="updated">
+
+        Updated:
+        ${new Date().toLocaleTimeString()}
+
+      </div>
+
+    </div>
+
+  `;
+}
+
+
+/* ----------------------------------
+   LOAD LIVE SCORE
+---------------------------------- */
+
+async function loadScore(){
+
+  try{
+
+    const response = await fetch(
+      API_URL + "?nocache=" + Date.now(),
+      {
+        method:"GET",
+        cache:"no-store",
+        headers:{
+          "Cache-Control":"no-cache"
+        }
+      }
+    );
+
+
+    if(!response.ok){
+
+      throw new Error(
+        "HTTP " + response.status
+      );
+    }
+
+
+    const data = await response.json();
+
+
+    if(data.success === false){
+
+      throw new Error(
+        data.message ||
+        "API returned an error"
+      );
+    }
+
+
+    /*
+      Support different response formats
+    */
+
+    let matches =
+      data.matches ||
+      data.data ||
+      data.results ||
+      [];
+
+
+    if(!Array.isArray(matches)){
+
+      matches = [];
+    }
+
+
+    const match = pickMatch(matches);
+
+
+    renderMatch(match);
+
+
+  }catch(error){
+
+    console.error(
+      "PRISM SCORE ERROR:",
+      error
+    );
+
+
+    document.getElementById("app").innerHTML = `
+
+      <div class="scoreboard">
+
+        <div class="error">
+
+          ⚠️ Live score temporarily unavailable
+
+        </div>
+
+      </div>
+
+    `;
+  }
+
+}
+
+
+/* ----------------------------------
+   FIRST LOAD
+---------------------------------- */
+
+loadScore();
+
+
+/* ----------------------------------
+   AUTO REFRESH
+   EVERY 5 MINUTES
+---------------------------------- */
+
+setInterval(
+  loadScore,
+  REFRESH_TIME
+);
+
+
+/*
+  Refresh when PRISM/browser
+  becomes visible again
+*/
+
+document.addEventListener(
+  "visibilitychange",
+  function(){
+
+    if(!document.hidden){
+
+      loadScore();
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
