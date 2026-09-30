@@ -1,15 +1,10 @@
 // ============================================================
 // CRICKET SHORT - FINAL WORKER.JS
-// Live Score + AI Image + Static Assets
+// Live Score + Overs + AI Image + Static Assets
 // ============================================================
 
 const AI_MODEL = "@cf/black-forest-labs/flux-1-schnell";
 const CRICKET_API_URL = "https://api.cricapi.com/v1/cricScore";
-
-
-// ============================================================
-// CORS
-// ============================================================
 
 function corsHeaders(extra = {}) {
   return {
@@ -19,11 +14,6 @@ function corsHeaders(extra = {}) {
     ...extra
   };
 }
-
-
-// ============================================================
-// JSON RESPONSE
-// ============================================================
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -35,12 +25,6 @@ function jsonResponse(data, status = 200) {
   });
 }
 
-
-// ============================================================
-// TEAM NAME CLEANER
-// India [IND] -> India
-// ============================================================
-
 function cleanTeamName(value) {
   if (!value) return "";
 
@@ -49,12 +33,13 @@ function cleanTeamName(value) {
     .trim();
 }
 
-
-// ============================================================
-// SCORE PARSER
-// 300/2 (41.4 ov)
-// 37/1 (5 ov)
-// ============================================================
+/* ------------------------------------------------------------
+   SCORE PARSER
+   Supports:
+   110/1
+   110/1 (18.2 ov)
+   110/1 (18.2 Overs)
+------------------------------------------------------------ */
 
 function parseScore(value) {
   if (!value) return null;
@@ -63,38 +48,92 @@ function parseScore(value) {
 
   if (!text) return null;
 
-  const match = text.match(
-    /(\d+)\s*\/\s*(\d+)(?:\s*\(([\d.]+)\s*ov\))?/i
+  const scoreMatch = text.match(
+    /(\d+)\s*\/\s*(\d+)/i
   );
 
-  if (!match) {
+  const overMatch = text.match(
+    /\(([\d.]+)\s*(?:ov|overs?)\)/i
+  );
+
+  if (!scoreMatch) {
     return {
       raw: text,
       runs: null,
       wickets: null,
-      overs: ""
+      overs: overMatch ? overMatch[1] : ""
     };
   }
 
   return {
     raw: text,
-    runs: Number(match[1]),
-    wickets: Number(match[2]),
-    overs: match[3] ? match[3] : ""
+
+    runs: Number(scoreMatch[1]),
+
+    wickets: Number(scoreMatch[2]),
+
+    overs: overMatch
+      ? overMatch[1]
+      : ""
   };
 }
 
+/* ------------------------------------------------------------
+   FIND OVERS FROM ANY POSSIBLE API FIELD
+------------------------------------------------------------ */
 
-// ============================================================
-// STATUS
-// ============================================================
+function findOvers(match, teamIndex, parsedScore) {
+
+  if (
+    parsedScore &&
+    parsedScore.overs !== undefined &&
+    parsedScore.overs !== null &&
+    parsedScore.overs !== ""
+  ) {
+    return String(parsedScore.overs);
+  }
+
+  const possibleFields =
+    teamIndex === 0
+      ? [
+          "t1o",
+          "t1overs",
+          "team1Overs",
+          "team1overs",
+          "overs1"
+        ]
+      : [
+          "t2o",
+          "t2overs",
+          "team2Overs",
+          "team2overs",
+          "overs2"
+        ];
+
+  for (const field of possibleFields) {
+
+    if (
+      match[field] !== undefined &&
+      match[field] !== null &&
+      String(match[field]).trim() !== ""
+    ) {
+      return String(match[field]).trim();
+    }
+  }
+
+  return "";
+}
+
+/* ------------------------------------------------------------
+   STATUS
+------------------------------------------------------------ */
 
 function getStatus(mode, text) {
 
   const m = String(mode || "").toLowerCase();
+
   const s = String(text || "").toLowerCase();
 
-  // RESULT FIRST
   if (
     m === "result" ||
     m === "completed" ||
@@ -144,92 +183,87 @@ function getStatus(mode, text) {
   return "UPCOMING";
 }
 
+/* ------------------------------------------------------------
+   FIND BATTING TEAM
+------------------------------------------------------------ */
 
-// ============================================================
-// FIND CURRENT BATTING TEAM
-//
-// CricAPI cricScore normally gives status text such as:
-// "India opt to bowl"
-// "West Indies opt to bat"
-//
-// We use that information to determine which team's score
-// should be displayed in LIVE mode.
-//
-// IMPORTANT:
-// If we cannot confidently identify the batting team,
-// we keep both scores available internally but mark
-// battingTeamIndex as null.
-// ============================================================
+function findBattingTeamIndex(
+  team1,
+  team2,
+  statusText
+) {
 
-function findBattingTeamIndex(team1, team2, statusText) {
+  const t1 =
+    String(team1 || "").toLowerCase();
 
-  const t1 = String(team1 || "").toLowerCase();
-  const t2 = String(team2 || "").toLowerCase();
+  const t2 =
+    String(team2 || "").toLowerCase();
 
-  const status = String(statusText || "").toLowerCase();
-
-  // ----------------------------------------------------------
-  // "Team 1 opt to bowl"
-  // Therefore Team 2 is batting.
-  // ----------------------------------------------------------
+  const status =
+    String(statusText || "").toLowerCase();
 
   if (
-    status.includes(t1.toLowerCase() + " opt to bowl") ||
-    status.includes(t1.toLowerCase() + " opted to bowl")
+    status.includes(
+      t1 + " opt to bowl"
+    ) ||
+    status.includes(
+      t1 + " opted to bowl"
+    )
   ) {
     return 1;
   }
 
-  // ----------------------------------------------------------
-  // "Team 2 opt to bowl"
-  // Therefore Team 1 is batting.
-  // ----------------------------------------------------------
-
   if (
-    status.includes(t2.toLowerCase() + " opt to bowl") ||
-    status.includes(t2.toLowerCase() + " opted to bowl")
+    status.includes(
+      t2 + " opt to bowl"
+    ) ||
+    status.includes(
+      t2 + " opted to bowl"
+    )
   ) {
     return 0;
   }
 
-  // ----------------------------------------------------------
-  // "Team 1 opt to bat"
-  // Therefore Team 1 is batting.
-  // ----------------------------------------------------------
-
   if (
-    status.includes(t1.toLowerCase() + " opt to bat") ||
-    status.includes(t1.toLowerCase() + " opted to bat")
+    status.includes(
+      t1 + " opt to bat"
+    ) ||
+    status.includes(
+      t1 + " opted to bat"
+    )
   ) {
     return 0;
   }
 
-  // ----------------------------------------------------------
-  // "Team 2 opt to bat"
-  // Therefore Team 2 is batting.
-  // ----------------------------------------------------------
-
   if (
-    status.includes(t2.toLowerCase() + " opt to bat") ||
-    status.includes(t2.toLowerCase() + " opted to bat")
+    status.includes(
+      t2 + " opt to bat"
+    ) ||
+    status.includes(
+      t2 + " opted to bat"
+    )
   ) {
     return 1;
   }
 
-  // ----------------------------------------------------------
-  // Alternative wording
-  // ----------------------------------------------------------
-
   if (
-    status.includes(t1.toLowerCase() + " batting") ||
-    status.includes(t1.toLowerCase() + " are batting")
+    status.includes(
+      t1 + " batting"
+    ) ||
+    status.includes(
+      t1 + " are batting"
+    )
   ) {
     return 0;
   }
 
   if (
-    status.includes(t2.toLowerCase() + " batting") ||
-    status.includes(t2.toLowerCase() + " are batting")
+    status.includes(
+      t2 + " batting"
+    ) ||
+    status.includes(
+      t2 + " are batting"
+    )
   ) {
     return 1;
   }
@@ -237,10 +271,9 @@ function findBattingTeamIndex(team1, team2, statusText) {
   return null;
 }
 
-
-// ============================================================
-// FORMAT ONE CRICKET SCORE MATCH
-// ============================================================
+/* ------------------------------------------------------------
+   FORMAT MATCH
+------------------------------------------------------------ */
 
 function formatCricScoreMatch(m) {
 
@@ -248,40 +281,60 @@ function formatCricScoreMatch(m) {
     return null;
   }
 
-  const team1 = cleanTeamName(m.t1);
-  const team2 = cleanTeamName(m.t2);
+  const team1 =
+    cleanTeamName(m.t1);
 
-  const statusRaw = String(m.status || "").trim();
-  const mode = String(m.ms || "").toLowerCase();
+  const team2 =
+    cleanTeamName(m.t2);
 
-  const status = getStatus(mode, statusRaw);
+  const statusRaw =
+    String(m.status || "").trim();
 
-  const rawScore1 = parseScore(m.t1s);
-  const rawScore2 = parseScore(m.t2s);
+  const mode =
+    String(m.ms || "").toLowerCase();
 
-  // ----------------------------------------------------------
-  // Detect current batting team
-  // ----------------------------------------------------------
+  const status =
+    getStatus(mode, statusRaw);
 
-  const battingTeamIndex = findBattingTeamIndex(
-    team1,
-    team2,
-    statusRaw
-  );
+  const rawScore1 =
+    parseScore(m.t1s);
 
-  // ----------------------------------------------------------
-  // ONLY CURRENT BATTING TEAM SCORE
-  //
-  // For LIVE/STUMPS:
-  // batting team gets score
-  // other team gets null
-  //
-  // For RESULT:
-  // both scores can remain visible
-  // ----------------------------------------------------------
+  const rawScore2 =
+    parseScore(m.t2s);
 
-  let score1 = rawScore1;
-  let score2 = rawScore2;
+  /* Get overs separately */
+
+  const team1Overs =
+    findOvers(
+      m,
+      0,
+      rawScore1
+    );
+
+  const team2Overs =
+    findOvers(
+      m,
+      1,
+      rawScore2
+    );
+
+  const battingTeamIndex =
+    findBattingTeamIndex(
+      team1,
+      team2,
+      statusRaw
+    );
+
+  let score1 =
+    rawScore1;
+
+  let score2 =
+    rawScore2;
+
+  /* ----------------------------------------------------------
+     LIVE MATCH
+     Only show currently batting team's score when possible
+  ---------------------------------------------------------- */
 
   if (
     status === "LIVE" ||
@@ -289,39 +342,43 @@ function formatCricScoreMatch(m) {
   ) {
 
     if (battingTeamIndex === 0) {
+
       score2 = null;
+
     }
 
     if (battingTeamIndex === 1) {
+
       score1 = null;
+
     }
 
-    // If API did not tell us batting team,
-    // do not show both scores.
-    //
-    // Pick the score that exists if only one exists.
-    // If both exist and batting team is unknown,
-    // hide both rather than showing incorrect information.
     if (battingTeamIndex === null) {
 
-      if (rawScore1 && !rawScore2) {
+      if (
+        rawScore1 &&
+        !rawScore2
+      ) {
+
         score1 = rawScore1;
         score2 = null;
-      }
-      else if (!rawScore1 && rawScore2) {
+
+      } else if (
+        !rawScore1 &&
+        rawScore2
+      ) {
+
         score1 = null;
         score2 = rawScore2;
-      }
-      else {
+
+      } else {
+
         score1 = null;
         score2 = null;
+
       }
     }
   }
-
-  // ----------------------------------------------------------
-  // Score array
-  // ----------------------------------------------------------
 
   const score = [];
 
@@ -334,10 +391,14 @@ function formatCricScoreMatch(m) {
   }
 
   return {
-    id: String(m.id),
+
+    id:
+      String(m.id),
 
     name:
-      `${team1 || "Team 1"} vs ${team2 || "Team 2"}`,
+      `${team1 || "Team 1"} vs ${
+        team2 || "Team 2"
+      }`,
 
     team1:
       team1 || "Team 1",
@@ -351,7 +412,6 @@ function formatCricScoreMatch(m) {
     team2Logo:
       m.t2img || "",
 
-    // Only the score that should be displayed
     score,
 
     team1Score:
@@ -360,16 +420,17 @@ function formatCricScoreMatch(m) {
     team2Score:
       score2,
 
-    // Keep raw scores internally useful
     rawTeam1Score:
       rawScore1,
 
     rawTeam2Score:
       rawScore2,
 
-    // 0 = Team 1 batting
-    // 1 = Team 2 batting
-    // null = unknown
+    /* IMPORTANT */
+    team1Overs,
+
+    team2Overs,
+
     battingTeamIndex,
 
     status,
@@ -378,13 +439,16 @@ function formatCricScoreMatch(m) {
       statusRaw,
 
     venue:
-      m.venue || "Venue not available",
+      m.venue ||
+      "Venue not available",
 
     date:
       m.date ||
       (
         m.dateTimeGMT
-          ? String(m.dateTimeGMT).slice(0, 10)
+          ? String(
+              m.dateTimeGMT
+            ).slice(0, 10)
           : ""
       ),
 
@@ -392,7 +456,10 @@ function formatCricScoreMatch(m) {
       m.dateTimeGMT || "",
 
     matchType:
-      String(m.matchType || "cricket").toUpperCase(),
+      String(
+        m.matchType ||
+        "cricket"
+      ).toUpperCase(),
 
     series:
       m.series || "",
@@ -407,46 +474,55 @@ function formatCricScoreMatch(m) {
   };
 }
 
-
-// ============================================================
-// SORT MATCHES
-// LIVE FIRST
-// ============================================================
+/* ------------------------------------------------------------
+   SORT
+------------------------------------------------------------ */
 
 function sortMatches(matches) {
 
   const priority = {
+
     LIVE: 1,
+
     STUMPS: 2,
+
     DELAYED: 3,
+
     UPCOMING: 4,
+
     RESULT: 5
+
   };
 
-  return matches.sort((a, b) => {
+  return matches.sort(
+    (a, b) => {
 
-    const pa =
-      priority[a.status] || 99;
+      const pa =
+        priority[a.status] ||
+        99;
 
-    const pb =
-      priority[b.status] || 99;
+      const pb =
+        priority[b.status] ||
+        99;
 
-    if (pa !== pb) {
-      return pa - pb;
+      if (pa !== pb) {
+        return pa - pb;
+      }
+
+      return String(
+        a.dateTimeGMT || ""
+      ).localeCompare(
+        String(
+          b.dateTimeGMT || ""
+        )
+      );
     }
-
-    return String(
-      a.dateTimeGMT || ""
-    ).localeCompare(
-      String(b.dateTimeGMT || "")
-    );
-  });
+  );
 }
 
-
-// ============================================================
-// FETCH CRICKET SCORE
-// ============================================================
+/* ------------------------------------------------------------
+   CRICKET API
+------------------------------------------------------------ */
 
 async function getCricketScores(env) {
 
@@ -458,17 +534,24 @@ async function getCricketScores(env) {
   }
 
   const apiUrl =
-    `${CRICKET_API_URL}?apikey=${encodeURIComponent(
-      env.CRICKET_API_KEY
-    )}`;
+    `${CRICKET_API_URL}?apikey=${
+      encodeURIComponent(
+        env.CRICKET_API_KEY
+      )
+    }`;
 
   const response =
-    await fetch(apiUrl, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json"
+    await fetch(
+      apiUrl,
+      {
+        method: "GET",
+
+        headers: {
+          "Accept":
+            "application/json"
+        }
       }
-    });
+    );
 
   const text =
     await response.text();
@@ -476,9 +559,11 @@ async function getCricketScores(env) {
   let data;
 
   try {
-    data = JSON.parse(text);
-  }
-  catch (error) {
+
+    data =
+      JSON.parse(text);
+
+  } catch (error) {
 
     throw new Error(
       "Cricket API returned invalid JSON."
@@ -511,79 +596,113 @@ async function getCricketScores(env) {
 
   const matches =
     list
-      .map(formatCricScoreMatch)
+      .map(
+        formatCricScoreMatch
+      )
       .filter(Boolean);
 
-  return sortMatches(matches);
+  return sortMatches(
+    matches
+  );
 }
 
-
-// ============================================================
-// MAIN WORKER
-// ============================================================
+/* ------------------------------------------------------------
+   MAIN WORKER
+------------------------------------------------------------ */
 
 export default {
 
-  async fetch(request, env, ctx) {
+  async fetch(
+    request,
+    env,
+    ctx
+  ) {
 
     const url =
-      new URL(request.url);
+      new URL(
+        request.url
+      );
 
-    // --------------------------------------------------------
-    // OPTIONS
-    // --------------------------------------------------------
-
-    if (request.method === "OPTIONS") {
-
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders()
-      });
-    }
-
-
-    // ========================================================
-    // HEALTH
-    // ========================================================
+    /* OPTIONS */
 
     if (
-      url.pathname === "/api/health" &&
-      request.method === "GET"
+      request.method ===
+      "OPTIONS"
+    ) {
+
+      return new Response(
+        null,
+        {
+          status: 204,
+
+          headers:
+            corsHeaders()
+        }
+      );
+    }
+
+    /* --------------------------------------------------------
+       HEALTH
+    -------------------------------------------------------- */
+
+    if (
+      url.pathname ===
+        "/api/health" &&
+      request.method ===
+        "GET"
     ) {
 
       return jsonResponse({
+
         success: true,
-        worker: "Cricket Short Worker",
-        ai: !!env.AI,
-        cricketApiKey: !!env.CRICKET_API_KEY,
-        assets: !!env.ASSETS,
-        time: new Date().toISOString()
+
+        worker:
+          "Cricket Short Worker",
+
+        ai:
+          !!env.AI,
+
+        cricketApiKey:
+          !!env.CRICKET_API_KEY,
+
+        assets:
+          !!env.ASSETS,
+
+        time:
+          new Date().toISOString()
+
       });
     }
 
-
-    // ========================================================
-    // LIVE SCORE
-    // ========================================================
+    /* --------------------------------------------------------
+       LIVE SCORE
+    -------------------------------------------------------- */
 
     if (
-      url.pathname === "/api/live-score" &&
-      request.method === "GET"
+      url.pathname ===
+        "/api/live-score" &&
+      request.method ===
+        "GET"
     ) {
 
       try {
 
         const matches =
-          await getCricketScores(env);
+          await getCricketScores(
+            env
+          );
 
         const liveCount =
           matches.filter(
             m =>
-              m.status === "LIVE" ||
-              m.status === "STUMPS"
+              m.status ===
+                "LIVE" ||
+              m.status ===
+                "STUMPS"
           ).length;
 
         return jsonResponse({
+
           success: true,
 
           count:
@@ -601,37 +720,52 @@ export default {
             "Last 7 days + Next 7 days + Current Live",
 
           matches
+
         });
 
-      }
-      catch (error) {
+      } catch (error) {
 
-        return jsonResponse({
-          success: false,
-          error:
-            error?.message ||
-            "Live score failed."
-        }, 500);
+        return jsonResponse(
+
+          {
+            success: false,
+
+            error:
+              error?.message ||
+              "Live score failed."
+          },
+
+          500
+
+        );
       }
     }
 
-
-    // ========================================================
-    // AI IMAGE GENERATION
-    // ========================================================
+    /* --------------------------------------------------------
+       AI IMAGE
+    -------------------------------------------------------- */
 
     if (
-      url.pathname === "/api/generate-image" &&
-      request.method === "POST"
+      url.pathname ===
+        "/api/generate-image" &&
+      request.method ===
+        "POST"
     ) {
 
       if (!env.AI) {
 
-        return jsonResponse({
-          success: false,
-          error:
-            "Workers AI binding is missing."
-        }, 500);
+        return jsonResponse(
+
+          {
+            success: false,
+
+            error:
+              "Workers AI binding is missing."
+          },
+
+          500
+
+        );
       }
 
       let body;
@@ -641,14 +775,20 @@ export default {
         body =
           await request.json();
 
-      }
-      catch (error) {
+      } catch (error) {
 
-        return jsonResponse({
-          success: false,
-          error:
-            "Invalid JSON request."
-        }, 400);
+        return jsonResponse(
+
+          {
+            success: false,
+
+            error:
+              "Invalid JSON request."
+          },
+
+          400
+
+        );
       }
 
       const prompt =
@@ -658,22 +798,33 @@ export default {
 
       if (!prompt) {
 
-        return jsonResponse({
-          success: false,
-          error:
-            "Prompt is required."
-        }, 400);
+        return jsonResponse(
+
+          {
+            success: false,
+
+            error:
+              "Prompt is required."
+          },
+
+          400
+
+        );
       }
 
       try {
 
         const result =
           await env.AI.run(
+
             AI_MODEL,
+
             {
               prompt,
+
               steps: 4
             }
+
           );
 
         if (
@@ -681,15 +832,24 @@ export default {
           !result.image
         ) {
 
-          return jsonResponse({
-            success: false,
-            error:
-              "AI image was not returned."
-          }, 500);
+          return jsonResponse(
+
+            {
+              success: false,
+
+              error:
+                "AI image was not returned."
+            },
+
+            500
+
+          );
         }
 
         let base64 =
-          String(result.image);
+          String(
+            result.image
+          );
 
         if (
           base64.includes(",")
@@ -699,6 +859,7 @@ export default {
             base64
               .split(",")
               .pop();
+
         }
 
         const binaryString =
@@ -717,6 +878,7 @@ export default {
 
           bytes[i] =
             binaryString.charCodeAt(i);
+
         }
 
         return new Response(
@@ -726,37 +888,46 @@ export default {
 
             headers:
               corsHeaders({
+
                 "Content-Type":
                   "image/jpeg",
 
                 "Content-Length":
-                  String(bytes.length),
+                  String(
+                    bytes.length
+                  ),
 
                 "Cache-Control":
                   "no-store, no-cache, must-revalidate",
 
                 "Pragma":
                   "no-cache"
+
               })
           }
         );
 
-      }
-      catch (error) {
+      } catch (error) {
 
-        return jsonResponse({
-          success: false,
-          error:
-            error?.message ||
-            "AI image generation failed."
-        }, 500);
+        return jsonResponse(
+
+          {
+            success: false,
+
+            error:
+              error?.message ||
+              "AI image generation failed."
+          },
+
+          500
+
+        );
       }
     }
 
-
-    // ========================================================
-    // STATIC WEBSITE
-    // ========================================================
+    /* --------------------------------------------------------
+       STATIC ASSETS
+    -------------------------------------------------------- */
 
     if (env.ASSETS) {
 
@@ -766,32 +937,40 @@ export default {
           request
         );
 
-      }
-      catch (error) {
+      } catch (error) {
 
         return new Response(
           "Static asset error.",
           {
             status: 500,
+
             headers:
               corsHeaders({
+
                 "Content-Type":
                   "text/plain; charset=utf-8"
+
               })
           }
         );
       }
     }
 
+    /* --------------------------------------------------------
+       NOT FOUND
+    -------------------------------------------------------- */
 
-    // ========================================================
-    // FALLBACK
-    // ========================================================
+    return jsonResponse(
 
-    return jsonResponse({
-      success: false,
-      error:
-        "Route not found."
-    }, 404);
+      {
+        success: false,
+
+        error:
+          "Route not found."
+      },
+
+      404
+
+    );
   }
 };
