@@ -198,16 +198,13 @@ body{
 
 const API_URL = "/api/live-score";
 
-/*
-  5 MINUTES AUTO REFRESH
-  5 minutes = 300000 milliseconds
-*/
+/* 5 MINUTES */
 const REFRESH_TIME = 300000;
 
 
-/* ----------------------------------
-   HTML SAFE TEXT
----------------------------------- */
+/* ================================
+   SAFE TEXT
+================================ */
 
 function safe(value){
 
@@ -224,15 +221,29 @@ function safe(value){
 }
 
 
-/* ----------------------------------
-   GET OVERS
----------------------------------- */
+/* ================================
+   NORMALIZE TEAM NAME
+================================ */
 
-function getOvers(score, matchOvers){
+function cleanTeamName(name){
+
+  return String(name || "")
+    .toLowerCase()
+    .replace(/\b(cricket|team)\b/g,"")
+    .replace(/[^a-z0-9]/g,"")
+    .trim();
+}
+
+
+/* ================================
+   GET OVERS
+================================ */
+
+function getOvers(score, fallback){
 
   if(score && typeof score === "object"){
 
-    const possible = [
+    const values = [
       score.o,
       score.overs,
       score.over,
@@ -240,7 +251,7 @@ function getOvers(score, matchOvers){
       score.oversCount
     ];
 
-    for(const value of possible){
+    for(const value of values){
 
       if(
         value !== undefined &&
@@ -258,12 +269,12 @@ function getOvers(score, matchOvers){
 
 
   if(
-    matchOvers !== undefined &&
-    matchOvers !== null &&
-    String(matchOvers).trim() !== ""
+    fallback !== undefined &&
+    fallback !== null &&
+    String(fallback).trim() !== ""
   ){
 
-    return String(matchOvers)
+    return String(fallback)
       .replace(/[()]/g,"")
       .replace(/\s*ov$/i,"")
       .trim();
@@ -274,199 +285,464 @@ function getOvers(score, matchOvers){
 }
 
 
-/* ----------------------------------
-   SCORE FORMAT
----------------------------------- */
+/* ================================
+   FORMAT SCORE OBJECT
+================================ */
 
-function formatScore(score, matchOvers){
+function objectScore(score, fallbackOvers){
 
-  if(score === null || score === undefined){
-    return "—";
+  if(!score || typeof score !== "object"){
+    return "";
   }
 
 
-  /* String score */
+  const runs =
+    score.r ??
+    score.runs ??
+    score.score ??
+    score.total ??
+    score.run ??
+    "";
 
-  if(typeof score === "string"){
 
-    let text = score.trim();
+  const wickets =
+    score.w ??
+    score.wickets ??
+    score.wicket ??
+    score.wkts ??
+    "";
 
-    if(!text){
-      return "—";
-    }
 
-    /* Already contains overs */
+  const overs =
+    getOvers(score,fallbackOvers);
 
-    if(/\(\s*[\d.]+\s*ov\s*\)/i.test(text)){
-      return safe(text);
-    }
 
-    /* Detect overs */
-
-    const match = text.match(/\(([\d.]+)\s*ov\)/i);
-
-    if(match){
-      return safe(text);
-    }
-
-    return safe(text);
+  if(
+    runs === "" &&
+    wickets === "" &&
+    !overs
+  ){
+    return "";
   }
 
 
-  /* Object score */
-
-  if(typeof score === "object"){
-
-    const runs =
-      score.r ??
-      score.runs ??
-      score.score ??
-      score.total ??
-      "";
-
-    const wickets =
-      score.w ??
-      score.wickets ??
-      score.wicket ??
-      "";
-
-    const overs =
-      getOvers(score,matchOvers);
+  let result = "";
 
 
-    let result = "";
-
-    if(runs !== ""){
-      result += runs;
-    }
-
-    if(wickets !== ""){
-      result += "/" + wickets;
-    }
-
-
-    if(overs){
-
-      result += " (" + overs + " ov)";
-    }
-
-
-    if(result){
-      return safe(result);
-    }
+  if(runs !== ""){
+    result += runs;
   }
 
 
-  return safe(String(score));
+  if(wickets !== ""){
+    result += "/" + wickets;
+  }
+
+
+  if(overs){
+
+    result += " (" + overs + " ov)";
+  }
+
+
+  return result;
 }
 
 
-/* ----------------------------------
-   GET TEAM SCORES
----------------------------------- */
+/* ================================
+   FORMAT ANY SCORE
+================================ */
+
+function formatScore(score,fallbackOvers){
+
+  if(
+    score === null ||
+    score === undefined ||
+    score === ""
+  ){
+
+    return "";
+  }
+
+
+  /* STRING */
+
+  if(typeof score === "string"){
+
+    const text = score.trim();
+
+    if(!text){
+      return "";
+    }
+
+
+    /*
+      If string already contains overs
+    */
+
+    if(/\(\s*[\d.]+\s*ov\s*\)/i.test(text)){
+      return text;
+    }
+
+
+    if(fallbackOvers){
+
+      return text +
+        " (" +
+        fallbackOvers +
+        " ov)";
+    }
+
+
+    return text;
+  }
+
+
+  /* OBJECT */
+
+  if(typeof score === "object"){
+
+    return objectScore(
+      score,
+      fallbackOvers
+    );
+  }
+
+
+  return String(score);
+}
+
+
+/* ================================
+   GET TEAM SCORE FROM SCORE ARRAY
+================================ */
+
+function findScoreForTeam(match,teamName,index){
+
+  const scores = match.score;
+
+
+  if(!Array.isArray(scores) || scores.length === 0){
+    return null;
+  }
+
+
+  const wanted = cleanTeamName(teamName);
+
+
+  /*
+    First try exact/team-name matching
+  */
+
+  for(const item of scores){
+
+    if(!item || typeof item !== "object"){
+      continue;
+    }
+
+
+    const possibleNames = [
+      item.team,
+      item.teamName,
+      item.inning,
+      item.innings,
+      item.name
+    ];
+
+
+    for(const name of possibleNames){
+
+      const clean = cleanTeamName(name);
+
+
+      if(
+        clean &&
+        wanted &&
+        (
+          clean === wanted ||
+          clean.includes(wanted) ||
+          wanted.includes(clean)
+        )
+      ){
+
+        return item;
+      }
+    }
+  }
+
+
+  /*
+    If API doesn't provide team name,
+    use array position.
+  */
+
+  return scores[index] || null;
+}
+
+
+/* ================================
+   GET MATCH SCORES
+================================ */
 
 function getMatchScores(match){
 
-  let team1 = null;
-  let team2 = null;
+  const team1 =
+    match.team1 ||
+    match.team1Name ||
+    match.teams?.[0] ||
+    "Team 1";
 
-  let team1Overs = "";
-  let team2Overs = "";
+
+  const team2 =
+    match.team2 ||
+    match.team2Name ||
+    match.teams?.[1] ||
+    "Team 2";
+
+
+  let score1 = null;
+  let score2 = null;
+
+
+  let overs1 = "";
+  let overs2 = "";
 
 
   /*
-    Format:
-    team1Score / team2Score
+    DIRECT CUSTOM FIELDS
   */
 
   if(match.team1Score !== undefined){
-    team1 = match.team1Score;
+    score1 = match.team1Score;
   }
+
 
   if(match.team2Score !== undefined){
-    team2 = match.team2Score;
+    score2 = match.team2Score;
   }
 
 
-  /*
-    Score array format
-  */
-
-  if(
-    (!team1 || !team2) &&
-    Array.isArray(match.score)
-  ){
-
-    team1 = match.score[0] || null;
-    team2 = match.score[1] || null;
-  }
-
-
-  /*
-    Direct overs
-  */
-
-  team1Overs =
+  overs1 =
     match.team1Overs ??
     match.team1Over ??
     "";
 
-  team2Overs =
+
+  overs2 =
     match.team2Overs ??
     match.team2Over ??
     "";
 
 
   /*
-    Sometimes API provides score objects
+    SCORE ARRAY
   */
 
-  if(team1 && typeof team1 === "object"){
+  if(
+    Array.isArray(match.score) &&
+    match.score.length > 0
+  ){
 
-    team1Overs = getOvers(team1,team1Overs);
+    /*
+      Only replace missing scores.
+    */
+
+    if(
+      score1 === null ||
+      score1 === undefined ||
+      score1 === ""
+    ){
+
+      score1 =
+        findScoreForTeam(
+          match,
+          team1,
+          0
+        );
+    }
+
+
+    if(
+      score2 === null ||
+      score2 === undefined ||
+      score2 === ""
+    ){
+
+      score2 =
+        findScoreForTeam(
+          match,
+          team2,
+          1
+        );
+    }
   }
 
-  if(team2 && typeof team2 === "object"){
 
-    team2Overs = getOvers(team2,team2Overs);
+  /*
+    EXTRA FALLBACK:
+    some APIs use innings[]
+  */
+
+  const innings =
+    match.innings ||
+    match.inning ||
+    match.scores;
+
+
+  if(Array.isArray(innings)){
+
+    if(
+      !score1
+    ){
+
+      score1 =
+        findScoreFromArray(
+          innings,
+          team1
+        );
+    }
+
+
+    if(
+      !score2
+    ){
+
+      score2 =
+        findScoreFromArray(
+          innings,
+          team2
+        );
+    }
+  }
+
+
+  /*
+    GET OVERS FROM SCORE OBJECT
+  */
+
+  if(
+    score1 &&
+    typeof score1 === "object"
+  ){
+
+    overs1 =
+      getOvers(
+        score1,
+        overs1
+      );
+  }
+
+
+  if(
+    score2 &&
+    typeof score2 === "object"
+  ){
+
+    overs2 =
+      getOvers(
+        score2,
+        overs2
+      );
   }
 
 
   return {
     team1,
     team2,
-    team1Overs,
-    team2Overs
+    score1,
+    score2,
+    overs1,
+    overs2
   };
 }
 
 
-/* ----------------------------------
-   PICK MATCH
----------------------------------- */
+/* ================================
+   SEARCH SCORE FROM ARRAY
+================================ */
+
+function findScoreFromArray(array,teamName){
+
+  const wanted =
+    cleanTeamName(teamName);
+
+
+  for(const item of array){
+
+    if(!item || typeof item !== "object"){
+      continue;
+    }
+
+
+    const names = [
+      item.team,
+      item.teamName,
+      item.inning,
+      item.innings,
+      item.name
+    ];
+
+
+    for(const name of names){
+
+      const clean =
+        cleanTeamName(name);
+
+
+      if(
+        clean &&
+        wanted &&
+        (
+          clean === wanted ||
+          clean.includes(wanted) ||
+          wanted.includes(clean)
+        )
+      ){
+
+        return item;
+      }
+    }
+  }
+
+
+  return null;
+}
+
+
+/* ================================
+   PICK LIVE MATCH
+================================ */
 
 function pickMatch(matches){
 
-  if(!Array.isArray(matches) || matches.length === 0){
+  if(
+    !Array.isArray(matches) ||
+    matches.length === 0
+  ){
+
     return null;
   }
 
 
-  const live = matches.find(m => {
+  const live =
+    matches.find(match => {
 
-    const status = String(
-      m.status ||
-      m.matchStatus ||
-      m.state ||
-      ""
-    ).toLowerCase();
+      const status =
+        String(
+          match.status ||
+          match.matchStatus ||
+          match.state ||
+          ""
+        ).toLowerCase();
 
-    return (
-      status.includes("live") ||
-      status.includes("stumps") ||
-      status.includes("in progress")
-    );
-  });
+
+      return (
+        status.includes("live") ||
+        status.includes("stumps") ||
+        status.includes("in progress")
+      );
+
+    });
 
 
   if(live){
@@ -474,16 +750,20 @@ function pickMatch(matches){
   }
 
 
-  const delayed = matches.find(m => {
+  const delayed =
+    matches.find(match => {
 
-    const status = String(
-      m.status ||
-      m.matchStatus ||
-      ""
-    ).toLowerCase();
+      const status =
+        String(
+          match.status ||
+          match.matchStatus ||
+          ""
+        ).toLowerCase();
 
-    return status.includes("delay");
-  });
+
+      return status.includes("delay");
+
+    });
 
 
   if(delayed){
@@ -495,13 +775,14 @@ function pickMatch(matches){
 }
 
 
-/* ----------------------------------
+/* ================================
    RENDER
----------------------------------- */
+================================ */
 
 function renderMatch(match){
 
-  const app = document.getElementById("app");
+  const app =
+    document.getElementById("app");
 
 
   if(!match){
@@ -518,67 +799,77 @@ function renderMatch(match){
   }
 
 
-  const team1 =
-    match.team1 ||
-    match.team1Name ||
-    match.teams?.[0] ||
-    "Team 1";
+  const scores =
+    getMatchScores(match);
 
 
-  const team2 =
-    match.team2 ||
-    match.team2Name ||
-    match.teams?.[1] ||
-    "Team 2";
+  let score1 =
+    formatScore(
+      scores.score1,
+      scores.overs1
+    );
 
 
-  const scores = getMatchScores(match);
-
-
-  const score1 = formatScore(
-    scores.team1,
-    scores.team1Overs
-  );
-
-
-  const score2 = formatScore(
-    scores.team2,
-    scores.team2Overs
-  );
+  let score2 =
+    formatScore(
+      scores.score2,
+      scores.overs2
+    );
 
 
   /*
-    If score string does not contain overs,
-    try direct team overs.
+    IMPORTANT:
+    Don't show overs if there is
+    no actual score.
   */
 
-  let finalScore1 = score1;
+  if(
+    !score1 &&
+    scores.overs1
+  ){
 
-  let finalScore2 = score2;
+    score1 =
+      "—";
+  }
 
 
   if(
-    scores.team1Overs &&
+    !score2 &&
+    scores.overs2
+  ){
+
+    score2 =
+      "—";
+  }
+
+
+  /*
+    If score exists but overs are
+    not already inside it.
+  */
+
+  if(
+    score1 &&
+    scores.overs1 &&
     !/\(\s*[\d.]+\s*ov\s*\)/i.test(score1)
   ){
 
-    finalScore1 =
-      score1 +
+    score1 +=
       " (" +
-      safe(scores.team1Overs) +
+      safe(scores.overs1) +
       " ov)";
   }
 
 
   if(
-    scores.team2Overs &&
+    score2 &&
+    scores.overs2 &&
     !/\(\s*[\d.]+\s*ov\s*\)/i.test(score2)
   ){
 
-    finalScore2 =
-      score2 +
+    score2 +=
       " (" +
-      safe(scores.team2Overs) +
+      safe(scores.overs2) +
       " ov)";
   }
 
@@ -617,7 +908,7 @@ function renderMatch(match){
   const venue =
     match.venue ||
     match.venueName ||
-    "";
+    "Venue not available";
 
 
   app.innerHTML = `
@@ -647,11 +938,11 @@ function renderMatch(match){
         <div class="team">
 
           <div class="team-name">
-            ${safe(team1)}
+            ${safe(scores.team1)}
           </div>
 
           <div class="score">
-            ${finalScore1}
+            ${safe(score1 || "—")}
           </div>
 
         </div>
@@ -665,11 +956,11 @@ function renderMatch(match){
         <div class="team">
 
           <div class="team-name">
-            ${safe(team2)}
+            ${safe(scores.team2)}
           </div>
 
           <div class="score">
-            ${finalScore2}
+            ${safe(score2 || "—")}
           </div>
 
         </div>
@@ -681,7 +972,11 @@ function renderMatch(match){
 
         ${safe(series)}
 
-        ${series && venue ? " • " : ""}
+        ${
+          series && venue
+          ? " • "
+          : ""
+        }
 
         ${safe(venue)}
 
@@ -701,49 +996,50 @@ function renderMatch(match){
 }
 
 
-/* ----------------------------------
-   LOAD LIVE SCORE
----------------------------------- */
+/* ================================
+   LOAD SCORE
+================================ */
 
 async function loadScore(){
 
   try{
 
-    const response = await fetch(
-      API_URL + "?nocache=" + Date.now(),
-      {
-        method:"GET",
-        cache:"no-store",
-        headers:{
-          "Cache-Control":"no-cache"
+    const response =
+      await fetch(
+        API_URL +
+        "?nocache=" +
+        Date.now(),
+        {
+          method:"GET",
+          cache:"no-store",
+          headers:{
+            "Cache-Control":"no-cache"
+          }
         }
-      }
-    );
+      );
 
 
     if(!response.ok){
 
       throw new Error(
-        "HTTP " + response.status
+        "HTTP " +
+        response.status
       );
     }
 
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
 
     if(data.success === false){
 
       throw new Error(
         data.message ||
-        "API returned an error"
+        "API returned error"
       );
     }
 
-
-    /*
-      Support different response formats
-    */
 
     let matches =
       data.matches ||
@@ -758,7 +1054,8 @@ async function loadScore(){
     }
 
 
-    const match = pickMatch(matches);
+    const match =
+      pickMatch(matches);
 
 
     renderMatch(match);
@@ -772,7 +1069,9 @@ async function loadScore(){
     );
 
 
-    document.getElementById("app").innerHTML = `
+    document.getElementById(
+      "app"
+    ).innerHTML = `
 
       <div class="scoreboard">
 
@@ -790,17 +1089,16 @@ async function loadScore(){
 }
 
 
-/* ----------------------------------
+/* ================================
    FIRST LOAD
----------------------------------- */
+================================ */
 
 loadScore();
 
 
-/* ----------------------------------
-   AUTO REFRESH
+/* ================================
    EVERY 5 MINUTES
----------------------------------- */
+================================ */
 
 setInterval(
   loadScore,
@@ -808,10 +1106,9 @@ setInterval(
 );
 
 
-/*
-  Refresh when PRISM/browser
-  becomes visible again
-*/
+/* ================================
+   WHEN PRISM BECOMES VISIBLE
+================================ */
 
 document.addEventListener(
   "visibilitychange",
