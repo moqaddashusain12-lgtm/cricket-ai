@@ -37,8 +37,10 @@ function cleanTeamName(value) {
    SCORE PARSER
    Supports:
    110/1
+   110/1 (18.2)
    110/1 (18.2 ov)
    110/1 (18.2 Overs)
+   295/7 (50)
 ------------------------------------------------------------ */
 
 function parseScore(value) {
@@ -48,41 +50,56 @@ function parseScore(value) {
 
   if (!text) return null;
 
-  const scoreMatch = text.match(
-    /(\d+)\s*\/\s*(\d+)/i
+  /*
+     IMPORTANT:
+     CricAPI cricScore can return:
+
+     169/2 (20.3)
+
+     without the word "ov".
+
+     So we must NOT require "ov" inside brackets.
+  */
+
+  const match = text.match(
+    /(\d+)\s*\/\s*(\d+)(?:\s*\(\s*([\d.]+)\s*(?:ov|overs?)?\s*\))?/i
   );
 
-  const overMatch = text.match(
-    /\(([\d.]+)\s*(?:ov|overs?)\)/i
-  );
-
-  if (!scoreMatch) {
+  if (!match) {
     return {
       raw: text,
       runs: null,
       wickets: null,
-      overs: overMatch ? overMatch[1] : ""
+      overs: ""
     };
   }
 
   return {
     raw: text,
 
-    runs: Number(scoreMatch[1]),
+    runs: Number(match[1]),
 
-    wickets: Number(scoreMatch[2]),
+    wickets: Number(match[2]),
 
-    overs: overMatch
-      ? overMatch[1]
+    overs: match[3]
+      ? String(match[3])
       : ""
   };
 }
 
 /* ------------------------------------------------------------
-   FIND OVERS FROM ANY POSSIBLE API FIELD
+   FIND OVERS FROM API FIELDS
 ------------------------------------------------------------ */
 
 function findOvers(match, teamIndex, parsedScore) {
+
+  /*
+     First priority:
+     Overs already found inside score.
+
+     Example:
+     169/2 (20.3)
+  */
 
   if (
     parsedScore &&
@@ -90,8 +107,14 @@ function findOvers(match, teamIndex, parsedScore) {
     parsedScore.overs !== null &&
     parsedScore.overs !== ""
   ) {
-    return String(parsedScore.overs);
+    return String(
+      parsedScore.overs
+    );
   }
+
+  /*
+     Try possible API fields.
+  */
 
   const possibleFields =
     teamIndex === 0
@@ -100,14 +123,18 @@ function findOvers(match, teamIndex, parsedScore) {
           "t1overs",
           "team1Overs",
           "team1overs",
-          "overs1"
+          "overs1",
+          "t1Over",
+          "team1Over"
         ]
       : [
           "t2o",
           "t2overs",
           "team2Overs",
           "team2overs",
-          "overs2"
+          "overs2",
+          "t2Over",
+          "team2Over"
         ];
 
   for (const field of possibleFields) {
@@ -117,7 +144,11 @@ function findOvers(match, teamIndex, parsedScore) {
       match[field] !== null &&
       String(match[field]).trim() !== ""
     ) {
-      return String(match[field]).trim();
+
+      return String(
+        match[field]
+      ).trim();
+
     }
   }
 
@@ -130,9 +161,13 @@ function findOvers(match, teamIndex, parsedScore) {
 
 function getStatus(mode, text) {
 
-  const m = String(mode || "").toLowerCase();
+  const m =
+    String(mode || "")
+      .toLowerCase();
 
-  const s = String(text || "").toLowerCase();
+  const s =
+    String(text || "")
+      .toLowerCase();
 
   if (
     m === "result" ||
@@ -194,13 +229,16 @@ function findBattingTeamIndex(
 ) {
 
   const t1 =
-    String(team1 || "").toLowerCase();
+    String(team1 || "")
+      .toLowerCase();
 
   const t2 =
-    String(team2 || "").toLowerCase();
+    String(team2 || "")
+      .toLowerCase();
 
   const status =
-    String(statusText || "").toLowerCase();
+    String(statusText || "")
+      .toLowerCase();
 
   if (
     status.includes(
@@ -288,13 +326,24 @@ function formatCricScoreMatch(m) {
     cleanTeamName(m.t2);
 
   const statusRaw =
-    String(m.status || "").trim();
+    String(
+      m.status || ""
+    ).trim();
 
   const mode =
-    String(m.ms || "").toLowerCase();
+    String(
+      m.ms || ""
+    ).toLowerCase();
 
   const status =
-    getStatus(mode, statusRaw);
+    getStatus(
+      mode,
+      statusRaw
+    );
+
+  /* ----------------------------------------------------------
+     PARSE RAW SCORES
+  ---------------------------------------------------------- */
 
   const rawScore1 =
     parseScore(m.t1s);
@@ -302,7 +351,9 @@ function formatCricScoreMatch(m) {
   const rawScore2 =
     parseScore(m.t2s);
 
-  /* Get overs separately */
+  /* ----------------------------------------------------------
+     FIND OVERS
+  ---------------------------------------------------------- */
 
   const team1Overs =
     findOvers(
@@ -317,6 +368,10 @@ function formatCricScoreMatch(m) {
       1,
       rawScore2
     );
+
+  /* ----------------------------------------------------------
+     FIND BATTING TEAM
+  ---------------------------------------------------------- */
 
   const battingTeamIndex =
     findBattingTeamIndex(
@@ -333,7 +388,8 @@ function formatCricScoreMatch(m) {
 
   /* ----------------------------------------------------------
      LIVE MATCH
-     Only show currently batting team's score when possible
+
+     Only show currently batting team's score when possible.
   ---------------------------------------------------------- */
 
   if (
@@ -341,44 +397,63 @@ function formatCricScoreMatch(m) {
     status === "STUMPS"
   ) {
 
-    if (battingTeamIndex === 0) {
+    if (
+      battingTeamIndex === 0
+    ) {
 
       score2 = null;
 
     }
 
-    if (battingTeamIndex === 1) {
+    if (
+      battingTeamIndex === 1
+    ) {
 
       score1 = null;
 
     }
 
-    if (battingTeamIndex === null) {
+    if (
+      battingTeamIndex === null
+    ) {
 
       if (
         rawScore1 &&
         !rawScore2
       ) {
 
-        score1 = rawScore1;
-        score2 = null;
+        score1 =
+          rawScore1;
+
+        score2 =
+          null;
 
       } else if (
         !rawScore1 &&
         rawScore2
       ) {
 
-        score1 = null;
-        score2 = rawScore2;
+        score1 =
+          null;
+
+        score2 =
+          rawScore2;
 
       } else {
 
-        score1 = null;
-        score2 = null;
+        score1 =
+          null;
+
+        score2 =
+          null;
 
       }
     }
   }
+
+  /* ----------------------------------------------------------
+     SCORE ARRAY
+  ---------------------------------------------------------- */
 
   const score = [];
 
@@ -389,6 +464,10 @@ function formatCricScoreMatch(m) {
   if (score2) {
     score.push(score2);
   }
+
+  /* ----------------------------------------------------------
+     FINAL MATCH OBJECT
+  ---------------------------------------------------------- */
 
   return {
 
@@ -426,14 +505,28 @@ function formatCricScoreMatch(m) {
     rawTeam2Score:
       rawScore2,
 
-    /* IMPORTANT */
-    team1Overs,
+    /* --------------------------------------------------------
+       OVERS
+       These are now correctly extracted from:
 
-    team2Overs,
+       169/2 (20.3)
 
-    battingTeamIndex,
+       as:
 
-    status,
+       "20.3"
+    -------------------------------------------------------- */
+
+    team1Overs:
+      team1Overs,
+
+    team2Overs:
+      team2Overs,
+
+    battingTeamIndex:
+      battingTeamIndex,
+
+    status:
+      status,
 
     statusText:
       statusRaw,
@@ -505,7 +598,9 @@ function sortMatches(matches) {
         priority[b.status] ||
         99;
 
-      if (pa !== pb) {
+      if (
+        pa !== pb
+      ) {
         return pa - pb;
       }
 
@@ -570,7 +665,9 @@ async function getCricketScores(env) {
     );
   }
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
 
     throw new Error(
       `Cricket API HTTP ${response.status}`
@@ -623,7 +720,9 @@ export default {
         request.url
       );
 
-    /* OPTIONS */
+    /* --------------------------------------------------------
+       OPTIONS
+    -------------------------------------------------------- */
 
     if (
       request.method ===
@@ -654,7 +753,8 @@ export default {
 
       return jsonResponse({
 
-        success: true,
+        success:
+          true,
 
         worker:
           "Cricket Short Worker",
@@ -703,7 +803,8 @@ export default {
 
         return jsonResponse({
 
-          success: true,
+          success:
+            true,
 
           count:
             matches.length,
@@ -728,7 +829,8 @@ export default {
         return jsonResponse(
 
           {
-            success: false,
+            success:
+              false,
 
             error:
               error?.message ||
@@ -757,7 +859,8 @@ export default {
         return jsonResponse(
 
           {
-            success: false,
+            success:
+              false,
 
             error:
               "Workers AI binding is missing."
@@ -780,7 +883,8 @@ export default {
         return jsonResponse(
 
           {
-            success: false,
+            success:
+              false,
 
             error:
               "Invalid JSON request."
@@ -801,7 +905,8 @@ export default {
         return jsonResponse(
 
           {
-            success: false,
+            success:
+              false,
 
             error:
               "Prompt is required."
@@ -835,7 +940,8 @@ export default {
           return jsonResponse(
 
             {
-              success: false,
+              success:
+                false,
 
               error:
                 "AI image was not returned."
@@ -884,7 +990,8 @@ export default {
         return new Response(
           bytes,
           {
-            status: 200,
+            status:
+              200,
 
             headers:
               corsHeaders({
@@ -912,7 +1019,8 @@ export default {
         return jsonResponse(
 
           {
-            success: false,
+            success:
+              false,
 
             error:
               error?.message ||
@@ -929,7 +1037,9 @@ export default {
        STATIC ASSETS
     -------------------------------------------------------- */
 
-    if (env.ASSETS) {
+    if (
+      env.ASSETS
+    ) {
 
       try {
 
@@ -942,7 +1052,8 @@ export default {
         return new Response(
           "Static asset error.",
           {
-            status: 500,
+            status:
+              500,
 
             headers:
               corsHeaders({
@@ -963,7 +1074,8 @@ export default {
     return jsonResponse(
 
       {
-        success: false,
+        success:
+          false,
 
         error:
           "Route not found."
