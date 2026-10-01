@@ -98,11 +98,6 @@ nav button:hover{
   margin-bottom:12px;
 }
 
-.card h3{
-  font-size:16px;
-  margin-bottom:8px;
-}
-
 label{
   display:block;
   font-size:13px;
@@ -119,11 +114,6 @@ input,select,textarea{
   padding:11px;
   outline:none;
   font-size:14px;
-}
-
-textarea{
-  min-height:90px;
-  resize:vertical;
 }
 
 button.primary{
@@ -146,11 +136,6 @@ button.secondary{
   color:#fff;
   cursor:pointer;
   margin:4px 2px;
-}
-
-button.primary:disabled,
-button.secondary:disabled{
-  opacity:.6;
 }
 
 .status{
@@ -311,7 +296,7 @@ footer{
 
 <div class="container">
 
-<!-- ================= LIVE ================= -->
+<!-- LIVE -->
 
 <section id="live" class="section active">
 
@@ -336,11 +321,12 @@ footer{
 </section>
 
 
-<!-- ================= FIXTURES ================= -->
+<!-- FIXTURES -->
 
 <section id="fixtures" class="section">
 
   <div class="card">
+
     <h2>📅 Fixtures</h2>
 
     <div class="grid2">
@@ -372,16 +358,18 @@ footer{
     </div>
 
     <div id="fixturesList"></div>
+
   </div>
 
 </section>
 
 
-<!-- ================= SCORECARD ================= -->
+<!-- SCORECARD -->
 
 <section id="scorecard" class="section">
 
   <div class="card">
+
     <h2>📊 Match Scorecard</h2>
 
     <div id="selectedScorecardInfo" class="status">
@@ -406,16 +394,18 @@ footer{
     </button>
 
     <div id="scorecardResult"></div>
+
   </div>
 
 </section>
 
 
-<!-- ================= BALL BY BALL ================= -->
+<!-- BALL BY BALL -->
 
 <section id="ball" class="section">
 
   <div class="card">
+
     <h2>🏏 Ball-by-Ball</h2>
 
     <div id="selectedBallInfo" class="status">
@@ -440,16 +430,18 @@ footer{
     </button>
 
     <div id="ballResult"></div>
+
   </div>
 
 </section>
 
 
-<!-- ================= POINTS ================= -->
+<!-- POINTS -->
 
 <section id="points" class="section">
 
   <div class="card">
+
     <h2>🎯 Match Points</h2>
 
     <div id="selectedPointsInfo" class="status">
@@ -474,16 +466,18 @@ footer{
     </button>
 
     <div id="pointsResult"></div>
+
   </div>
 
 </section>
 
 
-<!-- ================= AI PLAYER ================= -->
+<!-- AI PLAYER -->
 
 <section id="ai" class="section">
 
   <div class="card">
+
     <h2>🤖 AI Cricket Player</h2>
 
     <label>Player Name</label>
@@ -576,12 +570,13 @@ footer{
     <div id="aiStatus" class="status"></div>
 
     <div id="aiResult"></div>
+
   </div>
 
 </section>
 
 
-<!-- ================= POSTER ================= -->
+<!-- POSTER -->
 
 <section id="poster" class="section">
 
@@ -617,7 +612,7 @@ footer{
 </section>
 
 
-<!-- ================= PLAYER CARD ================= -->
+<!-- PLAYER CARD -->
 
 <section id="player" class="section">
 
@@ -648,7 +643,7 @@ footer{
 </section>
 
 
-<!-- ================= NEWS ================= -->
+<!-- NEWS -->
 
 <section id="news" class="section">
 
@@ -690,7 +685,7 @@ footer{
 </footer>
 
 
-<!-- ================= LIVE OVERLAY ================= -->
+<!-- LIVE OVERLAY -->
 
 <div id="liveOverlay" class="live-overlay">
 
@@ -720,11 +715,9 @@ footer{
 let allFixtures = [];
 let selectedMatchId = "";
 
-const API_BASE = "";
-
 
 /* =========================================================
-   SECTION NAVIGATION
+   SECTION
 ========================================================= */
 
 function showSection(id){
@@ -733,7 +726,8 @@ function showSection(id){
     section.classList.remove("active");
   });
 
-  const target = document.getElementById(id);
+  const target =
+    document.getElementById(id);
 
   if(target){
     target.classList.add("active");
@@ -743,12 +737,11 @@ function showSection(id){
     top:0,
     behavior:"smooth"
   });
-
 }
 
 
 /* =========================================================
-   SAFE HTML
+   ESCAPE HTML
 ========================================================= */
 
 function escapeHTML(value){
@@ -767,25 +760,48 @@ function escapeHTML(value){
 
 
 /* =========================================================
-   FETCH JSON
+   ESCAPE JS
 ========================================================= */
 
-async function getJSON(url, options = {}){
+function escapeJS(value){
 
-  const response = await fetch(
-    url + (url.includes("?") ? "&" : "?") + "nocache=" + Date.now(),
-    options
-  );
+  return String(value || "")
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'")
+    .replace(/\n/g,"\\n")
+    .replace(/\r/g,"\\r");
+}
+
+
+/* =========================================================
+   JSON FETCH
+========================================================= */
+
+async function getJSON(url,options={}){
+
+  const response =
+    await fetch(
+      url +
+      (url.includes("?") ? "&" : "?") +
+      "nocache=" +
+      Date.now(),
+      options
+    );
 
   let data;
 
   try{
-    data = await response.json();
+
+    data =
+      await response.json();
+
   }catch(error){
+
     throw new Error(
       "Server ने valid JSON response नहीं दिया। HTTP " +
       response.status
     );
+
   }
 
   if(!response.ok || data.success === false){
@@ -793,7 +809,8 @@ async function getJSON(url, options = {}){
     throw new Error(
       data.message ||
       data.error ||
-      "Request failed. HTTP " + response.status
+      "Request failed. HTTP " +
+      response.status
     );
 
   }
@@ -808,20 +825,27 @@ async function getJSON(url, options = {}){
 
 async function loadScores(){
 
-  const countBox = document.getElementById("liveCount");
-  const list = document.getElementById("liveMatches");
-  const updated = document.getElementById("liveUpdated");
+  const countBox =
+    document.getElementById("liveCount");
 
-  countBox.textContent = "Loading live matches...";
+  const list =
+    document.getElementById("liveMatches");
+
+  const updated =
+    document.getElementById("liveUpdated");
+
+  countBox.textContent =
+    "Loading live matches...";
+
   list.innerHTML = "";
 
   try{
 
-    const data = await getJSON(
-      "/api/live-score"
-    );
+    const data =
+      await getJSON("/api/live-score");
 
-    const matches = Array.isArray(data.matches)
+    const matches =
+      Array.isArray(data.matches)
       ? data.matches
       : [];
 
@@ -830,7 +854,9 @@ async function loadScores(){
       new Date().toLocaleTimeString();
 
     countBox.innerHTML =
-      "<b>" + matches.length + "</b> LIVE";
+      "<b>" +
+      matches.length +
+      "</b> LIVE";
 
     if(matches.length === 0){
 
@@ -844,7 +870,7 @@ async function loadScores(){
 
       list.insertAdjacentHTML(
         "beforeend",
-        renderMatch(match,true)
+        renderMatch(match)
       );
 
     });
@@ -852,10 +878,10 @@ async function loadScores(){
   }catch(error){
 
     countBox.textContent =
-      "Live score error: " + error.message;
+      "Live score error: " +
+      error.message;
 
   }
-
 }
 
 
@@ -863,7 +889,7 @@ async function loadScores(){
    FIXTURES
 ========================================================= */
 
-async function loadFixtures(filter = "ALL"){
+async function loadFixtures(filter="ALL"){
 
   const status =
     document.getElementById("fixtureStatus");
@@ -878,14 +904,13 @@ async function loadFixtures(filter = "ALL"){
 
   try{
 
-    const data = await getJSON(
-      "/api/fixtures"
-    );
+    const data =
+      await getJSON("/api/fixtures");
 
     allFixtures =
       Array.isArray(data.matches)
-        ? data.matches
-        : [];
+      ? data.matches
+      : [];
 
     let matches =
       [...allFixtures];
@@ -894,7 +919,8 @@ async function loadFixtures(filter = "ALL"){
 
       matches =
         matches.filter(match =>
-          getStatus(match).toUpperCase()
+          getStatus(match)
+          .toUpperCase()
           .includes("LIVE")
         );
 
@@ -947,12 +973,11 @@ async function loadFixtures(filter = "ALL"){
       error.message;
 
   }
-
 }
 
 
 /* =========================================================
-   MATCH RENDER
+   FIXTURE CARD
 ========================================================= */
 
 function renderFixture(match){
@@ -1030,10 +1055,10 @@ function renderFixture(match){
 
 
 /* =========================================================
-   LIVE MATCH RENDER
+   LIVE CARD
 ========================================================= */
 
-function renderMatch(match, live = false){
+function renderMatch(match){
 
   const id =
     getMatchId(match);
@@ -1108,7 +1133,7 @@ function getMatchId(match){
 
 
 /* =========================================================
-   OPEN SCORECARD
+   SCORECARD
 ========================================================= */
 
 function openScorecard(id){
@@ -1124,7 +1149,8 @@ function openScorecard(id){
   document.getElementById("scorecardId").value =
     id;
 
-  document.getElementById("selectedScorecardInfo").innerHTML =
+  document.getElementById("selectedScorecardInfo")
+    .innerHTML =
     "✅ Match selected<br>" +
     "Match ID: <b>" +
     escapeHTML(id) +
@@ -1136,13 +1162,8 @@ function openScorecard(id){
   showSection("scorecard");
 
   loadScorecard();
-
 }
 
-
-/* =========================================================
-   SCORECARD
-========================================================= */
 
 async function loadScorecard(){
 
@@ -1183,12 +1204,11 @@ async function loadScorecard(){
       '</div>';
 
   }
-
 }
 
 
 /* =========================================================
-   OPEN BALL BY BALL
+   BALL BY BALL
 ========================================================= */
 
 function openBallByBall(id){
@@ -1204,7 +1224,8 @@ function openBallByBall(id){
   document.getElementById("ballId").value =
     id;
 
-  document.getElementById("selectedBallInfo").innerHTML =
+  document.getElementById("selectedBallInfo")
+    .innerHTML =
     "✅ Match selected<br>" +
     "Match ID: <b>" +
     escapeHTML(id) +
@@ -1216,13 +1237,8 @@ function openBallByBall(id){
   showSection("ball");
 
   loadBallByBall();
-
 }
 
-
-/* =========================================================
-   BALL BY BALL
-========================================================= */
 
 async function loadBallByBall(){
 
@@ -1263,12 +1279,11 @@ async function loadBallByBall(){
       '</div>';
 
   }
-
 }
 
 
 /* =========================================================
-   OPEN POINTS
+   POINTS
 ========================================================= */
 
 function openPoints(id){
@@ -1284,7 +1299,8 @@ function openPoints(id){
   document.getElementById("pointsId").value =
     id;
 
-  document.getElementById("selectedPointsInfo").innerHTML =
+  document.getElementById("selectedPointsInfo")
+    .innerHTML =
     "✅ Match selected<br>" +
     "Match ID: <b>" +
     escapeHTML(id) +
@@ -1296,13 +1312,8 @@ function openPoints(id){
   showSection("points");
 
   loadPoints();
-
 }
 
-
-/* =========================================================
-   MATCH POINTS
-========================================================= */
 
 async function loadPoints(){
 
@@ -1343,29 +1354,25 @@ async function loadPoints(){
       '</div>';
 
   }
-
 }
 
 
 /* =========================================================
-   GENERIC API RESULT
+   API RESULT
 ========================================================= */
 
 function renderAPIResult(data){
 
-  const clean = JSON.stringify(
-    data,
-    null,
-    2
-  );
-
   return `
-    <div class="status"
-         style="overflow:auto;max-height:600px;">
-      ${escapeHTML(clean)}
+    <div
+      class="status"
+      style="overflow:auto;max-height:600px;"
+    >
+      ${escapeHTML(
+        JSON.stringify(data,null,2)
+      )}
     </div>
   `;
-
 }
 
 
@@ -1376,38 +1383,44 @@ function renderAPIResult(data){
 function getTeam1(match){
 
   if(match.team1){
+
     return typeof match.team1 === "object"
       ? match.team1.name || ""
       : match.team1;
+
   }
 
   if(Array.isArray(match.teams)){
+
     return match.teams[0] || "";
+
   }
 
   return match.team1name ||
          match.team1Name ||
          "";
-
 }
 
 
 function getTeam2(match){
 
   if(match.team2){
+
     return typeof match.team2 === "object"
       ? match.team2.name || ""
       : match.team2;
+
   }
 
   if(Array.isArray(match.teams)){
+
     return match.teams[1] || "";
+
   }
 
   return match.team2name ||
          match.team2Name ||
          "";
-
 }
 
 
@@ -1418,7 +1431,6 @@ function getMatchName(match){
          match.series ||
          match.matchType ||
          "Cricket Match";
-
 }
 
 
@@ -1428,7 +1440,6 @@ function getStatus(match){
          match.matchStatus ||
          match.state ||
          "UNKNOWN";
-
 }
 
 
@@ -1439,7 +1450,6 @@ function getDate(match){
          match.date ||
          match.startDate ||
          "";
-
 }
 
 
@@ -1482,7 +1492,9 @@ function matchScoreText(match){
           "</b>" +
           (
             overs !== undefined
-            ? " (" + escapeHTML(overs) + " ov)"
+            ? " (" +
+              escapeHTML(overs) +
+              " ov)"
             : ""
           ) +
           "</div>";
@@ -1494,7 +1506,6 @@ function matchScoreText(match){
   }
 
   return output;
-
 }
 
 
@@ -1516,7 +1527,6 @@ function statusClass(status){
   }
 
   return "upcoming";
-
 }
 
 
@@ -1531,11 +1541,12 @@ function isUpcoming(match){
     status.includes("COMPLETED") ||
     status.includes("FINISHED")
   ){
+
     return false;
+
   }
 
   return true;
-
 }
 
 
@@ -1549,23 +1560,12 @@ function isResult(match){
     status.includes("COMPLETED") ||
     status.includes("FINISHED")
   );
-
-}
-
-
-function escapeJS(value){
-
-  return String(value || "")
-    .replace(/\\/g,"\\\\")
-    .replace(/'/g,"\\'")
-    .replace(/\n/g,"\\n")
-    .replace(/\r/g,"\\r");
-
 }
 
 
 /* =========================================================
    AI IMAGE
+   FIXED FOR JPEG / JFIF RESPONSE
 ========================================================= */
 
 async function generateAI(){
@@ -1638,10 +1638,63 @@ async function generateAI(){
         }
       );
 
+    if(!response.ok){
+
+      const errorText =
+        await response.text();
+
+      throw new Error(
+        errorText ||
+        "Image generation failed. HTTP " +
+        response.status
+      );
+
+    }
+
+    const contentType =
+      response.headers.get("content-type") || "";
+
+    /*
+      Worker अगर सीधे JPEG/PNG/WebP भेजता है
+      तो उसे Blob के रूप में दिखाएँ।
+    */
+
+    if(
+      contentType.includes("image/jpeg") ||
+      contentType.includes("image/jpg") ||
+      contentType.includes("image/png") ||
+      contentType.includes("image/webp")
+    ){
+
+      const blob =
+        await response.blob();
+
+      const imageUrl =
+        URL.createObjectURL(blob);
+
+      result.innerHTML =
+        `
+        <img
+          src="${imageUrl}"
+          alt="AI Cricket Image"
+        >
+        `;
+
+      status.textContent =
+        "✅ Image generated successfully.";
+
+      return;
+    }
+
+    /*
+      अगर Worker JSON response भेजता है
+      तो JSON भी support रहेगा।
+    */
+
     const data =
       await response.json();
 
-    if(!response.ok || data.success === false){
+    if(data.success === false){
 
       throw new Error(
         data.message ||
@@ -1654,17 +1707,28 @@ async function generateAI(){
     if(data.image){
 
       result.innerHTML =
-        `<img src="${data.image}" alt="AI Cricket Image">`;
+        `
+        <img
+          src="${data.image}"
+          alt="AI Cricket Image"
+        >
+        `;
 
     }else if(data.imageUrl){
 
       result.innerHTML =
-        `<img src="${data.imageUrl}" alt="AI Cricket Image">`;
+        `
+        <img
+          src="${data.imageUrl}"
+          alt="AI Cricket Image"
+        >
+        `;
 
     }else{
 
-      result.innerHTML =
-        renderAPIResult(data);
+      throw new Error(
+        "Image response नहीं मिला।"
+      );
 
     }
 
@@ -1672,6 +1736,8 @@ async function generateAI(){
       "✅ Image generated successfully.";
 
   }catch(error){
+
+    console.error(error);
 
     status.textContent =
       "❌ " + error.message;
@@ -1683,6 +1749,7 @@ async function generateAI(){
 
 /* =========================================================
    POSTER
+   FIXED FOR JPEG / JFIF RESPONSE
 ========================================================= */
 
 async function generatePoster(){
@@ -1727,6 +1794,7 @@ async function generatePoster(){
             "Content-Type":"application/json"
           },
           body:JSON.stringify({
+
             playerName:player,
             team:team,
             pose:"Batting",
@@ -1741,14 +1809,58 @@ async function generatePoster(){
             camera:"Front",
             tournament:matchType,
             customPrompt:customPrompt
+
           })
         }
       );
 
+    if(!response.ok){
+
+      const errorText =
+        await response.text();
+
+      throw new Error(
+        errorText ||
+        "Poster generation failed. HTTP " +
+        response.status
+      );
+
+    }
+
+    const contentType =
+      response.headers.get("content-type") || "";
+
+    if(
+      contentType.includes("image/jpeg") ||
+      contentType.includes("image/jpg") ||
+      contentType.includes("image/png") ||
+      contentType.includes("image/webp")
+    ){
+
+      const blob =
+        await response.blob();
+
+      const imageUrl =
+        URL.createObjectURL(blob);
+
+      result.innerHTML =
+        `
+        <img
+          src="${imageUrl}"
+          alt="Cricket Poster"
+        >
+        `;
+
+      status.textContent =
+        "✅ Poster generated successfully.";
+
+      return;
+    }
+
     const data =
       await response.json();
 
-    if(!response.ok || data.success === false){
+    if(data.success === false){
 
       throw new Error(
         data.message ||
@@ -1761,17 +1873,28 @@ async function generatePoster(){
     if(data.image){
 
       result.innerHTML =
-        `<img src="${data.image}" alt="Cricket Poster">`;
+        `
+        <img
+          src="${data.image}"
+          alt="Cricket Poster"
+        >
+        `;
 
     }else if(data.imageUrl){
 
       result.innerHTML =
-        `<img src="${data.imageUrl}" alt="Cricket Poster">`;
+        `
+        <img
+          src="${data.imageUrl}"
+          alt="Cricket Poster"
+        >
+        `;
 
     }else{
 
-      result.innerHTML =
-        renderAPIResult(data);
+      throw new Error(
+        "Poster response नहीं मिला।"
+      );
 
     }
 
@@ -1779,6 +1902,8 @@ async function generatePoster(){
       "✅ Poster generated successfully.";
 
   }catch(error){
+
+    console.error(error);
 
     status.textContent =
       "❌ " + error.message;
@@ -1820,7 +1945,10 @@ function createPlayerCard(){
       text-align:center;
     ">
 
-      <div style="font-size:13px;color:#9fc3eb;">
+      <div style="
+        font-size:13px;
+        color:#9fc3eb;
+      ">
         CRICKET SHORT
       </div>
 
@@ -1833,7 +1961,7 @@ function createPlayerCard(){
       </div>
 
       <div style="font-size:15px;">
-        🇮🇳 ${escapeHTML(team)}
+        ${escapeHTML(team)}
       </div>
 
       <div style="
@@ -1868,10 +1996,9 @@ function openLiveMode(match){
     document.getElementById("liveOverlayContent");
 
   content.innerHTML =
-    renderMatch(match,true);
+    renderMatch(match);
 
   overlay.classList.add("active");
-
 }
 
 
