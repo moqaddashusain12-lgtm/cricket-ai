@@ -1,9 +1,11 @@
 // ============================================================
 // CRICKET SHORT - FINAL WORKER.JS
-// LIVE SCORE ONLY + AI IMAGE + POSTER + PLAYER CARD SUPPORT
+// LIVE SCORE + FIXTURES + SCORECARD + MATCH POINTS
+// BALL-BY-BALL SAFE ROUTE + AI IMAGE
 // ============================================================
 
-const AI_MODEL = "@cf/black-forest-labs/flux-1-schnell";
+const AI_MODEL =
+  "@cf/black-forest-labs/flux-1-schnell";
 
 const CRICKET_API_URL =
   "https://api.cricapi.com/v1/cricScore";
@@ -37,7 +39,8 @@ function jsonResponse(data, status = 200) {
     {
       status,
       headers: corsHeaders({
-        "Content-Type": "application/json; charset=utf-8"
+        "Content-Type":
+          "application/json; charset=utf-8"
       })
     }
   );
@@ -252,6 +255,7 @@ function getStatus(
 
 
   // Result
+
   if (
     m === "result" ||
     m === "completed" ||
@@ -268,6 +272,7 @@ function getStatus(
 
 
   // Stumps
+
   if (
     s.includes("stumps") ||
     s.includes("stump")
@@ -278,6 +283,7 @@ function getStatus(
 
 
   // Delay
+
   if (
     s.includes("delay") ||
     s.includes("delayed") ||
@@ -289,8 +295,10 @@ function getStatus(
 
 
   // Upcoming
+
   if (
     m === "fixture" ||
+    m === "upcoming" ||
     s.includes("match starts") ||
     s.includes("starts at") ||
     s.includes("scheduled")
@@ -301,6 +309,7 @@ function getStatus(
 
 
   // LIVE
+
   if (
     m === "live" ||
     s.includes("live") ||
@@ -317,7 +326,7 @@ function getStatus(
 
 
 // ============================================================
-// BATTTING TEAM FINDER
+// BATTING TEAM FINDER
 // ============================================================
 
 function findBattingTeamIndex(
@@ -527,7 +536,6 @@ function formatCricScoreMatch(
     team2Score:
       score2,
 
-    // Kept for compatibility
     score: [
       score1,
       score2
@@ -580,7 +588,7 @@ function formatCricScoreMatch(
 
 
 // ============================================================
-// SORT
+// SORT MATCHES
 // ============================================================
 
 function sortMatches(
@@ -588,7 +596,11 @@ function sortMatches(
 ) {
 
   const priority = {
-    LIVE: 1
+    LIVE: 1,
+    DELAYED: 2,
+    STUMPS: 3,
+    UPCOMING: 4,
+    RESULT: 5
   };
 
 
@@ -601,9 +613,11 @@ function sortMatches(
       const pb =
         priority[b.status] || 99;
 
+
       if (pa !== pb) {
         return pa - pb;
       }
+
 
       return String(
         a.dateTimeGMT || ""
@@ -618,28 +632,13 @@ function sortMatches(
 
 
 // ============================================================
-// CRICKET API
+// FETCH JSON FROM CRICKET API
 // ============================================================
 
-async function getCricketScores(
-  env
+async function fetchCricketAPI(
+  url,
+  apiKey
 ) {
-
-  const apiKey =
-    env.CRICKET_API_KEY;
-
-
-  if (!apiKey) {
-
-    throw new Error(
-      "CRICKET_API_KEY secret missing."
-    );
-  }
-
-
-  const url =
-    `${CRICKET_API_URL}?apikey=${encodeURIComponent(apiKey)}`;
-
 
   const response =
     await fetch(
@@ -701,31 +700,140 @@ async function getCricketScores(
   }
 
 
+  return data;
+}
+
+
+// ============================================================
+// GET ALL CRICKET MATCHES
+// ============================================================
+
+async function getAllCricketMatches(
+  env
+) {
+
+  const apiKey =
+    env.CRICKET_API_KEY;
+
+
+  if (!apiKey) {
+
+    throw new Error(
+      "CRICKET_API_KEY secret missing."
+    );
+  }
+
+
+  const url =
+    `${CRICKET_API_URL}?apikey=${encodeURIComponent(apiKey)}`;
+
+
+  const data =
+    await fetchCricketAPI(
+      url,
+      apiKey
+    );
+
+
   const list =
     Array.isArray(data?.data)
       ? data.data
       : [];
 
 
-  // ========================================================
-  // IMPORTANT:
-  // ONLY CURRENT LIVE MATCHES
-  // ========================================================
-
   const matches =
     list
       .map(
         formatCricScoreMatch
       )
-      .filter(Boolean)
-      .filter(
-        match =>
-          match.status === "LIVE"
-      );
+      .filter(Boolean);
 
 
   return sortMatches(
     matches
+  );
+}
+
+
+// ============================================================
+// LIVE SCORE
+// ============================================================
+
+async function getCricketScores(
+  env
+) {
+
+  const allMatches =
+    await getAllCricketMatches(
+      env
+    );
+
+
+  return allMatches.filter(
+    match =>
+      match.status === "LIVE"
+  );
+}
+
+
+// ============================================================
+// FIXTURES
+// ============================================================
+
+async function getFixtures(
+  env
+) {
+
+  const allMatches =
+    await getAllCricketMatches(
+      env
+    );
+
+
+  return allMatches;
+}
+
+
+// ============================================================
+// GENERIC DETAIL API
+// ============================================================
+
+async function getMatchDetail(
+  env,
+  endpoint,
+  matchId
+) {
+
+  const apiKey =
+    env.CRICKET_API_KEY;
+
+
+  if (!apiKey) {
+
+    throw new Error(
+      "CRICKET_API_KEY secret missing."
+    );
+  }
+
+
+  if (!matchId) {
+
+    throw new Error(
+      "Match ID missing."
+    );
+  }
+
+
+  const url =
+    `https://api.cricapi.com/v1/${endpoint}` +
+    `?apikey=${encodeURIComponent(apiKey)}` +
+    `&offset=0` +
+    `&id=${encodeURIComponent(matchId)}`;
+
+
+  return fetchCricketAPI(
+    url,
+    apiKey
   );
 }
 
@@ -954,11 +1062,7 @@ Requirements:
     }
 
 
-    // ======================================================
-    // Cloudflare AI returns base64 image
-    // Convert to JPEG
-    // ======================================================
-
+    // Cloudflare AI base64 image
     const binary =
       atob(
         result.image
@@ -1059,6 +1163,7 @@ export default {
     ) {
 
       return jsonResponse({
+
         success: true,
 
         worker:
@@ -1096,6 +1201,7 @@ export default {
 
 
         return jsonResponse({
+
           success: true,
 
           count:
@@ -1132,6 +1238,231 @@ export default {
           500
         );
       }
+    }
+
+
+    // --------------------------------------------------------
+    // FIXTURES
+    // --------------------------------------------------------
+
+    if (
+      pathname === "/api/fixtures"
+    ) {
+
+      try {
+
+        const matches =
+          await getFixtures(
+            env
+          );
+
+
+        return jsonResponse({
+
+          success: true,
+
+          count:
+            matches.length,
+
+          updatedAt:
+            new Date().toISOString(),
+
+          source:
+            "cricScore",
+
+          range:
+            "LAST 7 DAYS + NEXT 7 DAYS + LIVE",
+
+          matches
+        });
+
+      } catch (error) {
+
+        return jsonResponse(
+          {
+            success: false,
+
+            error:
+              "FIXTURES_ERROR",
+
+            message:
+              error?.message ||
+              "Fixtures load failed."
+          },
+          500
+        );
+      }
+    }
+
+
+    // --------------------------------------------------------
+    // SCORECARD
+    // --------------------------------------------------------
+
+    if (
+      pathname === "/api/scorecard"
+    ) {
+
+      try {
+
+        const matchId =
+          url.searchParams.get(
+            "id"
+          );
+
+
+        if (!matchId) {
+
+          return jsonResponse(
+            {
+              success: false,
+              error:
+                "Match ID required."
+            },
+            400
+          );
+        }
+
+
+        const data =
+          await getMatchDetail(
+            env,
+            "match_scorecard",
+            matchId
+          );
+
+
+        return jsonResponse({
+
+          success: true,
+
+          source:
+            "match_scorecard",
+
+          matchId,
+
+          data
+        });
+
+      } catch (error) {
+
+        return jsonResponse(
+          {
+            success: false,
+
+            error:
+              "SCORECARD_ERROR",
+
+            message:
+              error?.message ||
+              "Scorecard load failed."
+          },
+          500
+        );
+      }
+    }
+
+
+    // --------------------------------------------------------
+    // MATCH POINTS
+    // --------------------------------------------------------
+
+    if (
+      pathname === "/api/match-points"
+    ) {
+
+      try {
+
+        const matchId =
+          url.searchParams.get(
+            "id"
+          );
+
+
+        if (!matchId) {
+
+          return jsonResponse(
+            {
+              success: false,
+              error:
+                "Match ID required."
+            },
+            400
+          );
+        }
+
+
+        const data =
+          await getMatchDetail(
+            env,
+            "match_points",
+            matchId
+          );
+
+
+        return jsonResponse({
+
+          success: true,
+
+          source:
+            "match_points",
+
+          matchId,
+
+          data
+        });
+
+      } catch (error) {
+
+        return jsonResponse(
+          {
+            success: false,
+
+            error:
+              "MATCH_POINTS_ERROR",
+
+            message:
+              error?.message ||
+              "Match points load failed."
+          },
+          500
+        );
+      }
+    }
+
+
+    // --------------------------------------------------------
+    // BALL BY BALL
+    // --------------------------------------------------------
+    // Exact endpoint is not hard-coded because the official
+    // current docs confirm ball-by-ball availability but do not
+    // expose a single verified endpoint name in the code samples.
+    // --------------------------------------------------------
+
+    if (
+      pathname === "/api/ball-by-ball"
+    ) {
+
+      return jsonResponse(
+        {
+          success: false,
+
+          error:
+            "BALL_BY_BALL_ENDPOINT_NOT_CONFIGURED",
+
+          message:
+            "Ball-by-Ball API available है, लेकिन exact endpoint/API access को Cricket Data API Playground से confirm करना जरूरी है। अनुमानित endpoint इस्तेमाल नहीं किया गया है।",
+
+          matchId:
+            url.searchParams.get(
+              "id"
+            ) || "",
+
+          nextStep:
+            "Confirm the Ball-by-Ball endpoint in Cricket Data API Playground."
+        },
+        501
+      );
     }
 
 
@@ -1183,6 +1514,7 @@ export default {
       "Cricket Short Worker is running.",
       {
         status: 200,
+
         headers:
           corsHeaders({
             "Content-Type":
