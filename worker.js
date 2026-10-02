@@ -4,7 +4,6 @@
 // ============================================================
 
 const AI_MODEL = "@cf/black-forest-labs/flux-1-schnell";
-
 const API_BASE = "https://api.cricapi.com/v1";
 
 
@@ -41,7 +40,7 @@ function jsonResponse(data, status = 200) {
 
 
 // ============================================================
-// CLEAN TEAM NAME
+// TEAM NAME
 // ============================================================
 
 function cleanTeamName(name) {
@@ -54,7 +53,7 @@ function cleanTeamName(name) {
 
 
 // ============================================================
-// SCORE FORMAT
+// SCORE
 // ============================================================
 
 function parseScore(score) {
@@ -75,6 +74,57 @@ function parseScore(score) {
 
 
 // ============================================================
+// STATUS DETECTION
+// ============================================================
+
+function detectStatus(match) {
+
+  const statusText = String(
+    match?.status ||
+    match?.matchStatus ||
+    ""
+  ).trim();
+
+  const s = statusText.toLowerCase();
+
+  // Explicit live words
+  if (
+    s.includes("live") ||
+    s.includes("ongoing") ||
+    s.includes("in progress") ||
+    s.includes("playing")
+  ) {
+    return "LIVE";
+  }
+
+  // API flags
+  if (
+    match?.matchStarted === true &&
+    match?.matchEnded !== true
+  ) {
+    return "LIVE";
+  }
+
+  // Result words
+  if (
+    s.includes("won") ||
+    s.includes("result") ||
+    s.includes("draw") ||
+    s.includes("tie") ||
+    s.includes("abandoned") ||
+    s.includes("no result") ||
+    s.includes("finished") ||
+    s.includes("complete") ||
+    s.includes("stumps")
+  ) {
+    return "RESULT";
+  }
+
+  return "UPCOMING";
+}
+
+
+// ============================================================
 // FORMAT MATCH
 // ============================================================
 
@@ -88,62 +138,77 @@ function formatMatch(match) {
     ? match.score.map(parseScore)
     : [];
 
-  let statusText = String(
+  const statusText = String(
     match?.status ||
     match?.matchStatus ||
     ""
   ).trim();
 
-  const statusLower = statusText.toLowerCase();
-
-  let status = "UPCOMING";
-
-  if (
-    statusLower.includes("live") ||
-    statusLower.includes("ongoing") ||
-    statusLower.includes("in progress") ||
-    statusLower.includes("started") ||
-    statusLower.includes("playing")
-  ) {
-    status = "LIVE";
-  }
-  else if (
-    statusLower.includes("won") ||
-    statusLower.includes("result") ||
-    statusLower.includes("draw") ||
-    statusLower.includes("tie") ||
-    statusLower.includes("abandoned") ||
-    statusLower.includes("no result") ||
-    statusLower.includes("stumps") ||
-    statusLower.includes("finished") ||
-    statusLower.includes("complete")
-  ) {
-    status = "RESULT";
-  }
-
   return {
-    id: match?.id || match?.matchId || match?.unique_id || "",
-    name: match?.name || "",
-    matchType: match?.matchType || "",
-    status: status,
-    statusText: statusText,
-    teams: teams,
-    score: scores,
-    venue: match?.venue || "",
-    date: match?.date || "",
-    dateTimeGMT: match?.dateTimeGMT || "",
-    series_id: match?.series_id || "",
-    seriesName: match?.seriesName || "",
-    toss: match?.toss || "",
-    matchStarted: Boolean(match?.matchStarted),
-    matchEnded: Boolean(match?.matchEnded),
-    rawStatus: statusText
+    id:
+      match?.id ||
+      match?.matchId ||
+      match?.unique_id ||
+      "",
+
+    name:
+      match?.name ||
+      teams.join(" vs "),
+
+    matchType:
+      match?.matchType ||
+      "",
+
+    status:
+      detectStatus(match),
+
+    statusText:
+      statusText,
+
+    teams:
+      teams,
+
+    score:
+      scores,
+
+    venue:
+      match?.venue ||
+      "",
+
+    date:
+      match?.date ||
+      "",
+
+    dateTimeGMT:
+      match?.dateTimeGMT ||
+      "",
+
+    series_id:
+      match?.series_id ||
+      "",
+
+    seriesName:
+      match?.seriesName ||
+      "",
+
+    toss:
+      match?.toss ||
+      "",
+
+    matchStarted:
+      Boolean(match?.matchStarted),
+
+    matchEnded:
+      Boolean(match?.matchEnded),
+
+    rawStatus:
+      statusText
   };
 }
 
 
 // ============================================================
-// FETCH CRICKET API
+// CRICKET API FETCH
 // ============================================================
 
 async function cricketFetch(endpoint, env, extraParams = "") {
@@ -199,55 +264,145 @@ async function cricketFetch(endpoint, env, extraParams = "") {
 
 
 // ============================================================
-// GET LIVE MATCHES
-// currentMatches API
+// GET CURRENT MATCHES
 // ============================================================
 
-async function getLiveMatches(env) {
+async function getCurrentMatches(env) {
 
-  const data = await cricketFetch(
-    "currentMatches",
-    env
-  );
+  try {
 
-  const matches = Array.isArray(data?.data)
-    ? data.data
-    : [];
+    const data = await cricketFetch(
+      "currentMatches",
+      env
+    );
 
-  return matches.map(formatMatch);
+    return Array.isArray(data?.data)
+      ? data.data
+      : [];
+
+  }
+  catch {
+    return [];
+  }
 }
 
 
 // ============================================================
-// GET ALL FIXTURES
-// matches API
+// GET MATCHES / FIXTURES
 // ============================================================
 
-async function getAllFixtures(env) {
+async function getMatches(env) {
 
   const data = await cricketFetch(
     "matches",
     env
   );
 
-  const matches = Array.isArray(data?.data)
+  return Array.isArray(data?.data)
     ? data.data
     : [];
+}
+
+
+// ============================================================
+// GET LIVE MATCHES
+//
+// Uses currentMatches first.
+// Also checks matches endpoint as fallback.
+// ============================================================
+
+async function getLiveMatches(env) {
+
+  const current = await getCurrentMatches(env);
+
+  let all = [...current];
+
+  // Also read matches endpoint.
+  // This helps when currentMatches does not return
+  // a currently-running match.
+  try {
+
+    const fixtures = await getMatches(env);
+
+    all = [
+      ...all,
+      ...fixtures
+    ];
+
+  }
+  catch {
+    // currentMatches data can still be used.
+  }
+
+
+  // Remove duplicates
+  const unique = new Map();
+
+  for (const match of all) {
+
+    const id =
+      match?.id ||
+      match?.matchId ||
+      match?.unique_id ||
+      `${match?.name}-${match?.date}`;
+
+    if (!unique.has(id)) {
+      unique.set(id, match);
+    }
+  }
+
+
+  const live = [];
+
+  for (const match of unique.values()) {
+
+    const formatted =
+      formatMatch(match);
+
+    if (formatted.status === "LIVE") {
+      live.push(formatted);
+    }
+  }
+
+
+  return live;
+}
+
+
+// ============================================================
+// GET ALL FIXTURES
+// ============================================================
+
+async function getAllFixtures(env) {
+
+  const matches =
+    await getMatches(env);
 
   return matches.map(formatMatch);
 }
 
 
 // ============================================================
-// SORT MATCHES
+// SORT
 // ============================================================
 
 function sortMatches(matches) {
 
   return [...matches].sort((a, b) => {
 
-    const aTime = Date.parse(a.dateTimeGMT || a.date || "") || 0;
-    const bTime = Date.parse(b.dateTimeGMT || b.date || "") || 0;
+    const aTime =
+      Date.parse(
+        a.dateTimeGMT ||
+        a.date ||
+        ""
+      ) || 0;
+
+    const bTime =
+      Date.parse(
+        b.dateTimeGMT ||
+        b.date ||
+        ""
+      ) || 0;
 
     return aTime - bTime;
   });
@@ -255,27 +410,7 @@ function sortMatches(matches) {
 
 
 // ============================================================
-// SCORECARD / MATCH INFO
-// ============================================================
-
-async function getMatchDetails(env, id) {
-
-  if (!id) {
-    throw new Error("MATCH_ID_REQUIRED");
-  }
-
-  const data = await cricketFetch(
-    "match_info",
-    env,
-    `&id=${encodeURIComponent(id)}`
-  );
-
-  return data;
-}
-
-
-// ============================================================
-// ALTERNATIVE DETAIL ENDPOINT
+// SCORECARD
 // ============================================================
 
 async function getScorecard(env, id) {
@@ -284,13 +419,11 @@ async function getScorecard(env, id) {
     throw new Error("MATCH_ID_REQUIRED");
   }
 
-  const data = await cricketFetch(
+  return await cricketFetch(
     "match_info",
     env,
     `&id=${encodeURIComponent(id)}`
   );
-
-  return data;
 }
 
 
@@ -301,10 +434,12 @@ async function getScorecard(env, id) {
 async function generateImage(request, env) {
 
   if (!env.AI) {
+
     return jsonResponse(
       {
         success: false,
-        error: "WORKERS_AI_BINDING_NOT_CONFIGURED"
+        error:
+          "WORKERS_AI_BINDING_NOT_CONFIGURED"
       },
       500
     );
@@ -318,6 +453,7 @@ async function generateImage(request, env) {
   catch {
     body = {};
   }
+
 
   const playerName =
     body.playerName ||
@@ -375,6 +511,7 @@ async function generateImage(request, env) {
   const customPrompt =
     body.customPrompt ||
     "";
+
 
   const prompt = `
 Photorealistic cinematic professional cricket sports photograph.
@@ -438,23 +575,30 @@ No watermark.
 No logo.
 `.trim();
 
-  const result = await env.AI.run(
-    AI_MODEL,
-    {
-      prompt: prompt
-    }
-  );
+
+  const result =
+    await env.AI.run(
+      AI_MODEL,
+      {
+        prompt: prompt
+      }
+    );
+
 
   const contentType =
     result?.headers?.get?.("content-type") ||
     "image/png";
 
-  return new Response(result.body || result, {
-    status: 200,
-    headers: corsHeaders({
-      "Content-Type": contentType
-    })
-  });
+
+  return new Response(
+    result.body || result,
+    {
+      status: 200,
+      headers: corsHeaders({
+        "Content-Type": contentType
+      })
+    }
+  );
 }
 
 
@@ -465,11 +609,21 @@ No logo.
 async function health(env) {
 
   return jsonResponse({
+
     success: true,
-    app: "Cricket Short",
-    worker: "cricket-ai-app",
-    workersAI: Boolean(env.AI),
-    cricketApiKey: Boolean(env.CRICKET_API_KEY),
+
+    app:
+      "Cricket Short",
+
+    worker:
+      "cricket-ai-app",
+
+    workersAI:
+      Boolean(env.AI),
+
+    cricketApiKey:
+      Boolean(env.CRICKET_API_KEY),
+
     endpoints: [
       "/api/health",
       "/api/live-score",
@@ -481,6 +635,7 @@ async function health(env) {
       "/api/generate",
       "/api/score"
     ]
+
   });
 }
 
@@ -493,18 +648,26 @@ export default {
 
   async fetch(request, env) {
 
-    const url = new URL(request.url);
-    const pathname = url.pathname;
+    const url =
+      new URL(request.url);
 
-    // --------------------------------------------------------
+    const pathname =
+      url.pathname;
+
+
+    // ========================================================
     // OPTIONS
-    // --------------------------------------------------------
+    // ========================================================
 
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders()
-      });
+
+      return new Response(
+        null,
+        {
+          status: 204,
+          headers: corsHeaders()
+        }
+      );
     }
 
 
@@ -513,6 +676,7 @@ export default {
     // ========================================================
 
     if (pathname === "/api/health") {
+
       return health(env);
     }
 
@@ -532,9 +696,15 @@ export default {
           await getLiveMatches(env);
 
         return jsonResponse({
+
           success: true,
-          count: liveMatches.length,
-          matches: liveMatches
+
+          count:
+            liveMatches.length,
+
+          matches:
+            liveMatches
+
         });
 
       }
@@ -565,9 +735,15 @@ export default {
           await getAllFixtures(env);
 
         return jsonResponse({
+
           success: true,
-          count: matches.length,
-          matches: sortMatches(matches)
+
+          count:
+            matches.length,
+
+          matches:
+            sortMatches(matches)
+
         });
 
       }
@@ -592,16 +768,24 @@ export default {
 
     if (pathname === "/api/scorecard") {
 
-      const id = url.searchParams.get("id");
+      const id =
+        url.searchParams.get("id");
 
       try {
 
         const data =
-          await getScorecard(env, id);
+          await getScorecard(
+            env,
+            id
+          );
 
         return jsonResponse({
+
           success: true,
-          data: data
+
+          data:
+            data
+
         });
 
       }
@@ -622,11 +806,15 @@ export default {
     // POINTS
     // ========================================================
 
-    if (pathname === "/api/match-points") {
+    if (
+      pathname === "/api/match-points"
+    ) {
 
-      const id = url.searchParams.get("id");
+      const id =
+        url.searchParams.get("id");
 
       if (!id) {
+
         return jsonResponse(
           {
             success: false,
@@ -646,8 +834,12 @@ export default {
           );
 
         return jsonResponse({
+
           success: true,
-          data: data
+
+          data:
+            data
+
         });
 
       }
@@ -668,12 +860,16 @@ export default {
     // BALL BY BALL
     // ========================================================
 
-    if (pathname === "/api/ball-by-ball") {
+    if (
+      pathname === "/api/ball-by-ball"
+    ) {
 
       return jsonResponse(
         {
           success: false,
-          error: "BALL_BY_BALL_ENDPOINT_NOT_CONFIGURED",
+          error:
+            "BALL_BY_BALL_ENDPOINT_NOT_CONFIGURED",
+
           message:
             "Ball-by-ball endpoint will be connected after confirming the API plan."
         },
@@ -713,7 +909,7 @@ export default {
 
 
     // ========================================================
-    // OLD AI COMPATIBILITY ROUTE
+    // OLD AI COMPATIBILITY
     // ========================================================
 
     if (
@@ -753,19 +949,22 @@ export default {
         const assetResponse =
           await env.ASSETS.fetch(request);
 
-        if (assetResponse.status !== 404) {
+        if (
+          assetResponse.status !== 404
+        ) {
+
           return assetResponse;
         }
 
       }
-      catch (error) {
-        // Continue to fallback response.
+      catch {
+        // Continue.
       }
     }
 
 
     // ========================================================
-    // ROOT FALLBACK
+    // ROOT
     // ========================================================
 
     if (pathname === "/") {
@@ -794,9 +993,17 @@ text-align:center;
 ">
 
 <div>
+
 <h1>🏏 Cricket Short</h1>
-<p>AI Cricket Player • Live Score • Fixtures</p>
-<p>Open the application from the deployed site.</p>
+
+<p>
+AI Cricket Player • Live Score • Fixtures
+</p>
+
+<p>
+Open the application from the deployed site.
+</p>
+
 </div>
 
 </body>
@@ -805,7 +1012,8 @@ text-align:center;
         {
           status: 200,
           headers: corsHeaders({
-            "Content-Type": "text/html; charset=utf-8"
+            "Content-Type":
+              "text/html; charset=utf-8"
           })
         }
       );
