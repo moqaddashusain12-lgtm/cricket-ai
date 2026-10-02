@@ -208,12 +208,18 @@ function formatMatch(match) {
 // CRICKET API FETCH
 // ============================================================
 
-async function cricketFetch(endpoint, env, extraParams = "") {
+async function cricketFetch(
+  endpoint,
+  env,
+  extraParams = ""
+) {
 
   const apiKey = env.CRICKET_API_KEY;
 
   if (!apiKey) {
-    throw new Error("CRICKET_API_KEY_NOT_CONFIGURED");
+    throw new Error(
+      "CRICKET_API_KEY_NOT_CONFIGURED"
+    );
   }
 
   const url =
@@ -222,21 +228,29 @@ async function cricketFetch(endpoint, env, extraParams = "") {
     `&offset=0` +
     extraParams;
 
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Accept": "application/json"
+  const response = await fetch(
+    url,
+    {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+      }
     }
-  });
+  );
 
-  const text = await response.text();
+  const text =
+    await response.text();
 
   let data;
 
   try {
-    data = JSON.parse(text);
+
+    data =
+      JSON.parse(text);
+
   }
   catch {
+
     throw new Error(
       `CRICKET_API_INVALID_JSON_${response.status}`
     );
@@ -255,7 +269,9 @@ async function cricketFetch(endpoint, env, extraParams = "") {
     );
   }
 
-  if (data?.status === "failure") {
+  if (
+    data?.status === "failure"
+  ) {
 
     const reason =
       data?.reason ||
@@ -366,7 +382,10 @@ async function getLiveMatches(env) {
 
   const live = [];
 
-  for (const match of unique.values()) {
+  for (
+    const match
+    of unique.values()
+  ) {
 
     const formatted =
       formatMatch(match);
@@ -406,24 +425,26 @@ function sortMatches(matches) {
 
   return [
     ...matches
-  ].sort((a, b) => {
+  ].sort(
+    (a, b) => {
 
-    const aTime =
-      Date.parse(
-        a.dateTimeGMT ||
-        a.date ||
-        ""
-      ) || 0;
+      const aTime =
+        Date.parse(
+          a.dateTimeGMT ||
+          a.date ||
+          ""
+        ) || 0;
 
-    const bTime =
-      Date.parse(
-        b.dateTimeGMT ||
-        b.date ||
-        ""
-      ) || 0;
+      const bTime =
+        Date.parse(
+          b.dateTimeGMT ||
+          b.date ||
+          ""
+        ) || 0;
 
-    return aTime - bTime;
-  });
+      return aTime - bTime;
+    }
+  );
 }
 
 
@@ -431,7 +452,10 @@ function sortMatches(matches) {
 // SCORECARD
 // ============================================================
 
-async function getScorecard(env, id) {
+async function getScorecard(
+  env,
+  id
+) {
 
   if (!id) {
 
@@ -661,6 +685,7 @@ async function health(env) {
       "/api/live-score",
       "/api/fixtures",
       "/api/scorecard?id=...",
+      "/api/scorecard-test?id=...",
       "/api/match-points?id=...",
       "/api/ball-by-ball?id=...",
       "/api/generate-image",
@@ -876,6 +901,78 @@ export default {
 
 
     // ========================================================
+    // SCORECARD TEST
+    // ========================================================
+
+    if (
+      pathname === "/api/scorecard-test"
+    ) {
+
+      const id =
+        url.searchParams.get(
+          "id"
+        );
+
+      if (!id) {
+
+        return jsonResponse(
+          {
+            success: false,
+            error:
+              "MATCH_ID_REQUIRED"
+          },
+          400
+        );
+      }
+
+
+      try {
+
+        const data =
+          await cricketFetch(
+            "match_scorecard",
+            env,
+            `&id=${encodeURIComponent(id)}`
+          );
+
+        return jsonResponse({
+
+          success: true,
+
+          endpoint:
+            "match_scorecard",
+
+          matchId:
+            id,
+
+          apiResponse:
+            data
+
+        });
+
+      }
+      catch (error) {
+
+        return jsonResponse(
+          {
+            success: false,
+
+            endpoint:
+              "match_scorecard",
+
+            matchId:
+              id,
+
+            error:
+              error.message
+          },
+          502
+        );
+      }
+    }
+
+
+    // ========================================================
     // MATCH POINTS
     // ========================================================
 
@@ -928,8 +1025,10 @@ export default {
         return jsonResponse(
           {
             success: false,
+
             matchId:
               id,
+
             error:
               error.message
           },
@@ -1065,8 +1164,7 @@ export default {
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Cricket Short</title>
 </head>
 
