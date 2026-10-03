@@ -1,8 +1,7 @@
 // ============================================================
-// 🏏 CRICKET SHORT - FINAL WORKER.JS
-// Live Score + CricketLiveApi Backup
-// Fixtures + Scorecard + Ball-by-Ball + Points
-// AI Cricket Image Generator
+// CRICKET SHORT - FINAL WORKER.JS
+// Live Score + Automatic Backup API + Debug + AI Image
+// Fixtures + Scorecard + Ball-by-Ball + Match Points
 // ============================================================
 
 const AI_MODEL = "@cf/black-forest-labs/flux-1-schnell";
@@ -21,8 +20,10 @@ const CRICKET_LIVE_API_URL =
 function corsHeaders(extra = {}) {
   return {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods":
+      "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers":
+      "Content-Type, Authorization",
     ...extra
   };
 }
@@ -32,33 +33,36 @@ function corsHeaders(extra = {}) {
 // JSON RESPONSE
 // ============================================================
 
-function jsonResponse(data, status = 200) {
+function json(data, status = 200, extra = {}) {
   return new Response(
-    JSON.stringify(data),
+    JSON.stringify(data, null, 2),
     {
       status,
-      headers: {
-        ...corsHeaders(),
-        "Content-Type": "application/json; charset=utf-8"
-      }
+      headers: corsHeaders({
+        "Content-Type": "application/json; charset=UTF-8",
+        "Cache-Control": "no-store",
+        ...extra
+      })
     }
   );
 }
 
 
 // ============================================================
-// SAFE TEXT
+// TEXT HELPERS
 // ============================================================
 
 function cleanText(value) {
-  if (value === null || value === undefined) {
+  if (
+    value === null ||
+    value === undefined
+  ) {
     return "";
   }
 
   if (
     typeof value === "string" ||
-    typeof value === "number" ||
-    typeof value === "boolean"
+    typeof value === "number"
   ) {
     return String(value).trim();
   }
@@ -67,52 +71,234 @@ function cleanText(value) {
 }
 
 
+function firstText(...values) {
+  for (const value of values) {
+    const text = cleanText(value);
+
+    if (text) {
+      return text;
+    }
+  }
+
+  return "";
+}
+
+
 // ============================================================
-// TEAM NAME
-// Supports CricketLiveApi first_team / second_team
+// OBJECT HELPERS
 // ============================================================
 
-function getTeamName(team) {
+function asObject(value) {
+  if (
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+  ) {
+    return value;
+  }
 
-  if (!team) {
+  return null;
+}
+
+
+function getNestedObject(object, keys = []) {
+  const obj = asObject(object);
+
+  if (!obj) {
+    return null;
+  }
+
+  for (const key of keys) {
+    if (obj[key] !== undefined) {
+      const candidate = asObject(obj[key]);
+
+      if (candidate) {
+        return candidate;
+      }
+    }
+  }
+
+  return null;
+}
+
+
+// ============================================================
+// TEAM OBJECT
+// ============================================================
+
+function getTeamObject(match, first = true) {
+  const m = asObject(match);
+
+  if (!m) {
+    return null;
+  }
+
+  const directKeys = first
+    ? [
+        "first_team",
+        "team1",
+        "team_1",
+        "teamOne",
+        "team_one",
+        "home_team",
+        "homeTeam"
+      ]
+    : [
+        "second_team",
+        "team2",
+        "team_2",
+        "teamTwo",
+        "team_two",
+        "away_team",
+        "awayTeam"
+      ];
+
+  for (const key of directKeys) {
+    if (m[key] !== undefined) {
+
+      const obj = asObject(m[key]);
+
+      if (obj) {
+        return obj;
+      }
+
+      if (
+        typeof m[key] === "string" ||
+        typeof m[key] === "number"
+      ) {
+        return {
+          name: String(m[key])
+        };
+      }
+    }
+  }
+
+  const arrayCandidates = [
+    m.teams,
+    m.team,
+    m.sides,
+    m.competitors
+  ];
+
+  for (const candidate of arrayCandidates) {
+    if (Array.isArray(candidate)) {
+      const item = candidate[first ? 0 : 1];
+
+      if (item) {
+        const obj = asObject(item);
+
+        if (obj) {
+          return obj;
+        }
+
+        return {
+          name: cleanText(item)
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+
+// ============================================================
+// RECURSIVE TEAM NAME FINDER
+// ============================================================
+
+function findTeamName(value, depth = 0) {
+  if (depth > 5 || value === null || value === undefined) {
     return "";
   }
 
-  // --------------------------------------------
-  // String
-  // --------------------------------------------
+  if (
+    typeof value === "string" ||
+    typeof value === "number"
+  ) {
+    const text = String(value).trim();
 
-  if (typeof team === "string") {
-    return team.trim();
+    if (
+      text &&
+      text.length < 100 &&
+      !/^\d+([./]\d+)?$/.test(text)
+    ) {
+      return text;
+    }
+
+    return "";
   }
 
-  // --------------------------------------------
-  // Object
-  // --------------------------------------------
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findTeamName(item, depth + 1);
 
-  if (typeof team === "object") {
+      if (found) {
+        return found;
+      }
+    }
 
-    const possibleNames = [
-      team.name,
-      team.team_name,
-      team.teamName,
-      team.title,
-      team.short_name,
-      team.shortName,
-      team.display_name,
-      team.displayName,
-      team.country,
-      team.code,
-      team.abbreviation,
-      team.abbr
+    return "";
+  }
+
+  if (typeof value === "object") {
+
+    const preferredKeys = [
+      "name",
+      "team_name",
+      "teamName",
+      "display_name",
+      "displayName",
+      "full_name",
+      "fullName",
+      "short_name",
+      "shortName",
+      "title",
+      "country",
+      "code",
+      "abbreviation",
+      "abbr"
     ];
 
-    for (const item of possibleNames) {
+    for (const key of preferredKeys) {
+      if (value[key] !== undefined) {
 
-      const value = cleanText(item);
+        const text = cleanText(value[key]);
 
-      if (value) {
-        return value;
+        if (
+          text &&
+          text.length < 100
+        ) {
+          return text;
+        }
+      }
+    }
+
+    for (const [key, child] of Object.entries(value)) {
+
+      if (
+        [
+          "score",
+          "scores",
+          "runs",
+          "wickets",
+          "overs",
+          "over",
+          "inning",
+          "innings",
+          "batting",
+          "bowling"
+        ].includes(key)
+      ) {
+        continue;
+      }
+
+      const found = findTeamName(
+        child,
+        depth + 1
+      );
+
+      if (found) {
+        return found;
       }
     }
   }
@@ -122,585 +308,310 @@ function getTeamName(team) {
 
 
 // ============================================================
-// TEAM OBJECT
+// TEAM NAME
 // ============================================================
 
-function getTeamObject(match, first = true) {
+function extractTeamName(match, first = true) {
 
-  if (first) {
+  const team = getTeamObject(
+    match,
+    first
+  );
 
-    return (
-      match?.first_team ??
-      match?.team1 ??
-      match?.team_1 ??
-      match?.home_team ??
-      match?.homeTeam ??
-      match?.teamA ??
-      match?.team_a ??
-      null
-    );
+  const teamName = findTeamName(team);
 
-  } else {
-
-    return (
-      match?.second_team ??
-      match?.team2 ??
-      match?.team_2 ??
-      match?.away_team ??
-      match?.awayTeam ??
-      match?.teamB ??
-      match?.team_b ??
-      null
-    );
+  if (teamName) {
+    return teamName;
   }
+
+  const m = asObject(match);
+
+  if (!m) {
+    return first
+      ? "Team 1"
+      : "Team 2";
+  }
+
+  const keys = first
+    ? [
+        "first_team_name",
+        "firstTeamName",
+        "team1_name",
+        "team1Name",
+        "home_team_name",
+        "homeTeamName"
+      ]
+    : [
+        "second_team_name",
+        "secondTeamName",
+        "team2_name",
+        "team2Name",
+        "away_team_name",
+        "awayTeamName"
+      ];
+
+  for (const key of keys) {
+    const text = cleanText(m[key]);
+
+    if (text) {
+      return text;
+    }
+  }
+
+  return first
+    ? "Team 1"
+    : "Team 2";
 }
 
 
 // ============================================================
-// TEAM EXTRACTION
+// SCORE HELPERS
 // ============================================================
 
-function extractTeams(match) {
-
-  let team1Object = getTeamObject(match, true);
-  let team2Object = getTeamObject(match, false);
-
-  let team1 = getTeamName(team1Object);
-  let team2 = getTeamName(team2Object);
-
-  // --------------------------------------------
-  // teams array fallback
-  // --------------------------------------------
+function scoreObjectToString(score) {
 
   if (
-    (!team1 || !team2) &&
-    Array.isArray(match?.teams)
+    score === null ||
+    score === undefined
   ) {
-
-    if (!team1) {
-      team1 = getTeamName(match.teams[0]);
-    }
-
-    if (!team2) {
-      team2 = getTeamName(match.teams[1]);
-    }
+    return "";
   }
-
-  // --------------------------------------------
-  // Match title/name fallback
-  // --------------------------------------------
-
-  const title =
-    cleanText(match?.title) ||
-    cleanText(match?.name) ||
-    cleanText(match?.match);
-
-  if ((!team1 || !team2) && title) {
-
-    const parts = title
-      .split(/\s+vs\.?\s+|\s+v\s+/i)
-      .map(x => x.trim())
-      .filter(Boolean);
-
-    if (parts.length >= 2) {
-
-      if (!team1) {
-        team1 = parts[0];
-      }
-
-      if (!team2) {
-        team2 = parts[1];
-      }
-    }
-  }
-
-  return {
-    team1Object,
-    team2Object,
-    team1: team1 || "Team 1",
-    team2: team2 || "Team 2"
-  };
-}
-
-
-// ============================================================
-// SCORE PARSER
-// ============================================================
-
-function parseScore(value) {
 
   if (
-    value === null ||
-    value === undefined
+    typeof score === "string" ||
+    typeof score === "number"
   ) {
-    return null;
+    return String(score);
   }
 
-  // --------------------------------------------
-  // String
-  // Examples:
-  // 141/2
-  // 141/2 (23.6)
-  // 141/2 (23.6 ov)
-  // --------------------------------------------
+  if (Array.isArray(score)) {
 
-  if (typeof value === "string") {
+    for (const item of score) {
+      const result =
+        scoreObjectToString(item);
 
-    const text = value.trim();
-
-    if (!text) {
-      return null;
+      if (result) {
+        return result;
+      }
     }
 
-    const match = text.match(
-      /(\d+)\s*\/\s*(\d+)(?:\s*\(([^)]*)\))?/i
+    return "";
+  }
+
+  if (typeof score === "object") {
+
+    const runs = firstText(
+      score.r,
+      score.runs,
+      score.run,
+      score.score,
+      score.total
     );
 
-    if (match) {
+    const wickets = firstText(
+      score.w,
+      score.wickets,
+      score.wicket,
+      score.out
+    );
 
-      return {
-        runs: Number(match[1]),
-        wickets: Number(match[2]),
-        overs: match[3]
-          ? match[3].trim()
-          : ""
-      };
-    }
+    const overs = firstText(
+      score.o,
+      score.overs,
+      score.over
+    );
 
-    const runsOnly =
-      text.match(/(\d+)/);
+    if (runs) {
 
-    if (runsOnly) {
-
-      return {
-        runs: Number(runsOnly[1]),
-        wickets: null,
-        overs: ""
-      };
-    }
-
-    return null;
-  }
-
-  // --------------------------------------------
-  // Number
-  // --------------------------------------------
-
-  if (typeof value === "number") {
-
-    return {
-      runs: value,
-      wickets: null,
-      overs: ""
-    };
-  }
-
-  // --------------------------------------------
-  // Object
-  // --------------------------------------------
-
-  if (typeof value === "object") {
-
-    // Direct values
-    const runs =
-      value.runs ??
-      value.run ??
-      value.total_runs ??
-      value.totalRuns ??
-      value.score ??
-      value.total ??
-      value.r;
-
-    const wickets =
-      value.wickets ??
-      value.wicket ??
-      value.wkts ??
-      value.w;
-
-    const overs =
-      value.overs ??
-      value.over ??
-      value.ov;
-
-    if (
-      runs !== undefined ||
-      wickets !== undefined ||
-      overs !== undefined
-    ) {
-
-      let numericRuns = null;
-
-      if (
-        runs !== undefined &&
-        runs !== null &&
-        runs !== ""
-      ) {
-
-        // If score itself is "141/2"
-        if (typeof runs === "string") {
-
-          const parsed =
-            parseScore(runs);
-
-          if (parsed) {
-            return parsed;
-          }
-        }
-
-        const n = Number(runs);
-
-        if (!Number.isNaN(n)) {
-          numericRuns = n;
-        }
+      if (wickets) {
+        return `${runs}/${wickets}`;
       }
 
-      let numericWickets = null;
-
-      if (
-        wickets !== undefined &&
-        wickets !== null &&
-        wickets !== ""
-      ) {
-
-        const n =
-          Number(wickets);
-
-        if (!Number.isNaN(n)) {
-          numericWickets = n;
-        }
-      }
-
-      return {
-        runs: numericRuns,
-        wickets: numericWickets,
-        overs:
-          overs !== undefined &&
-          overs !== null
-            ? String(overs)
-            : ""
-      };
+      return runs;
     }
 
-    // Nested score fields
-    const nestedFields = [
-      value.score,
-      value.scorecard,
-      value.current_score,
-      value.currentScore,
-      value.live_score,
-      value.liveScore,
-      value.batting
+    const nestedKeys = [
+      "score",
+      "scores",
+      "inning",
+      "innings",
+      "batting"
     ];
 
-    for (const nested of nestedFields) {
+    for (const key of nestedKeys) {
 
-      if (
-        nested !== undefined &&
-        nested !== null &&
-        nested !== value
-      ) {
+      if (score[key] !== undefined) {
 
-        const parsed =
-          parseScore(nested);
+        const result =
+          scoreObjectToString(
+            score[key]
+          );
 
-        if (parsed) {
-          return parsed;
+        if (result) {
+          return result;
         }
       }
     }
+
+    if (overs) {
+      return "";
+    }
   }
 
-  return null;
+  return "";
 }
 
 
 // ============================================================
-// EXTRACT SCORE FROM TEAM OBJECT
+// TEAM SCORE
 // ============================================================
 
-function extractTeamScore(team) {
+function extractTeamScore(match, first = true) {
 
-  if (!team) {
-    return null;
-  }
+  const team =
+    getTeamObject(match, first);
 
-  // --------------------------------------------
-  // Team itself may be a score string
-  // --------------------------------------------
+  if (team) {
 
-  if (typeof team === "string") {
-    return parseScore(team);
-  }
+    const result =
+      scoreObjectToString(
+        team.score ??
+        team.scores ??
+        team.current_score ??
+        team.currentScore ??
+        team.innings ??
+        team.batting
+      );
 
-  if (typeof team !== "object") {
-    return null;
-  }
-
-  // --------------------------------------------
-  // Direct score fields
-  // --------------------------------------------
-
-  const possibleScores = [
-    team.score,
-    team.scores,
-    team.current_score,
-    team.currentScore,
-    team.live_score,
-    team.liveScore,
-    team.scorecard,
-    team.innings,
-    team.total,
-    team.runs
-  ];
-
-  for (const value of possibleScores) {
-
-    const parsed =
-      parseScore(value);
-
-    if (parsed) {
-      return parsed;
+    if (result) {
+      return result;
     }
   }
 
-  // --------------------------------------------
-  // Nested score object
-  // --------------------------------------------
+  const m = asObject(match);
 
-  if (team.stats) {
+  if (!m) {
+    return "";
+  }
 
-    const parsed =
-      parseScore(team.stats);
+  const candidates = first
+    ? [
+        m.team1_score,
+        m.team1Score,
+        m.first_team_score,
+        m.firstTeamScore,
+        m.home_score,
+        m.homeScore
+      ]
+    : [
+        m.team2_score,
+        m.team2Score,
+        m.second_team_score,
+        m.secondTeamScore,
+        m.away_score,
+        m.awayScore
+      ];
 
-    if (parsed) {
-      return parsed;
+  for (const candidate of candidates) {
+
+    const result =
+      scoreObjectToString(candidate);
+
+    if (result) {
+      return result;
     }
   }
 
-  return null;
+  return "";
 }
 
 
 // ============================================================
-// EXTRACT MATCH SCORES
+// OVERS
 // ============================================================
 
-function extractScores(match, team1Object, team2Object) {
+function extractTeamOvers(match, first = true) {
 
-  const scores = [];
+  const team =
+    getTeamObject(match, first);
 
-  // --------------------------------------------
-  // FIRST TEAM
-  // --------------------------------------------
+  if (team) {
 
-  const firstScore =
-    extractTeamScore(team1Object);
+    const value = firstText(
+      team.overs,
+      team.over,
+      team.o,
+      team.current_overs,
+      team.currentOvers
+    );
 
-  if (firstScore) {
-    scores.push(firstScore);
-  }
-
-  // --------------------------------------------
-  // SECOND TEAM
-  // --------------------------------------------
-
-  const secondScore =
-    extractTeamScore(team2Object);
-
-  if (secondScore) {
-    scores.push(secondScore);
-  }
-
-  // --------------------------------------------
-  // Match-level score
-  // --------------------------------------------
-
-  const matchScoreFields = [
-    match?.score,
-    match?.scores,
-    match?.scorecard,
-    match?.current_score,
-    match?.currentScore,
-    match?.live_score,
-    match?.liveScore,
-    match?.innings
-  ];
-
-  for (const field of matchScoreFields) {
-
-    if (!field) {
-      continue;
+    if (value) {
+      return value;
     }
 
-    // Array
-    if (Array.isArray(field)) {
-
-      for (const item of field) {
-
-        const parsed =
-          parseScore(item);
-
-        if (parsed) {
-          scores.push(parsed);
-        }
-      }
-
-      continue;
-    }
-
-    // Object
-    if (
-      typeof field === "object" &&
-      !Array.isArray(field)
-    ) {
-
-      // If object contains team scores
-      const objectValues =
-        Object.values(field);
-
-      for (const item of objectValues) {
-
-        const parsed =
-          parseScore(item);
-
-        if (parsed) {
-          scores.push(parsed);
-        }
-      }
-
-      const direct =
-        parseScore(field);
-
-      if (direct) {
-        scores.push(direct);
-      }
-
-      continue;
-    }
-
-    // String
-    const parsed =
-      parseScore(field);
-
-    if (parsed) {
-      scores.push(parsed);
-    }
-  }
-
-  // --------------------------------------------
-  // Direct match runs/wickets/overs
-  // --------------------------------------------
-
-  if (
-    match?.runs !== undefined ||
-    match?.wickets !== undefined ||
-    match?.overs !== undefined
-  ) {
-
-    const parsed =
-      parseScore({
-        runs: match.runs,
-        wickets: match.wickets,
-        overs: match.overs
-      });
-
-    if (parsed) {
-      scores.push(parsed);
-    }
-  }
-
-  // --------------------------------------------
-  // Remove duplicate scores
-  // --------------------------------------------
-
-  const unique = [];
-
-  for (const score of scores) {
-
-    const key =
-      `${score.runs}|${score.wickets}|${score.overs}`;
+    const nestedScore =
+      team.score ??
+      team.scores;
 
     if (
-      !unique.some(
-        item =>
-          `${item.runs}|${item.wickets}|${item.overs}` === key
-      )
+      nestedScore &&
+      typeof nestedScore === "object"
     ) {
+      const value2 = firstText(
+        nestedScore.overs,
+        nestedScore.over,
+        nestedScore.o
+      );
 
-      unique.push(score);
+      if (value2) {
+        return value2;
+      }
     }
   }
 
-  return unique.slice(0, 2);
+  const m = asObject(match);
+
+  if (!m) {
+    return "";
+  }
+
+  const candidates = first
+    ? [
+        m.team1_overs,
+        m.team1Overs,
+        m.first_team_overs,
+        m.firstTeamOvers
+      ]
+    : [
+        m.team2_overs,
+        m.team2Overs,
+        m.second_team_overs,
+        m.secondTeamOvers
+      ];
+
+  return firstText(...candidates);
 }
 
 
 // ============================================================
-// SCORE TEXT
+// SERIES
 // ============================================================
 
-function formatScoreText(score) {
+function extractSeries(match) {
 
-  if (!score) {
-    return "-";
+  const m = asObject(match);
+
+  if (!m) {
+    return "";
   }
 
-  let text = "";
-
-  if (
-    score.runs !== null &&
-    score.runs !== undefined &&
-    !Number.isNaN(Number(score.runs))
-  ) {
-
-    text += String(score.runs);
-  }
-
-  if (
-    score.wickets !== null &&
-    score.wickets !== undefined &&
-    !Number.isNaN(Number(score.wickets))
-  ) {
-
-    text += `/${score.wickets}`;
-  }
-
-  if (score.overs) {
-
-    text += ` (${score.overs})`;
-  }
-
-  return text || "-";
-}
-
-
-// ============================================================
-// STATUS
-// ============================================================
-
-function getStatus(match) {
-
-  const value =
-    cleanText(match?.status) ||
-    cleanText(match?.status_detail) ||
-    cleanText(match?.short_status) ||
-    cleanText(match?.state) ||
-    "LIVE";
-
-  const lower =
-    value.toLowerCase();
-
-  if (
-    lower.includes("live") ||
-    lower.includes("progress") ||
-    lower.includes("playing") ||
-    lower.includes("ongoing")
-  ) {
-
-    return "LIVE";
-  }
-
-  return value;
+  return firstText(
+    m.series_name,
+    m.seriesName,
+    m.series,
+    m.series_title,
+    m.seriesTitle
+  );
 }
 
 
@@ -708,14 +619,19 @@ function getStatus(match) {
 // FORMAT
 // ============================================================
 
-function getFormat(match) {
+function extractFormat(match) {
 
-  return (
-    cleanText(match?.format) ||
-    cleanText(match?.match_type) ||
-    cleanText(match?.matchType) ||
-    cleanText(match?.type) ||
-    "CRICKET"
+  const m = asObject(match);
+
+  if (!m) {
+    return "";
+  }
+
+  return firstText(
+    m.format,
+    m.match_type,
+    m.matchType,
+    m.type
   );
 }
 
@@ -726,128 +642,120 @@ function getFormat(match) {
 
 function extractVenue(match) {
 
-  if (
-    typeof match?.venue === "string"
-  ) {
+  const m = asObject(match);
 
-    return match.venue;
+  if (!m) {
+    return "";
   }
 
   if (
-    match?.venue &&
-    typeof match.venue === "object"
+    typeof m.venue === "string"
+  ) {
+    return m.venue;
+  }
+
+  if (
+    m.venue &&
+    typeof m.venue === "object"
   ) {
 
-    return (
-      cleanText(match.venue.name) ||
-      cleanText(match.venue.venueName) ||
-      cleanText(match.venue.title) ||
-      ""
+    return firstText(
+      m.venue.name,
+      m.venue.venue_name,
+      m.venue.title
     );
   }
 
-  return (
-    cleanText(match?.ground) ||
-    cleanText(match?.stadium) ||
-    cleanText(match?.location) ||
-    ""
+  return firstText(
+    m.ground,
+    m.location
   );
 }
 
 
 // ============================================================
-// SERIES
+// STATUS
 // ============================================================
 
-function extractSeries(match) {
+function extractStatus(match) {
 
-  return (
-    cleanText(match?.series_name) ||
-    cleanText(match?.seriesName) ||
-    cleanText(match?.series) ||
-    cleanText(match?.tournament) ||
-    cleanText(match?.competition) ||
-    ""
+  const m = asObject(match);
+
+  if (!m) {
+    return "LIVE";
+  }
+
+  return firstText(
+    m.status,
+    m.short_status,
+    m.status_detail,
+    m.state
+  ) || "LIVE";
+}
+
+
+// ============================================================
+// MATCH ID
+// ============================================================
+
+function extractMatchId(match) {
+
+  const m = asObject(match);
+
+  if (!m) {
+    return "";
+  }
+
+  return firstText(
+    m.match_id,
+    m.matchId,
+    m.id
   );
 }
 
 
 // ============================================================
-// LAST BALL
+// NORMALIZE MATCH
 // ============================================================
 
-function extractLastBall(match) {
+function normalizeMatch(match, source = "unknown") {
 
-  return (
-    cleanText(match?.last_ball) ||
-    cleanText(match?.lastBall) ||
-    cleanText(match?.commentary) ||
-    cleanText(match?.latest_ball) ||
-    ""
-  );
-}
+  const team1 =
+    extractTeamName(match, true);
 
-
-// ============================================================
-// CRICKETLIVEAPI MATCH FORMAT
-// ============================================================
-
-function formatCricketLiveApiMatch(
-  match,
-  index = 0
-) {
-
-  const teams =
-    extractTeams(match);
-
-  const scores =
-    extractScores(
-      match,
-      teams.team1Object,
-      teams.team2Object
-    );
+  const team2 =
+    extractTeamName(match, false);
 
   const score1 =
-    scores[0] || null;
+    extractTeamScore(match, true);
 
   const score2 =
-    scores[1] || null;
+    extractTeamScore(match, false);
 
-  const matchId =
-    cleanText(match?.match_id) ||
-    cleanText(match?.matchId) ||
-    cleanText(match?.id) ||
-    `live-${index + 1}`;
+  const overs1 =
+    extractTeamOvers(match, true);
+
+  const overs2 =
+    extractTeamOvers(match, false);
 
   return {
+    match_id:
+      extractMatchId(match),
 
-    id: matchId,
+    team1,
+    team2,
 
-    name:
-      cleanText(match?.title) ||
-      cleanText(match?.name) ||
-      `${teams.team1} vs ${teams.team2}`,
+    score1,
+    score2,
 
-    team1:
-      teams.team1,
-
-    team2:
-      teams.team2,
-
-    team1Score:
-      formatScoreText(score1),
-
-    team2Score:
-      formatScoreText(score2),
-
-    score:
-      scores,
-
-    status:
-      getStatus(match),
+    overs1,
+    overs2,
 
     format:
-      getFormat(match),
+      extractFormat(match),
+
+    status:
+      extractStatus(match),
 
     venue:
       extractVenue(match),
@@ -855,214 +763,37 @@ function formatCricketLiveApiMatch(
     series:
       extractSeries(match),
 
-    last_ball:
-      extractLastBall(match),
+    source,
 
-    date:
-      cleanText(match?.date),
-
-    source:
-      "CricketLiveApi"
+    raw: match
   };
 }
 
 
 // ============================================================
-// CRICKETLIVEAPI
+// PRIMARY API
 // ============================================================
 
-async function getCricketLiveApiMatches(env) {
+async function fetchPrimaryLive(env) {
 
-  const token =
-    env.CRICKET_LIVE_API_TOKEN;
-
-  if (!token) {
-
+  if (!env.CRICKET_API_KEY) {
     throw new Error(
-      "CRICKET_LIVE_API_TOKEN secret is missing"
-    );
-  }
-
-  const response =
-    await fetch(
-      CRICKET_LIVE_API_URL,
-      {
-        method: "GET",
-        headers: {
-          "Authorization":
-            `Bearer ${token}`,
-          "Accept":
-            "application/json"
-        }
-      }
-    );
-
-  const text =
-    await response.text();
-
-  let data;
-
-  try {
-
-    data =
-      JSON.parse(text);
-
-  } catch {
-
-    throw new Error(
-      `CricketLiveApi invalid JSON: ${text.slice(0, 300)}`
-    );
-  }
-
-  if (!response.ok) {
-
-    throw new Error(
-      `CricketLiveApi HTTP ${response.status}: ${
-        data?.message ||
-        data?.error ||
-        text.slice(0, 300)
-      }`
-    );
-  }
-
-  let matches = [];
-
-  if (Array.isArray(data)) {
-
-    matches = data;
-
-  } else if (Array.isArray(data?.data)) {
-
-    matches = data.data;
-
-  } else if (Array.isArray(data?.matches)) {
-
-    matches = data.matches;
-
-  } else if (Array.isArray(data?.results)) {
-
-    matches = data.results;
-
-  } else if (
-    data?.data &&
-    typeof data.data === "object"
-  ) {
-
-    matches = [data.data];
-  }
-
-  return matches
-    .filter(Boolean)
-    .map(
-      (match, index) =>
-        formatCricketLiveApiMatch(
-          match,
-          index
-        )
-    );
-}
-
-
-// ============================================================
-// PRIMARY CRICAPI MATCH FORMAT
-// ============================================================
-
-function formatCricScoreMatch(
-  match,
-  index = 0
-) {
-
-  const teams =
-    extractTeams(match);
-
-  const scores =
-    extractScores(
-      match,
-      teams.team1Object,
-      teams.team2Object
-    );
-
-  return {
-
-    id:
-      cleanText(match?.id) ||
-      cleanText(match?.matchId) ||
-      `cric-${index + 1}`,
-
-    name:
-      cleanText(match?.name) ||
-      `${teams.team1} vs ${teams.team2}`,
-
-    team1:
-      teams.team1,
-
-    team2:
-      teams.team2,
-
-    team1Score:
-      formatScoreText(
-        scores[0]
-      ),
-
-    team2Score:
-      formatScoreText(
-        scores[1]
-      ),
-
-    score:
-      scores,
-
-    status:
-      getStatus(match),
-
-    format:
-      getFormat(match),
-
-    venue:
-      extractVenue(match),
-
-    series:
-      extractSeries(match),
-
-    last_ball:
-      extractLastBall(match),
-
-    source:
-      "CricAPI"
-  };
-}
-
-
-// ============================================================
-// PRIMARY CRICAPI
-// ============================================================
-
-async function getCricketScores(env) {
-
-  const key =
-    env.CRICKET_API_KEY;
-
-  if (!key) {
-
-    throw new Error(
-      "CRICKET_API_KEY secret is missing"
+      "CRICKET_API_KEY is missing"
     );
   }
 
   const url =
-    `${CRICKET_API_URL}?apikey=${encodeURIComponent(key)}`;
+    `${CRICKET_API_URL}?apikey=${encodeURIComponent(
+      env.CRICKET_API_KEY
+    )}`;
 
   const response =
-    await fetch(
-      url,
-      {
-        method: "GET",
-        headers: {
-          "Accept":
-            "application/json"
-        }
+    await fetch(url, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
       }
-    );
+    });
 
   const text =
     await response.text();
@@ -1070,14 +801,10 @@ async function getCricketScores(env) {
   let data;
 
   try {
-
-    data =
-      JSON.parse(text);
-
+    data = JSON.parse(text);
   } catch {
-
     throw new Error(
-      `CricAPI invalid JSON: ${text.slice(0, 300)}`
+      `CricAPI returned invalid JSON. HTTP ${response.status}`
     );
   }
 
@@ -1087,112 +814,154 @@ async function getCricketScores(env) {
       `CricAPI HTTP ${response.status}: ${
         data?.message ||
         data?.error ||
-        text.slice(0, 300)
+        "Request failed"
       }`
     );
   }
 
   if (
-    data?.status === "failure" ||
     data?.success === false
   ) {
-
     throw new Error(
-      data?.reason ||
       data?.message ||
       data?.error ||
       "CricAPI request failed"
     );
   }
 
-  let matches = [];
+  return data;
+}
 
-  if (Array.isArray(data?.data)) {
 
-    matches =
-      data.data;
+// ============================================================
+// BACKUP API
+// ============================================================
 
-  } else if (
-    Array.isArray(data?.matches)
-  ) {
+async function fetchBackupLive(env) {
 
-    matches =
-      data.matches;
-
-  } else if (Array.isArray(data)) {
-
-    matches =
-      data;
+  if (!env.CRICKET_LIVE_API_TOKEN) {
+    throw new Error(
+      "CRICKET_LIVE_API_TOKEN is missing"
+    );
   }
 
-  return matches.map(
-    (match, index) =>
-      formatCricScoreMatch(
-        match,
-        index
-      )
-  );
+  const response =
+    await fetch(
+      CRICKET_LIVE_API_URL,
+      {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Authorization":
+            `Bearer ${env.CRICKET_LIVE_API_TOKEN}`
+        }
+      }
+    );
+
+  const text =
+    await response.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(
+      `CricketLiveApi returned invalid JSON. HTTP ${response.status}`
+    );
+  }
+
+  if (!response.ok) {
+
+    throw new Error(
+      `CricketLiveApi HTTP ${response.status}: ${
+        data?.message ||
+        data?.error ||
+        "Request failed"
+      }`
+    );
+  }
+
+  return data;
 }
 
 
 // ============================================================
-// LIVE STATUS CHECK
+// EXTRACT ARRAY FROM API RESPONSE
 // ============================================================
 
-function isLiveMatch(match) {
+function extractMatches(data) {
 
-  const status =
-    cleanText(match?.status)
-      .toLowerCase();
+  if (!data) {
+    return [];
+  }
 
-  return (
-    status === "live" ||
-    status.includes("live") ||
-    status.includes("progress") ||
-    status.includes("playing") ||
-    status.includes("ongoing")
-  );
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  const candidates = [
+    data.data,
+    data.matches,
+    data.response,
+    data.result
+  ];
+
+  for (const item of candidates) {
+
+    if (Array.isArray(item)) {
+      return item;
+    }
+
+    if (
+      item &&
+      typeof item === "object"
+    ) {
+
+      if (Array.isArray(item.data)) {
+        return item.data;
+      }
+
+      if (Array.isArray(item.matches)) {
+        return item.matches;
+      }
+    }
+  }
+
+  return [];
 }
 
 
 // ============================================================
-// AUTOMATIC PRIMARY + BACKUP
+// LIVE SCORE
+// PRIMARY -> BACKUP
 // ============================================================
 
-async function getAllCricketMatches(env) {
+async function getLiveMatches(env) {
 
-  let primaryMatches = [];
-
-  let primaryError = "";
-
-  // --------------------------------------------
-  // PRIMARY API
-  // --------------------------------------------
+  let primaryError = null;
 
   try {
 
-    primaryMatches =
-      await getCricketScores(env);
+    const primary =
+      await fetchPrimaryLive(env);
 
-    const livePrimary =
-      primaryMatches.filter(
-        isLiveMatch
-      );
+    const primaryMatches =
+      extractMatches(primary);
 
-    if (livePrimary.length > 0) {
+    if (primaryMatches.length > 0) {
 
       return {
+        success: true,
+        source: "CricAPI",
         matches:
-          livePrimary,
-
-        source:
-          "CricAPI",
-
-        primaryError:
-          null,
-
-        backupUsed:
-          false
+          primaryMatches.map(
+            item =>
+              normalizeMatch(
+                item,
+                "CricAPI"
+              )
+          )
       };
     }
 
@@ -1200,213 +969,199 @@ async function getAllCricketMatches(env) {
 
     primaryError =
       error?.message ||
-      "Primary API failed";
+      String(error);
   }
 
 
-  // --------------------------------------------
-  // BACKUP API
-  // --------------------------------------------
+  let backupError = null;
 
   try {
 
+    const backup =
+      await fetchBackupLive(env);
+
     const backupMatches =
-      await getCricketLiveApiMatches(
-        env
-      );
-
-    const liveBackup =
-      backupMatches.filter(
-        isLiveMatch
-      );
-
-    if (liveBackup.length > 0) {
-
-      return {
-        matches:
-          liveBackup,
-
-        source:
-          "CricketLiveApi",
-
-        primaryError:
-          primaryError || null,
-
-        backupUsed:
-          true
-      };
-    }
-
-    // Return backup data if API
-    // provides matches without LIVE text.
+      extractMatches(backup);
 
     if (backupMatches.length > 0) {
 
       return {
+        success: true,
+        source: "CricketLiveApi",
         matches:
-          backupMatches,
-
-        source:
-          "CricketLiveApi",
-
-        primaryError:
-          primaryError || null,
-
-        backupUsed:
-          true
+          backupMatches.map(
+            item =>
+              normalizeMatch(
+                item,
+                "CricketLiveApi"
+              )
+          ),
+        primaryError
       };
     }
 
-  } catch (backupError) {
+  } catch (error) {
 
-    return {
-
-      matches: [],
-
-      source:
-        "none",
-
-      primaryError:
-        primaryError ||
-        "Primary API failed",
-
-      backupError:
-        backupError?.message ||
-        "Backup API failed",
-
-      backupUsed:
-        true
-    };
+    backupError =
+      error?.message ||
+      String(error);
   }
 
 
   return {
-
-    matches:
-      primaryMatches,
-
-    source:
-      "CricAPI",
-
-    primaryError:
-      primaryError || null,
-
-    backupUsed:
-      false
+    success: false,
+    source: null,
+    matches: [],
+    error:
+      "Both cricket APIs failed.",
+    primaryError,
+    backupError
   };
 }
 
 
 // ============================================================
-// FIXTURES
+// DEBUG LIVE
+// IMPORTANT: DOES NOT RETURN API TOKEN
 // ============================================================
 
-async function getFixtures(env) {
+async function debugLive(env) {
 
-  try {
+  if (!env.CRICKET_LIVE_API_TOKEN) {
 
-    const key =
-      env.CRICKET_API_KEY;
-
-    if (key) {
-
-      const url =
-        `https://api.cricapi.com/v1/matches?apikey=${encodeURIComponent(key)}`;
-
-      const response =
-        await fetch(url);
-
-      const text =
-        await response.text();
-
-      let data;
-
-      try {
-        data =
-          JSON.parse(text);
-      } catch {
-        data = null;
-      }
-
-      if (
-        response.ok &&
-        data
-      ) {
-
-        const matches =
-          Array.isArray(data?.data)
-            ? data.data
-            : Array.isArray(data?.matches)
-              ? data.matches
-              : [];
-
-        return matches.map(
-          (match, index) =>
-            formatCricScoreMatch(
-              match,
-              index
-            )
-        );
-      }
-    }
-
-  } catch {
-    // Continue to backup.
+    return {
+      success: false,
+      error:
+        "CRICKET_LIVE_API_TOKEN is missing"
+    };
   }
 
-  try {
-
-    return await getCricketLiveApiMatches(
-      env
+  const response =
+    await fetch(
+      CRICKET_LIVE_API_URL,
+      {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Authorization":
+            `Bearer ${env.CRICKET_LIVE_API_TOKEN}`
+        }
+      }
     );
 
-  } catch {
+  const text =
+    await response.text();
 
-    return [];
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return {
+      success: false,
+      httpStatus: response.status,
+      error:
+        "Invalid JSON from CricketLiveApi"
+    };
   }
+
+  const matches =
+    extractMatches(data);
+
+  const first =
+    matches[0] || null;
+
+  return {
+    success: response.ok,
+    httpStatus: response.status,
+    matchCount: matches.length,
+
+    topLevelKeys:
+      first &&
+      typeof first === "object"
+        ? Object.keys(first)
+        : [],
+
+    first_team:
+      first?.first_team ?? null,
+
+    second_team:
+      first?.second_team ?? null,
+
+    team1:
+      first?.team1 ?? null,
+
+    team2:
+      first?.team2 ?? null,
+
+    teams:
+      first?.teams ?? null,
+
+    score:
+      first?.score ?? null,
+
+    scores:
+      first?.scores ?? null,
+
+    status:
+      first?.status ?? null,
+
+    format:
+      first?.format ?? null,
+
+    venue:
+      first?.venue ?? null,
+
+    series:
+      first?.series_name ??
+      first?.series ??
+      null,
+
+    last_ball:
+      first?.last_ball ?? null
+  };
 }
 
 
 // ============================================================
-// MATCH DETAIL
+// GUID VALIDATION
 // ============================================================
 
-async function getMatchDetail(
-  env,
-  id
-) {
+function isValidMatchId(id) {
 
-  if (!id) {
+  return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+    .test(id);
+}
 
-    throw new Error(
-      "Match ID is required"
-    );
+
+// ============================================================
+// SCORECARD
+// ============================================================
+
+async function getScorecard(env, id) {
+
+  if (!isValidMatchId(id)) {
+
+    return {
+      success: false,
+      error:
+        "Invalid Match ID. Please use the full CricAPI Match ID."
+    };
   }
 
-  const guidPattern =
-    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  if (!env.CRICKET_API_KEY) {
 
-  if (
-    !guidPattern.test(id)
-  ) {
-
-    throw new Error(
-      "Invalid Match ID. Please use the full CricAPI Match ID."
-    );
-  }
-
-  const key =
-    env.CRICKET_API_KEY;
-
-  if (!key) {
-
-    throw new Error(
-      "CRICKET_API_KEY secret is missing"
-    );
+    return {
+      success: false,
+      error:
+        "CRICKET_API_KEY is missing"
+    };
   }
 
   const url =
-    `https://api.cricapi.com/v1/match_info?apikey=${encodeURIComponent(key)}&id=${encodeURIComponent(id)}`;
+    `https://api.cricapi.com/v1/match_info?apikey=${
+      encodeURIComponent(env.CRICKET_API_KEY)
+    }&id=${encodeURIComponent(id)}`;
 
   const response =
     await fetch(url);
@@ -1417,26 +1172,26 @@ async function getMatchDetail(
   let data;
 
   try {
-
-    data =
-      JSON.parse(text);
-
+    data = JSON.parse(text);
   } catch {
-
-    throw new Error(
-      `CricAPI invalid JSON: ${text.slice(0, 300)}`
-    );
+    return {
+      success: false,
+      error:
+        `CricAPI HTTP ${response.status}`
+    };
   }
 
   if (!response.ok) {
 
-    throw new Error(
-      `Cricket API HTTP ${response.status}: ${
-        data?.message ||
-        data?.reason ||
-        text.slice(0, 300)
-      }`
-    );
+    return {
+      success: false,
+      error:
+        `CricAPI HTTP ${response.status}: ${
+          data?.message ||
+          data?.error ||
+          "Request failed"
+        }`
+    };
   }
 
   return data;
@@ -1444,137 +1199,185 @@ async function getMatchDetail(
 
 
 // ============================================================
-// AI IMAGE PROMPT
+// BALL BY BALL
 // ============================================================
 
-function buildImagePrompt(body) {
+async function getBallByBall(env, id) {
 
-  const player =
-    cleanText(body?.playerName) ||
-    "Cricket Player";
+  if (!isValidMatchId(id)) {
 
-  const team =
-    cleanText(body?.team) ||
-    "India";
+    return {
+      success: false,
+      error:
+        "Invalid Match ID. Please use the full CricAPI Match ID."
+    };
+  }
 
-  const pose =
-    cleanText(body?.pose) ||
-    "Batting";
+  if (!env.CRICKET_API_KEY) {
 
-  const type =
-    cleanText(body?.type) ||
-    "Batsman";
+    return {
+      success: false,
+      error:
+        "CRICKET_API_KEY is missing"
+    };
+  }
 
-  const hand =
-    cleanText(body?.hand) ||
-    "Right";
+  const url =
+    `https://api.cricapi.com/v1/match_scorecard?apikey=${
+      encodeURIComponent(env.CRICKET_API_KEY)
+    }&id=${encodeURIComponent(id)}`;
 
-  const style =
-    cleanText(body?.style) ||
-    "Realistic";
+  const response =
+    await fetch(url);
 
-  const jersey =
-    cleanText(body?.jersey) ||
-    "Blue";
+  const text =
+    await response.text();
 
-  const number =
-    cleanText(body?.number) ||
-    "18";
+  let data;
 
-  const stadium =
-    cleanText(body?.stadium) ||
-    "International Stadium";
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return {
+      success: false,
+      error:
+        `CricAPI HTTP ${response.status}`
+    };
+  }
 
-  const weather =
-    cleanText(body?.weather) ||
-    "Clear";
+  if (!response.ok) {
 
-  const matchTime =
-    cleanText(body?.matchTime) ||
-    "Day";
+    return {
+      success: false,
+      error:
+        `CricAPI HTTP ${response.status}: ${
+          data?.message ||
+          data?.error ||
+          "Request failed"
+        }`
+    };
+  }
 
-  const camera =
-    cleanText(body?.camera) ||
-    "Front";
-
-  const tournament =
-    cleanText(body?.tournament) ||
-    "T20 World Cup";
-
-  return `
-Photorealistic professional cricket sports photography.
-
-Create a fictional cricket sports image inspired by these specifications.
-
-Player: ${player}
-Team: ${team}
-Playing type: ${type}
-Playing hand: ${hand}
-Pose: ${pose}
-Jersey color: ${jersey}
-Jersey number: ${number}
-Stadium: ${stadium}
-Weather: ${weather}
-Match time: ${matchTime}
-Camera angle: ${camera}
-Tournament: ${tournament}
-Visual style: ${style}
-
-Professional cricket ground.
-Realistic cricket equipment.
-Realistic athletic body proportions.
-Detailed cricket jersey.
-Professional cricket stadium.
-Stadium floodlights where appropriate.
-Energetic crowd.
-Dramatic cinematic atmosphere.
-Professional sports-news photography.
-Ultra realistic.
-High detail.
-Natural skin texture.
-Sharp subject.
-No text.
-No logo.
-No watermark.
-`;
+  return data;
 }
 
 
 // ============================================================
-// ARRAY BUFFER TO BASE64
+// MATCH POINTS
 // ============================================================
 
-function arrayBufferToBase64(
-  buffer
-) {
+async function getMatchPoints(env, id) {
 
-  const bytes =
-    new Uint8Array(buffer);
+  if (!isValidMatchId(id)) {
 
-  let binary = "";
-
-  const chunkSize =
-    0x8000;
-
-  for (
-    let i = 0;
-    i < bytes.length;
-    i += chunkSize
-  ) {
-
-    binary +=
-      String.fromCharCode(
-        ...bytes.subarray(
-          i,
-          Math.min(
-            i + chunkSize,
-            bytes.length
-          )
-        )
-      );
+    return {
+      success: false,
+      error:
+        "Invalid Match ID. Please use the full CricAPI Match ID."
+    };
   }
 
-  return btoa(binary);
+  if (!env.CRICKET_API_KEY) {
+
+    return {
+      success: false,
+      error:
+        "CRICKET_API_KEY is missing"
+    };
+  }
+
+  const url =
+    `https://api.cricapi.com/v1/match_points?apikey=${
+      encodeURIComponent(env.CRICKET_API_KEY)
+    }&id=${encodeURIComponent(id)}`;
+
+  const response =
+    await fetch(url);
+
+  const text =
+    await response.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return {
+      success: false,
+      error:
+        `CricAPI HTTP ${response.status}`
+    };
+  }
+
+  if (!response.ok) {
+
+    return {
+      success: false,
+      error:
+        `CricAPI HTTP ${response.status}: ${
+          data?.message ||
+          data?.error ||
+          "Request failed"
+        }`
+    };
+  }
+
+  return data;
+}
+
+
+// ============================================================
+// FIXTURES
+// ============================================================
+
+async function getFixtures(env) {
+
+  if (!env.CRICKET_API_KEY) {
+
+    return {
+      success: false,
+      error:
+        "CRICKET_API_KEY is missing"
+    };
+  }
+
+  const url =
+    `https://api.cricapi.com/v1/matches?apikey=${
+      encodeURIComponent(env.CRICKET_API_KEY)
+    }`;
+
+  const response =
+    await fetch(url);
+
+  const text =
+    await response.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return {
+      success: false,
+      error:
+        `CricAPI HTTP ${response.status}`
+    };
+  }
+
+  if (!response.ok) {
+
+    return {
+      success: false,
+      error:
+        `CricAPI HTTP ${response.status}: ${
+          data?.message ||
+          data?.error ||
+          "Request failed"
+        }`
+    };
+  }
+
+  return data;
 }
 
 
@@ -1582,106 +1385,65 @@ function arrayBufferToBase64(
 // AI IMAGE GENERATION
 // ============================================================
 
-async function generateImage(
-  env,
-  body
-) {
+async function generateImage(env, prompt) {
 
   if (!env.AI) {
 
-    throw new Error(
-      "Workers AI binding is missing"
-    );
-  }
-
-  const prompt =
-    buildImagePrompt(body);
-
-  const result =
-    await env.AI.run(
-      AI_MODEL,
+    return json(
       {
-        prompt
-      }
+        success: false,
+        error:
+          "Workers AI binding AI is missing."
+      },
+      500
     );
-
-  if (
-    result instanceof ArrayBuffer
-  ) {
-
-    return {
-
-      image:
-        `data:image/png;base64,${arrayBufferToBase64(result)}`,
-
-      prompt
-    };
   }
 
-  if (
-    result &&
-    result.byteLength !== undefined
-  ) {
+  if (!prompt) {
 
-    return {
-
-      image:
-        `data:image/png;base64,${arrayBufferToBase64(result)}`,
-
-      prompt
-    };
+    return json(
+      {
+        success: false,
+        error:
+          "Prompt is required."
+      },
+      400
+    );
   }
-
-  if (result?.image) {
-
-    if (
-      typeof result.image === "string"
-    ) {
-
-      return {
-
-        image:
-          result.image.startsWith("data:")
-            ? result.image
-            : `data:image/png;base64,${result.image}`,
-
-        prompt
-      };
-    }
-
-    if (
-      result.image instanceof ArrayBuffer
-    ) {
-
-      return {
-
-        image:
-          `data:image/png;base64,${arrayBufferToBase64(result.image)}`,
-
-        prompt
-      };
-    }
-  }
-
-  throw new Error(
-    "AI image generation returned an unsupported response."
-  );
-}
-
-
-// ============================================================
-// READ JSON
-// ============================================================
-
-async function readJson(request) {
 
   try {
 
-    return await request.json();
+    const result =
+      await env.AI.run(
+        AI_MODEL,
+        {
+          prompt: String(prompt)
+        }
+      );
 
-  } catch {
+    return new Response(
+      result,
+      {
+        headers: corsHeaders({
+          "Content-Type":
+            "image/png",
+          "Cache-Control":
+            "no-store"
+        })
+      }
+    );
 
-    return {};
+  } catch (error) {
+
+    return json(
+      {
+        success: false,
+        error:
+          error?.message ||
+          String(error)
+      },
+      500
+    );
   }
 }
 
@@ -1690,17 +1452,12 @@ async function readJson(request) {
 // HEALTH
 // ============================================================
 
-async function health(env) {
+function health(env) {
 
   return {
-
     success: true,
-
-    app:
-      "Cricket Short",
-
-    worker:
-      "cricket-ai-app",
+    app: "Cricket Short",
+    worker: "cricket-ai-app",
 
     workersAI:
       Boolean(env.AI),
@@ -1717,44 +1474,28 @@ async function health(env) {
       Boolean(env.ASSETS),
 
     endpoints: [
-
       "/api/generate",
-
       "/api/generate-image",
-
       "/api/score",
-
       "/api/live-score",
-
       "/api/fixtures",
-
       "/api/scorecard",
-
       "/api/ball-by-ball",
-
       "/api/match-points",
-
+      "/api/debug-live",
       "/api/health"
-
     ]
   };
 }
 
 
 // ============================================================
-// MAIN REQUEST HANDLER
+// MAIN WORKER
 // ============================================================
 
 export default {
 
-  async fetch(
-    request,
-    env
-  ) {
-
-    // --------------------------------------------
-    // OPTIONS
-    // --------------------------------------------
+  async fetch(request, env) {
 
     if (
       request.method === "OPTIONS"
@@ -1764,11 +1505,11 @@ export default {
         null,
         {
           status: 204,
-          headers:
-            corsHeaders()
+          headers: corsHeaders()
         }
       );
     }
+
 
     const url =
       new URL(request.url);
@@ -1782,13 +1523,42 @@ export default {
     // ========================================================
 
     if (
-      path === "/api/health" ||
-      path === "/health"
+      path === "/api/health"
     ) {
 
-      return jsonResponse(
-        await health(env)
+      return json(
+        health(env)
       );
+    }
+
+
+    // ========================================================
+    // DEBUG LIVE
+    // ========================================================
+
+    if (
+      path === "/api/debug-live"
+    ) {
+
+      try {
+
+        const result =
+          await debugLive(env);
+
+        return json(result);
+
+      } catch (error) {
+
+        return json(
+          {
+            success: false,
+            error:
+              error?.message ||
+              String(error)
+          },
+          500
+        );
+      }
     }
 
 
@@ -1804,52 +1574,22 @@ export default {
       try {
 
         const result =
-          await getAllCricketMatches(
-            env
-          );
+          await getLiveMatches(env);
 
-        return jsonResponse({
-
-          success: true,
-
-          count:
-            result.matches.length,
-
-          source:
-            result.source,
-
-          backupUsed:
-            Boolean(
-              result.backupUsed
-            ),
-
-          matches:
-            result.matches,
-
-          primaryError:
-            result.primaryError ||
-            null,
-
-          backupError:
-            result.backupError ||
-            null,
-
-          updatedAt:
-            new Date().toISOString()
-        });
+        return json(
+          result,
+          result.success ? 200 : 502
+        );
 
       } catch (error) {
 
-        return jsonResponse(
-
+        return json(
           {
             success: false,
-
             error:
               error?.message ||
-              "Live score failed"
+              String(error)
           },
-
           500
         );
       }
@@ -1866,34 +1606,25 @@ export default {
 
       try {
 
-        const matches =
+        const result =
           await getFixtures(env);
 
-        return jsonResponse({
-
-          success: true,
-
-          count:
-            matches.length,
-
-          matches,
-
-          updatedAt:
-            new Date().toISOString()
-        });
+        return json(
+          result,
+          result.success === false
+            ? 502
+            : 200
+        );
 
       } catch (error) {
 
-        return jsonResponse(
-
+        return json(
           {
             success: false,
-
             error:
               error?.message ||
-              "Fixtures failed"
+              String(error)
           },
-
           500
         );
       }
@@ -1911,34 +1642,43 @@ export default {
       const id =
         url.searchParams.get("id");
 
+      if (!id) {
+
+        return json(
+          {
+            success: false,
+            error:
+              "Match ID is required."
+          },
+          400
+        );
+      }
+
       try {
 
-        const data =
-          await getMatchDetail(
+        const result =
+          await getScorecard(
             env,
             id
           );
 
-        return jsonResponse({
-
-          success: true,
-
-          data
-        });
+        return json(
+          result,
+          result.success === false
+            ? 400
+            : 200
+        );
 
       } catch (error) {
 
-        return jsonResponse(
-
+        return json(
           {
             success: false,
-
             error:
               error?.message ||
-              "Scorecard failed"
+              String(error)
           },
-
-          400
+          500
         );
       }
     }
@@ -1955,34 +1695,43 @@ export default {
       const id =
         url.searchParams.get("id");
 
+      if (!id) {
+
+        return json(
+          {
+            success: false,
+            error:
+              "Match ID is required."
+          },
+          400
+        );
+      }
+
       try {
 
-        const data =
-          await getMatchDetail(
+        const result =
+          await getBallByBall(
             env,
             id
           );
 
-        return jsonResponse({
-
-          success: true,
-
-          data
-        });
+        return json(
+          result,
+          result.success === false
+            ? 400
+            : 200
+        );
 
       } catch (error) {
 
-        return jsonResponse(
-
+        return json(
           {
             success: false,
-
             error:
               error?.message ||
-              "Ball-by-ball failed"
+              String(error)
           },
-
-          400
+          500
         );
       }
     }
@@ -1999,34 +1748,43 @@ export default {
       const id =
         url.searchParams.get("id");
 
+      if (!id) {
+
+        return json(
+          {
+            success: false,
+            error:
+              "Match ID is required."
+          },
+          400
+        );
+      }
+
       try {
 
-        const data =
-          await getMatchDetail(
+        const result =
+          await getMatchPoints(
             env,
             id
           );
 
-        return jsonResponse({
-
-          success: true,
-
-          data
-        });
+        return json(
+          result,
+          result.success === false
+            ? 400
+            : 200
+        );
 
       } catch (error) {
 
-        return jsonResponse(
-
+        return json(
           {
             success: false,
-
             error:
               error?.message ||
-              "Points failed"
+              String(error)
           },
-
-          400
+          500
         );
       }
     }
@@ -2045,15 +1803,12 @@ export default {
         request.method !== "POST"
       ) {
 
-        return jsonResponse(
-
+        return json(
           {
             success: false,
-
             error:
-              "Use POST method"
+              "POST method required."
           },
-
           405
         );
       }
@@ -2061,92 +1816,58 @@ export default {
       try {
 
         const body =
-          await readJson(request);
+          await request.json();
 
-        const result =
-          await generateImage(
-            env,
-            body
-          );
+        const prompt =
+          body?.prompt ||
+          body?.text ||
+          "";
 
-        return jsonResponse({
-
-          success: true,
-
-          image:
-            result.image,
-
-          prompt:
-            result.prompt
-        });
+        return await generateImage(
+          env,
+          prompt
+        );
 
       } catch (error) {
 
-        return jsonResponse(
-
+        return json(
           {
             success: false,
-
             error:
               error?.message ||
-              "Image generation failed"
+              String(error)
           },
-
-          500
+          400
         );
       }
     }
 
 
     // ========================================================
-    // ROOT
+    // STATIC ASSETS
     // ========================================================
 
     if (
-      path === "/" ||
-      path === ""
+      env.ASSETS
     ) {
 
-      return jsonResponse({
-
-        success: true,
-
-        app:
-          "Cricket Short",
-
-        message:
-          "Cricket Short Worker is running.",
-
-        liveScore:
-          "/api/live-score",
-
-        fixtures:
-          "/api/fixtures",
-
-        scorecard:
-          "/api/scorecard?id=FULL_MATCH_ID",
-
-        health:
-          "/api/health"
-      });
+      return env.ASSETS.fetch(
+        request
+      );
     }
 
 
     // ========================================================
-    // 404
+    // NOT FOUND
     // ========================================================
 
-    return jsonResponse(
-
+    return json(
       {
         success: false,
-
         error:
           "Endpoint not found",
-
         path
       },
-
       404
     );
   }
