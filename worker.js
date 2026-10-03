@@ -2,11 +2,18 @@
 // CRICKET SHORT - V2 FINAL WORKER.JS
 // LIVE SCORE + FIXTURES + SCORECARD + POINTS
 // AI CRICKET IMAGE + STATIC ASSETS
+// PRIMARY: CricAPI
+// BACKUP: CricketLiveApi
 // ROBUST TEAM + VENUE + SCORE EXTRACTION
 // ============================================================
 
 const AI_MODEL = "@cf/black-forest-labs/flux-1-schnell";
-const CRICKET_API_URL = "https://api.cricapi.com/v1/cricScore";
+
+const CRICKET_API_URL =
+  "https://api.cricapi.com/v1/cricScore";
+
+const CRICKET_LIVE_API_URL =
+  "https://cricketliveapi.com/api/v1/cricket/live";
 
 // ============================================================
 // CORS
@@ -23,13 +30,16 @@ function corsHeaders(extra = {}) {
 }
 
 function jsonResponse(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      ...corsHeaders(),
-      "Content-Type": "application/json; charset=utf-8"
+  return new Response(
+    JSON.stringify(data),
+    {
+      status,
+      headers: {
+        ...corsHeaders(),
+        "Content-Type": "application/json; charset=utf-8"
+      }
     }
-  });
+  );
 }
 
 // ============================================================
@@ -164,7 +174,6 @@ function parseScoreObject(item) {
     };
   }
 
-  // Direct numeric fields
   let runs =
     item.r ??
     item.runs ??
@@ -193,7 +202,6 @@ function parseScoreObject(item) {
     item.name ||
     "";
 
-  // Score as string
   const textScore =
     item.scoreText ||
     item.scoreString ||
@@ -204,9 +212,7 @@ function parseScoreObject(item) {
         : ""
     );
 
-  if (
-    textScore
-  ) {
+  if (textScore) {
     const parsed =
       parseScore(textScore);
 
@@ -232,7 +238,6 @@ function parseScoreObject(item) {
     }
   }
 
-  // Nested score object
   if (
     typeof item.score === "object" &&
     item.score !== null
@@ -285,9 +290,7 @@ function parseScoreObject(item) {
       score +=
         ` (${overs} ov)`;
     }
-  } else if (
-    textScore
-  ) {
+  } else if (textScore) {
     score =
       String(textScore);
   }
@@ -350,7 +353,6 @@ function getStatus(match) {
       source?.ended
     );
 
-  // RESULT
   if (
     ended ||
     ms === "result" ||
@@ -369,7 +371,6 @@ function getStatus(match) {
     return "RESULT";
   }
 
-  // LIVE
   if (
     (started && !ended) ||
     ms === "live" ||
@@ -407,10 +408,6 @@ function extractTeams(match) {
   let team1 = "";
   let team2 = "";
 
-  // ----------------------------------------------------------
-  // teams[]
-  // ----------------------------------------------------------
-
   if (
     Array.isArray(source.teams)
   ) {
@@ -424,10 +421,6 @@ function extractTeams(match) {
         source.teams[1]
       );
   }
-
-  // ----------------------------------------------------------
-  // teamInfo[]
-  // ----------------------------------------------------------
 
   if (
     Array.isArray(source.teamInfo)
@@ -444,10 +437,6 @@ function extractTeams(match) {
         source.teamInfo[1]
       );
   }
-
-  // ----------------------------------------------------------
-  // team1 / team2
-  // ----------------------------------------------------------
 
   team1 =
     team1 ||
@@ -479,10 +468,6 @@ function extractTeams(match) {
       source.teamBName
     );
 
-  // ----------------------------------------------------------
-  // Direct name fields
-  // ----------------------------------------------------------
-
   if (
     !team1 &&
     source.team1ShortName
@@ -503,11 +488,6 @@ function extractTeams(match) {
       );
   }
 
-  // ----------------------------------------------------------
-  // match name fallback
-  // Example: India vs West Indies
-  // ----------------------------------------------------------
-
   const matchName =
     source.name ||
     source.matchName ||
@@ -518,7 +498,6 @@ function extractTeams(match) {
     (!team1 || !team2) &&
     matchName
   ) {
-
     const parts =
       String(matchName)
         .split(/\s+vs\.?\s+/i);
@@ -617,10 +596,6 @@ function extractScores(match) {
 
   const results = [];
 
-  // ----------------------------------------------------------
-  // score[]
-  // ----------------------------------------------------------
-
   if (
     Array.isArray(scoreSource)
   ) {
@@ -651,10 +626,6 @@ function extractScores(match) {
     );
   }
 
-  // ----------------------------------------------------------
-  // matchScore.team1Score / team2Score
-  // ----------------------------------------------------------
-
   const matchScore =
     source?.matchScore ||
     match?.matchScore ||
@@ -684,13 +655,10 @@ function extractScores(match) {
             entry.key
           ];
 
-        if (
-          !teamScore
-        ) {
+        if (!teamScore) {
           return;
         }
 
-        // innings object
         const innings =
           teamScore?.inngs1 ||
           teamScore?.innings1 ||
@@ -732,10 +700,6 @@ function extractScores(match) {
     );
   }
 
-  // ----------------------------------------------------------
-  // Direct team scores
-  // ----------------------------------------------------------
-
   const directScores = [
     source?.team1Score,
     source?.team2Score
@@ -776,10 +740,6 @@ function extractScores(match) {
     }
   );
 
-  // ----------------------------------------------------------
-  // Remove duplicates
-  // ----------------------------------------------------------
-
   const unique = [];
 
   for (
@@ -815,9 +775,7 @@ function extractScores(match) {
 // FIND CURRENT SCORE
 // ============================================================
 
-function findCurrentScore(
-  scores
-) {
+function findCurrentScore(scores) {
 
   if (
     !Array.isArray(scores) ||
@@ -826,7 +784,6 @@ function findCurrentScore(
     return null;
   }
 
-  // Prefer last valid score
   for (
     let i = scores.length - 1;
     i >= 0;
@@ -898,7 +855,6 @@ function formatCricScoreMatch(match) {
     source?.series_name ||
     source?.seriesName ||
     source?.series ||
-    source?.seriesName ||
     source?.series_id ||
     "";
 
@@ -1033,6 +989,258 @@ function formatCricScoreMatch(match) {
 }
 
 // ============================================================
+// CRICKETLIVEAPI FORMATTER
+// ============================================================
+
+function formatCricketLiveApiMatch(match) {
+
+  const team1 =
+    cleanTeamName(
+      match?.team1 ||
+      match?.teamA ||
+      match?.teams?.[0] ||
+      ""
+    );
+
+  const team2 =
+    cleanTeamName(
+      match?.team2 ||
+      match?.teamB ||
+      match?.teams?.[1] ||
+      ""
+    );
+
+  const teamsText =
+    cleanTeamName(
+      match?.teams ||
+      ""
+    );
+
+  let finalTeam1 =
+    team1;
+
+  let finalTeam2 =
+    team2;
+
+  // Handle "India vs West Indies"
+  if (
+    (!finalTeam1 || !finalTeam2) &&
+    teamsText
+  ) {
+
+    const parts =
+      teamsText.split(
+        /\s+vs\.?\s+/i
+      );
+
+    if (
+      parts.length >= 2
+    ) {
+
+      finalTeam1 =
+        finalTeam1 ||
+        cleanTeamName(
+          parts[0]
+        );
+
+      finalTeam2 =
+        finalTeam2 ||
+        cleanTeamName(
+          parts[1]
+        );
+    }
+  }
+
+  let scoreText =
+    match?.score ||
+    match?.scoreText ||
+    match?.scoreString ||
+    "";
+
+  if (
+    typeof scoreText !== "string"
+  ) {
+    scoreText = "";
+  }
+
+  const parsed =
+    parseScore(
+      scoreText
+    );
+
+  const statusText =
+    String(
+      match?.status ||
+      "live"
+    )
+      .toLowerCase()
+      .trim();
+
+  let status =
+    "LIVE";
+
+  if (
+    statusText.includes("complete") ||
+    statusText.includes("finished") ||
+    statusText.includes("result") ||
+    statusText.includes("won")
+  ) {
+    status =
+      "RESULT";
+  }
+
+  const venue =
+    cleanTeamName(
+      match?.venue ||
+      match?.ground ||
+      match?.stadium ||
+      match?.location ||
+      ""
+    );
+
+  const series =
+    cleanTeamName(
+      match?.series ||
+      match?.series_name ||
+      match?.seriesName ||
+      ""
+    );
+
+  const format =
+    cleanTeamName(
+      match?.format ||
+      match?.matchType ||
+      match?.type ||
+      ""
+    );
+
+  const id =
+    String(
+      match?.match_id ||
+      match?.matchId ||
+      match?.id ||
+      ""
+    );
+
+  return {
+
+    id,
+
+    name:
+      finalTeam1 && finalTeam2
+        ? `${finalTeam1} vs ${finalTeam2}`
+        : (
+            teamsText ||
+            match?.name ||
+            "Live Cricket Match"
+          ),
+
+    matchType:
+      format,
+
+    status,
+
+    rawStatus:
+      match?.status ||
+      "live",
+
+    matchStatus:
+      match?.status ||
+      "live",
+
+    matchStarted:
+      true,
+
+    matchEnded:
+      false,
+
+    venue,
+
+    date:
+      match?.date ||
+      match?.start_time ||
+      match?.startTime ||
+      "",
+
+    dateTimeGMT:
+      match?.dateTimeGMT ||
+      match?.date ||
+      match?.start_time ||
+      "",
+
+    series,
+
+    teams: [
+      finalTeam1 ||
+      "Team 1",
+
+      finalTeam2 ||
+      "Team 2"
+    ],
+
+    teamInfo: [],
+
+    score: [
+      {
+        index: 0,
+
+        inning: "",
+
+        runs:
+          parsed.runs,
+
+        wickets:
+          parsed.wickets,
+
+        overs:
+          parsed.overs,
+
+        score:
+          scoreText
+      }
+    ],
+
+    currentInnings: {
+
+      runs:
+        parsed.runs,
+
+      wickets:
+        parsed.wickets,
+
+      overs:
+        parsed.overs,
+
+      score:
+        scoreText
+    },
+
+    currentScore:
+      scoreText,
+
+    tossWinner:
+      match?.tossWinner ||
+      "",
+
+    tossChoice:
+      match?.tossChoice ||
+      "",
+
+    result:
+      match?.status ||
+      "",
+
+    description:
+      match?.last_ball ||
+      match?.status ||
+      "",
+
+    raw:
+      match
+  };
+}
+
+// ============================================================
 // SORT
 // ============================================================
 
@@ -1079,7 +1287,7 @@ function sortMatches(matches) {
 }
 
 // ============================================================
-// GET ALL CRICKET MATCHES
+// PRIMARY API - GET ALL CRICKET MATCHES
 // ============================================================
 
 async function getAllCricketMatches(env) {
@@ -1134,7 +1342,6 @@ async function getAllCricketMatches(env) {
     );
   }
 
-  // Support different API wrappers
   let rawMatches = [];
 
   if (
@@ -1144,6 +1351,7 @@ async function getAllCricketMatches(env) {
   ) {
     rawMatches =
       data.data;
+
   } else if (
     Array.isArray(
       data?.matches
@@ -1151,6 +1359,7 @@ async function getAllCricketMatches(env) {
   ) {
     rawMatches =
       data.matches;
+
   } else if (
     Array.isArray(
       data?.results
@@ -1171,20 +1380,201 @@ async function getAllCricketMatches(env) {
 }
 
 // ============================================================
-// LIVE
+// BACKUP API - CRICKETLIVEAPI
+// ============================================================
+
+async function getCricketLiveApiMatches(env) {
+
+  const token =
+    env.CRICKET_LIVE_API_TOKEN;
+
+  if (!token) {
+    throw new Error(
+      "CRICKET_LIVE_API_TOKEN is not configured"
+    );
+  }
+
+  const response =
+    await fetch(
+      CRICKET_LIVE_API_URL,
+      {
+        method: "GET",
+
+        headers: {
+          "Accept":
+            "application/json",
+
+          "Authorization":
+            `Bearer ${token}`
+        }
+      }
+    );
+
+  const text =
+    await response.text();
+
+  if (!response.ok) {
+
+    throw new Error(
+      `CricketLiveApi HTTP ${response.status}: ${text}`
+    );
+  }
+
+  let data;
+
+  try {
+
+    data =
+      JSON.parse(
+        text
+      );
+
+  } catch {
+
+    throw new Error(
+      "CricketLiveApi returned invalid JSON"
+    );
+  }
+
+  if (
+    data?.status === "error" ||
+    data?.success === false
+  ) {
+
+    throw new Error(
+      data?.message ||
+      data?.error ||
+      "CricketLiveApi returned an error"
+    );
+  }
+
+  let rawMatches = [];
+
+  if (
+    Array.isArray(
+      data?.data
+    )
+  ) {
+
+    rawMatches =
+      data.data;
+
+  } else if (
+    Array.isArray(
+      data?.matches
+    )
+  ) {
+
+    rawMatches =
+      data.matches;
+
+  } else if (
+    Array.isArray(
+      data?.results
+    )
+  ) {
+
+    rawMatches =
+      data.results;
+
+  } else if (
+    data?.match
+  ) {
+
+    rawMatches =
+      [data.match];
+
+  } else if (
+    data?.data &&
+    typeof data.data === "object"
+  ) {
+
+    rawMatches =
+      [data.data];
+  }
+
+  return rawMatches.map(
+    formatCricketLiveApiMatch
+  );
+}
+
+// ============================================================
+// LIVE SCORE - PRIMARY + AUTOMATIC BACKUP
 // ============================================================
 
 async function getCricketScores(env) {
 
-  const matches =
-    await getAllCricketMatches(
-      env
-    );
+  let primaryError = "";
 
-  return matches.filter(
-    match =>
-      match.status === "LIVE"
-  );
+  // ----------------------------------------------------------
+  // PRIMARY: CRICKETAPI
+  // ----------------------------------------------------------
+
+  try {
+
+    const matches =
+      await getAllCricketMatches(
+        env
+      );
+
+    const liveMatches =
+      matches.filter(
+        match =>
+          match.status === "LIVE"
+      );
+
+    if (
+      liveMatches.length > 0
+    ) {
+
+      return liveMatches;
+    }
+
+    primaryError =
+      "Primary API returned no live matches.";
+
+  } catch (error) {
+
+    primaryError =
+      errorMessage(
+        error
+      );
+  }
+
+  // ----------------------------------------------------------
+  // BACKUP: CRICKETLIVEAPI
+  // ----------------------------------------------------------
+
+  try {
+
+    const backupMatches =
+      await getCricketLiveApiMatches(
+        env
+      );
+
+    const liveMatches =
+      backupMatches.filter(
+        match =>
+          match.status === "LIVE"
+      );
+
+    if (
+      liveMatches.length > 0
+    ) {
+
+      return liveMatches;
+    }
+
+    return [];
+
+  } catch (error) {
+
+    throw new Error(
+      `Live score unavailable. ` +
+      `Primary API: ${primaryError} | ` +
+      `Backup API: ${errorMessage(error)}`
+    );
+  }
 }
 
 // ============================================================
@@ -1507,7 +1897,9 @@ export default {
   ) {
 
     const url =
-      new URL(request.url);
+      new URL(
+        request.url
+      );
 
     const pathname =
       url.pathname;
@@ -1524,6 +1916,7 @@ export default {
         null,
         {
           status: 204,
+
           headers:
             corsHeaders()
         }
@@ -1559,6 +1952,11 @@ export default {
           cricketApiKey:
             Boolean(
               env.CRICKET_API_KEY
+            ),
+
+          cricketLiveApiToken:
+            Boolean(
+              env.CRICKET_LIVE_API_TOKEN
             ),
 
           assets:
