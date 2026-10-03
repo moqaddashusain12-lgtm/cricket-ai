@@ -1,12 +1,16 @@
 // ============================================================
 // CRICKET SHORT - V2 FINAL WORKER.JS
-// Live Score + Fixtures + Scorecard + Points
-// AI Cricket Image + Static Assets
-// LIVE STATUS + TEAM + VENUE + SCORE FIX
+// LIVE SCORE + FIXTURES + SCORECARD + POINTS
+// AI CRICKET IMAGE + STATIC ASSETS
+// ROBUST TEAM + VENUE + SCORE EXTRACTION
 // ============================================================
 
 const AI_MODEL = "@cf/black-forest-labs/flux-1-schnell";
 const CRICKET_API_URL = "https://api.cricapi.com/v1/cricScore";
+
+// ============================================================
+// CORS
+// ============================================================
 
 function corsHeaders(extra = {}) {
   return {
@@ -29,11 +33,75 @@ function jsonResponse(data, status = 200) {
 }
 
 // ============================================================
+// CLEAN TEXT
+// ============================================================
+
+function cleanTeamName(name) {
+  if (!name) return "";
+
+  return String(name)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// ============================================================
+// BOOLEAN
+// ============================================================
+
+function toBoolean(value) {
+  if (value === true) return true;
+  if (value === false) return false;
+
+  const text =
+    String(value ?? "")
+      .toLowerCase()
+      .trim();
+
+  return (
+    text === "true" ||
+    text === "1" ||
+    text === "yes"
+  );
+}
+
+// ============================================================
+// GET TEAM NAME
+// ============================================================
+
+function getTeamName(team, fallback = "") {
+  if (!team) {
+    return fallback;
+  }
+
+  if (typeof team === "string") {
+    return cleanTeamName(team);
+  }
+
+  return cleanTeamName(
+    team.name ||
+    team.shortname ||
+    team.shortName ||
+    team.teamName ||
+    team.team_name ||
+    team.team ||
+    team.title ||
+    team.fullName ||
+    team.full_name ||
+    team.label ||
+    ""
+  ) || fallback;
+}
+
+// ============================================================
 // SCORE PARSER
 // ============================================================
 
 function parseScore(scoreText) {
-  if (!scoreText) {
+  if (
+    scoreText === null ||
+    scoreText === undefined ||
+    scoreText === ""
+  ) {
     return {
       runs: null,
       wickets: null,
@@ -42,7 +110,8 @@ function parseScore(scoreText) {
     };
   }
 
-  const text = String(scoreText).trim();
+  const text =
+    String(scoreText).trim();
 
   let runs = null;
   let wickets = null;
@@ -81,79 +150,205 @@ function parseScore(scoreText) {
 }
 
 // ============================================================
-// OVERS
+// SCORE OBJECT PARSER
 // ============================================================
 
-function findOvers(match, index = 0) {
-  if (!match) return null;
+function parseScoreObject(item) {
+  if (!item) {
+    return {
+      runs: null,
+      wickets: null,
+      overs: null,
+      score: "",
+      inning: ""
+    };
+  }
+
+  // Direct numeric fields
+  let runs =
+    item.r ??
+    item.runs ??
+    item.run ??
+    item.R ??
+    null;
+
+  let wickets =
+    item.w ??
+    item.wickets ??
+    item.wicket ??
+    item.W ??
+    null;
+
+  let overs =
+    item.o ??
+    item.overs ??
+    item.over ??
+    item.O ??
+    null;
+
+  let inning =
+    item.inning ||
+    item.innings ||
+    item.title ||
+    item.name ||
+    "";
+
+  // Score as string
+  const textScore =
+    item.scoreText ||
+    item.scoreString ||
+    item.display ||
+    (
+      typeof item.score === "string"
+        ? item.score
+        : ""
+    );
 
   if (
-    Array.isArray(match.score) &&
-    match.score[index]
+    textScore
   ) {
-    const item =
-      match.score[index];
+    const parsed =
+      parseScore(textScore);
 
     if (
-      item.o !== undefined &&
-      item.o !== null
+      runs === null ||
+      runs === undefined
     ) {
-      return String(item.o);
+      runs = parsed.runs;
     }
 
     if (
-      item.overs !== undefined &&
-      item.overs !== null
+      wickets === null ||
+      wickets === undefined
     ) {
-      return String(item.overs);
+      wickets = parsed.wickets;
+    }
+
+    if (
+      overs === null ||
+      overs === undefined
+    ) {
+      overs = parsed.overs;
     }
   }
 
-  if (match.score) {
-    const scoreText =
-      Array.isArray(match.score)
-        ? JSON.stringify(match.score)
-        : String(match.score);
-
-    const found =
-      scoreText.match(
-        /(\d+(?:\.\d+)?)\s*ov/i
+  // Nested score object
+  if (
+    typeof item.score === "object" &&
+    item.score !== null
+  ) {
+    const nested =
+      parseScoreObject(
+        item.score
       );
 
-    if (found) {
-      return found[1];
+    if (
+      runs === null ||
+      runs === undefined
+    ) {
+      runs = nested.runs;
+    }
+
+    if (
+      wickets === null ||
+      wickets === undefined
+    ) {
+      wickets = nested.wickets;
+    }
+
+    if (
+      overs === null ||
+      overs === undefined
+    ) {
+      overs = nested.overs;
+    }
+
+    if (!inning) {
+      inning = nested.inning;
     }
   }
 
-  return null;
+  let score = "";
+
+  if (
+    runs !== null &&
+    runs !== undefined
+  ) {
+    score =
+      `${runs}/${wickets ?? 0}`;
+
+    if (
+      overs !== null &&
+      overs !== undefined &&
+      overs !== ""
+    ) {
+      score +=
+        ` (${overs} ov)`;
+    }
+  } else if (
+    textScore
+  ) {
+    score =
+      String(textScore);
+  }
+
+  return {
+    runs,
+    wickets,
+    overs,
+    score,
+    inning
+  };
 }
 
 // ============================================================
-// LIVE STATUS
+// STATUS
 // ============================================================
 
 function getStatus(match) {
+
+  const source =
+    match?.matchInfo ||
+    match?.match ||
+    match?.matchData ||
+    match ||
+    {};
+
   const status =
     String(
-      match?.status || ""
-    ).toLowerCase().trim();
+      match?.status ||
+      source?.status ||
+      source?.state ||
+      source?.stateTitle ||
+      source?.matchStatus ||
+      ""
+    )
+      .toLowerCase()
+      .trim();
 
   const ms =
     String(
-      match?.ms || ""
-    ).toLowerCase().trim();
+      match?.ms ||
+      source?.ms ||
+      source?.matchStatus ||
+      ""
+    )
+      .toLowerCase()
+      .trim();
 
   const started =
-    match?.matchStarted === true ||
-    String(
-      match?.matchStarted
-    ).toLowerCase() === "true";
+    toBoolean(
+      match?.matchStarted ??
+      source?.matchStarted ??
+      source?.started
+    );
 
   const ended =
-    match?.matchEnded === true ||
-    String(
-      match?.matchEnded
-    ).toLowerCase() === "true";
+    toBoolean(
+      match?.matchEnded ??
+      source?.matchEnded ??
+      source?.ended
+    );
 
   // RESULT
   if (
@@ -197,76 +392,462 @@ function getStatus(match) {
 }
 
 // ============================================================
-// TEAM INDEX
+// TEAM EXTRACTION
 // ============================================================
 
-function findBattingTeamIndex(match) {
+function extractTeams(match) {
+
+  const source =
+    match?.matchInfo ||
+    match?.match ||
+    match?.matchData ||
+    match ||
+    {};
+
+  let team1 = "";
+  let team2 = "";
+
+  // ----------------------------------------------------------
+  // teams[]
+  // ----------------------------------------------------------
+
   if (
-    !Array.isArray(match?.score)
+    Array.isArray(source.teams)
   ) {
-    return 0;
+    team1 =
+      getTeamName(
+        source.teams[0]
+      );
+
+    team2 =
+      getTeamName(
+        source.teams[1]
+      );
   }
 
-  for (
-    let i = 0;
-    i < match.score.length;
-    i++
+  // ----------------------------------------------------------
+  // teamInfo[]
+  // ----------------------------------------------------------
+
+  if (
+    Array.isArray(source.teamInfo)
   ) {
-    const score =
-      match.score[i];
+    team1 =
+      team1 ||
+      getTeamName(
+        source.teamInfo[0]
+      );
+
+    team2 =
+      team2 ||
+      getTeamName(
+        source.teamInfo[1]
+      );
+  }
+
+  // ----------------------------------------------------------
+  // team1 / team2
+  // ----------------------------------------------------------
+
+  team1 =
+    team1 ||
+    getTeamName(
+      source.team1
+    ) ||
+    getTeamName(
+      source.teamA
+    ) ||
+    cleanTeamName(
+      source.team1Name
+    ) ||
+    cleanTeamName(
+      source.teamAName
+    );
+
+  team2 =
+    team2 ||
+    getTeamName(
+      source.team2
+    ) ||
+    getTeamName(
+      source.teamB
+    ) ||
+    cleanTeamName(
+      source.team2Name
+    ) ||
+    cleanTeamName(
+      source.teamBName
+    );
+
+  // ----------------------------------------------------------
+  // Direct name fields
+  // ----------------------------------------------------------
+
+  if (
+    !team1 &&
+    source.team1ShortName
+  ) {
+    team1 =
+      cleanTeamName(
+        source.team1ShortName
+      );
+  }
+
+  if (
+    !team2 &&
+    source.team2ShortName
+  ) {
+    team2 =
+      cleanTeamName(
+        source.team2ShortName
+      );
+  }
+
+  // ----------------------------------------------------------
+  // match name fallback
+  // Example: India vs West Indies
+  // ----------------------------------------------------------
+
+  const matchName =
+    source.name ||
+    source.matchName ||
+    source.title ||
+    "";
+
+  if (
+    (!team1 || !team2) &&
+    matchName
+  ) {
+
+    const parts =
+      String(matchName)
+        .split(/\s+vs\.?\s+/i);
 
     if (
-      score &&
-      (
-        score.inning ||
-        score.r !== undefined ||
-        score.w !== undefined ||
-        score.o !== undefined
-      )
+      parts.length >= 2
     ) {
-      return i;
+      team1 =
+        team1 ||
+        cleanTeamName(
+          parts[0]
+        );
+
+      team2 =
+        team2 ||
+        cleanTeamName(
+          parts[1]
+        );
     }
   }
 
-  return 0;
+  return {
+    team1:
+      team1 ||
+      "Team 1",
+
+    team2:
+      team2 ||
+      "Team 2"
+  };
 }
 
 // ============================================================
-// CLEAN TEXT
+// VENUE EXTRACTION
 // ============================================================
 
-function cleanTeamName(name) {
-  if (!name) return "";
+function extractVenue(match) {
 
-  return String(name)
-    .replace(/\s+/g, " ")
-    .trim();
-}
+  const source =
+    match?.matchInfo ||
+    match?.match ||
+    match?.matchData ||
+    match ||
+    {};
 
-// ============================================================
-// TEAM NAME FINDER
-// ============================================================
-
-function getTeamName(team, fallback = "") {
-  if (!team) {
-    return fallback;
-  }
-
-  if (
-    typeof team === "string"
-  ) {
-    return cleanTeamName(team);
-  }
+  const venueInfo =
+    source?.venueInfo ||
+    source?.venueDetails ||
+    match?.venueInfo ||
+    {};
 
   return cleanTeamName(
-    team.name ||
-    team.shortname ||
-    team.teamName ||
-    team.team ||
-    team.title ||
-    team.fullName ||
+    source?.venue ||
+    source?.venueName ||
+    source?.ground ||
+    source?.stadium ||
+    source?.location ||
+    source?.venue_name ||
+
+    venueInfo?.ground ||
+    venueInfo?.name ||
+    venueInfo?.venue ||
+    venueInfo?.stadium ||
+    venueInfo?.location ||
+
+    match?.venue ||
+    match?.venueName ||
+    match?.ground ||
+    match?.stadium ||
+    match?.location ||
+
     ""
-  ) || fallback;
+  );
+}
+
+// ============================================================
+// SCORE EXTRACTION
+// ============================================================
+
+function extractScores(match) {
+
+  const source =
+    match?.matchInfo ||
+    match?.match ||
+    match?.matchData ||
+    match ||
+    {};
+
+  const scoreSource =
+    match?.matchScore ||
+    source?.matchScore ||
+    source?.scorecard ||
+    source?.score ||
+    match?.score ||
+    [];
+
+  const results = [];
+
+  // ----------------------------------------------------------
+  // score[]
+  // ----------------------------------------------------------
+
+  if (
+    Array.isArray(scoreSource)
+  ) {
+
+    scoreSource.forEach(
+      (item, index) => {
+
+        const parsed =
+          parseScoreObject(
+            item
+          );
+
+        results.push({
+          index,
+          inning:
+            parsed.inning ||
+            "",
+          runs:
+            parsed.runs,
+          wickets:
+            parsed.wickets,
+          overs:
+            parsed.overs,
+          score:
+            parsed.score
+        });
+      }
+    );
+  }
+
+  // ----------------------------------------------------------
+  // matchScore.team1Score / team2Score
+  // ----------------------------------------------------------
+
+  const matchScore =
+    source?.matchScore ||
+    match?.matchScore ||
+    null;
+
+  if (
+    matchScore &&
+    typeof matchScore === "object"
+  ) {
+
+    const teamScores = [
+      {
+        key: "team1Score",
+        teamIndex: 0
+      },
+      {
+        key: "team2Score",
+        teamIndex: 1
+      }
+    ];
+
+    teamScores.forEach(
+      entry => {
+
+        const teamScore =
+          matchScore[
+            entry.key
+          ];
+
+        if (
+          !teamScore
+        ) {
+          return;
+        }
+
+        // innings object
+        const innings =
+          teamScore?.inngs1 ||
+          teamScore?.innings1 ||
+          teamScore?.inning1 ||
+          teamScore;
+
+        const parsed =
+          parseScoreObject(
+            innings
+          );
+
+        if (
+          parsed.score ||
+          parsed.runs !== null
+        ) {
+
+          results.push({
+            index:
+              entry.teamIndex,
+
+            inning:
+              parsed.inning ||
+              "",
+
+            runs:
+              parsed.runs,
+
+            wickets:
+              parsed.wickets,
+
+            overs:
+              parsed.overs,
+
+            score:
+              parsed.score
+          });
+        }
+      }
+    );
+  }
+
+  // ----------------------------------------------------------
+  // Direct team scores
+  // ----------------------------------------------------------
+
+  const directScores = [
+    source?.team1Score,
+    source?.team2Score
+  ];
+
+  directScores.forEach(
+    (item, index) => {
+
+      if (!item) {
+        return;
+      }
+
+      const parsed =
+        parseScoreObject(
+          item
+        );
+
+      if (
+        parsed.score ||
+        parsed.runs !== null
+      ) {
+
+        results.push({
+          index,
+          inning:
+            parsed.inning ||
+            "",
+          runs:
+            parsed.runs,
+          wickets:
+            parsed.wickets,
+          overs:
+            parsed.overs,
+          score:
+            parsed.score
+        });
+      }
+    }
+  );
+
+  // ----------------------------------------------------------
+  // Remove duplicates
+  // ----------------------------------------------------------
+
+  const unique = [];
+
+  for (
+    const item of results
+  ) {
+
+    const key =
+      `${item.index}|${item.runs}|${item.wickets}|${item.overs}|${item.score}`;
+
+    if (
+      !unique.some(
+        x =>
+          x.__key === key
+      )
+    ) {
+
+      unique.push({
+        ...item,
+        __key: key
+      });
+    }
+  }
+
+  return unique.map(
+    ({
+      __key,
+      ...item
+    }) => item
+  );
+}
+
+// ============================================================
+// FIND CURRENT SCORE
+// ============================================================
+
+function findCurrentScore(
+  scores
+) {
+
+  if (
+    !Array.isArray(scores) ||
+    !scores.length
+  ) {
+    return null;
+  }
+
+  // Prefer last valid score
+  for (
+    let i = scores.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const item =
+      scores[i];
+
+    if (
+      item &&
+      (
+        item.score ||
+        item.runs !== null
+      )
+    ) {
+      return item;
+    }
+  }
+
+  return null;
 }
 
 // ============================================================
@@ -275,150 +856,73 @@ function getTeamName(team, fallback = "") {
 
 function formatCricScoreMatch(match) {
 
+  const source =
+    match?.matchInfo ||
+    match?.match ||
+    match?.matchData ||
+    match ||
+    {};
+
   const teams =
-    Array.isArray(match?.teams)
-      ? match.teams
-      : [];
-
-  const teamInfo =
-    Array.isArray(match?.teamInfo)
-      ? match.teamInfo
-      : [];
-
-  const team1 =
-    getTeamName(
-      teams[0],
-      getTeamName(
-        teamInfo[0],
-        "Team 1"
-      )
+    extractTeams(
+      match
     );
-
-  const team2 =
-    getTeamName(
-      teams[1],
-      getTeamName(
-        teamInfo[1],
-        "Team 2"
-      )
-    );
-
-  // ----------------------------------------------------------
-  // SCORES
-  // ----------------------------------------------------------
 
   const scores =
-    Array.isArray(match?.score)
-      ? match.score
-      : [];
-
-  const scoreList =
-    scores.map(
-      (item, index) => {
-
-        const runs =
-          item?.r ??
-          item?.runs ??
-          null;
-
-        const wickets =
-          item?.w ??
-          item?.wickets ??
-          null;
-
-        const overs =
-          item?.o ??
-          item?.overs ??
-          null;
-
-        const inning =
-          item?.inning ||
-          item?.innings ||
-          "";
-
-        let scoreText = "";
-
-        if (
-          runs !== null &&
-          runs !== undefined
-        ) {
-          scoreText =
-            `${runs}/${wickets ?? 0}`;
-
-          if (
-            overs !== null &&
-            overs !== undefined
-          ) {
-            scoreText +=
-              ` (${overs} ov)`;
-          }
-        } else {
-          scoreText =
-            String(inning);
-        }
-
-        return {
-          index,
-          inning,
-          runs,
-          wickets,
-          overs,
-          score: scoreText
-        };
-      }
+    extractScores(
+      match
     );
 
-  const battingIndex =
-    findBattingTeamIndex(match);
-
-  // ----------------------------------------------------------
-  // VENUE
-  // ----------------------------------------------------------
+  const current =
+    findCurrentScore(
+      scores
+    );
 
   const venue =
-    match?.venue ||
-    match?.venueName ||
-    match?.ground ||
-    match?.stadium ||
-    match?.location ||
-    "";
-
-  // ----------------------------------------------------------
-  // MATCH NAME
-  // ----------------------------------------------------------
-
-  const matchName =
-    match?.name ||
-    match?.matchName ||
-    `${team1} vs ${team2}`;
-
-  // ----------------------------------------------------------
-  // SERIES
-  // ----------------------------------------------------------
-
-  const series =
-    match?.series_name ||
-    match?.seriesName ||
-    match?.series ||
-    match?.series_id ||
-    "";
-
-  // ----------------------------------------------------------
-  // STATUS
-  // ----------------------------------------------------------
+    extractVenue(
+      match
+    );
 
   const status =
-    getStatus(match);
+    getStatus(
+      match
+    );
+
+  const matchName =
+    source?.name ||
+    source?.matchName ||
+    source?.title ||
+    `${teams.team1} vs ${teams.team2}`;
+
+  const series =
+    source?.series_name ||
+    source?.seriesName ||
+    source?.series ||
+    source?.seriesName ||
+    source?.series_id ||
+    "";
+
+  const teamInfo =
+    Array.isArray(
+      source?.teamInfo
+    )
+      ? source.teamInfo
+      : [];
 
   return {
 
     id:
-      match?.id || "",
+      match?.id ||
+      source?.id ||
+      source?.matchId ||
+      "",
 
     name:
       matchName,
 
     matchType:
+      source?.matchType ||
+      source?.type ||
       match?.matchType ||
       match?.type ||
       "",
@@ -426,27 +930,39 @@ function formatCricScoreMatch(match) {
     status,
 
     rawStatus:
-      match?.status || "",
+      source?.status ||
+      match?.status ||
+      "",
 
     matchStatus:
-      match?.ms || "",
+      source?.ms ||
+      match?.ms ||
+      "",
 
     matchStarted:
-      match?.matchStarted ??
-      false,
+      toBoolean(
+        match?.matchStarted ??
+        source?.matchStarted
+      ),
 
     matchEnded:
-      match?.matchEnded ??
-      false,
+      toBoolean(
+        match?.matchEnded ??
+        source?.matchEnded
+      ),
 
     venue,
 
     date:
+      source?.date ||
+      source?.dateTimeGMT ||
       match?.date ||
       match?.dateTimeGMT ||
       "",
 
     dateTimeGMT:
+      source?.dateTimeGMT ||
+      source?.date ||
       match?.dateTimeGMT ||
       match?.date ||
       "",
@@ -454,22 +970,25 @@ function formatCricScoreMatch(match) {
     series,
 
     teams: [
-      team1,
-      team2
+      teams.team1,
+      teams.team2
     ],
 
     teamInfo:
       teamInfo.map(
         item => ({
           name:
-            item?.name ||
-            item?.shortname ||
-            "",
+            getTeamName(
+              item
+            ),
 
           shortname:
-            item?.shortname ||
-            item?.name ||
-            "",
+            cleanTeamName(
+              item?.shortname ||
+              item?.shortName ||
+              item?.name ||
+              ""
+            ),
 
           img:
             item?.img ||
@@ -479,28 +998,32 @@ function formatCricScoreMatch(match) {
       ),
 
     score:
-      scoreList,
+      scores,
 
     currentInnings:
-      scoreList[battingIndex] ||
-      scoreList[
-        scoreList.length - 1
-      ] ||
-      null,
+      current,
+
+    currentScore:
+      current?.score ||
+      "",
 
     tossWinner:
+      source?.tossWinner ||
       match?.tossWinner ||
       "",
 
     tossChoice:
+      source?.tossChoice ||
       match?.tossChoice ||
       "",
 
     result:
+      source?.status ||
       match?.status ||
       "",
 
     description:
+      source?.status ||
       match?.status ||
       "",
 
@@ -514,6 +1037,7 @@ function formatCricScoreMatch(match) {
 // ============================================================
 
 function sortMatches(matches) {
+
   return [...matches].sort(
     (a, b) => {
 
@@ -577,6 +1101,7 @@ async function getAllCricketMatches(env) {
       url,
       {
         method: "GET",
+
         headers: {
           "Accept":
             "application/json"
@@ -600,6 +1125,7 @@ async function getAllCricketMatches(env) {
   if (
     data?.status === "failure"
   ) {
+
     throw new Error(
       data?.reason ||
       data?.message ||
@@ -608,10 +1134,31 @@ async function getAllCricketMatches(env) {
     );
   }
 
-  const rawMatches =
-    Array.isArray(data?.data)
-      ? data.data
-      : [];
+  // Support different API wrappers
+  let rawMatches = [];
+
+  if (
+    Array.isArray(
+      data?.data
+    )
+  ) {
+    rawMatches =
+      data.data;
+  } else if (
+    Array.isArray(
+      data?.matches
+    )
+  ) {
+    rawMatches =
+      data.matches;
+  } else if (
+    Array.isArray(
+      data?.results
+    )
+  ) {
+    rawMatches =
+      data.results;
+  }
 
   const matches =
     rawMatches.map(
@@ -624,7 +1171,7 @@ async function getAllCricketMatches(env) {
 }
 
 // ============================================================
-// LIVE SCORES
+// LIVE
 // ============================================================
 
 async function getCricketScores(env) {
@@ -645,6 +1192,7 @@ async function getCricketScores(env) {
 // ============================================================
 
 async function getFixtures(env) {
+
   return getAllCricketMatches(
     env
   );
@@ -686,6 +1234,7 @@ async function getMatchDetail(
       url,
       {
         method: "GET",
+
         headers: {
           "Accept":
             "application/json"
@@ -709,6 +1258,7 @@ async function getMatchDetail(
   if (
     data?.status === "failure"
   ) {
+
     throw new Error(
       data?.reason ||
       data?.message ||
@@ -835,9 +1385,7 @@ ${customPrompt}
 // BASE64
 // ============================================================
 
-function base64ToUint8Array(
-  base64
-) {
+function base64ToUint8Array(base64) {
 
   const binary =
     atob(base64);
@@ -907,13 +1455,17 @@ async function generateAIImage(
     return result;
   }
 
-  if (result?.image) {
+  if (
+    result?.image
+  ) {
     return base64ToUint8Array(
       result.image
     );
   }
 
-  if (result?.data?.image) {
+  if (
+    result?.data?.image
+  ) {
     return base64ToUint8Array(
       result.data.image
     );
@@ -960,13 +1512,14 @@ export default {
     const pathname =
       url.pathname;
 
-    // --------------------------------------------------------
+    // ========================================================
     // OPTIONS
-    // --------------------------------------------------------
+    // ========================================================
 
     if (
       request.method === "OPTIONS"
     ) {
+
       return new Response(
         null,
         {
@@ -989,6 +1542,7 @@ export default {
       ) {
 
         return jsonResponse({
+
           success: true,
 
           app:
@@ -998,7 +1552,9 @@ export default {
             "cricket-ai-app",
 
           workersAI:
-            Boolean(env.AI),
+            Boolean(
+              env.AI
+            ),
 
           cricketApiKey:
             Boolean(
@@ -1006,7 +1562,9 @@ export default {
             ),
 
           assets:
-            Boolean(env.ASSETS),
+            Boolean(
+              env.ASSETS
+            ),
 
           endpoints: [
             "/api/generate",
@@ -1019,6 +1577,7 @@ export default {
             "/api/match-points",
             "/api/health"
           ]
+
         });
       }
 
@@ -1105,6 +1664,7 @@ export default {
           return jsonResponse(
             {
               success: false,
+
               error:
                 "Match ID is required"
             },
@@ -1149,6 +1709,7 @@ export default {
           return jsonResponse(
             {
               success: false,
+
               error:
                 "Match ID is required"
             },
@@ -1354,7 +1915,9 @@ export default {
       // STATIC ASSETS
       // ======================================================
 
-      if (env.ASSETS) {
+      if (
+        env.ASSETS
+      ) {
 
         return env.ASSETS.fetch(
           request
@@ -1411,12 +1974,12 @@ export default {
           success: false,
 
           error:
-            errorMessage(error)
+            errorMessage(
+              error
+            )
         },
         500
       );
     }
   }
 };
-
-// Production deployment trigger 2026-10-03
