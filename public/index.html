@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<meta name="description" content="Cricket Short - AI Cricket Player, Live Cricket Score, Fixtures, Scorecard and Ball-by-Ball">
+<meta name="description" content="Cricket Short - AI Cricket Player, Live Cricket Score, Fixtures, Scorecard, Poster and Player Card">
 <title>Cricket Short</title>
 
 <style>
@@ -16,18 +16,16 @@
 html,body{
   width:100%;
   min-height:100%;
-  background:#061326;
-  color:#fff;
-  font-family:Arial,Helvetica,sans-serif;
 }
 
 body{
-  overflow-x:hidden;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#07152f;
+  color:#fff;
+  line-height:1.45;
 }
 
-button,
-input,
-select{
+button,input,select{
   font:inherit;
 }
 
@@ -35,24 +33,29 @@ button{
   cursor:pointer;
 }
 
-.header{
-  background:linear-gradient(135deg,#071b3b,#0b3b78);
-  padding:18px 14px 16px;
+.app{
+  width:100%;
+  max-width:1100px;
+  margin:auto;
+  min-height:100vh;
+  background:#07152f;
+}
+
+header{
+  padding:18px 15px 12px;
   text-align:center;
+  background:linear-gradient(135deg,#0b2b68,#07152f);
   border-bottom:1px solid rgba(255,255,255,.12);
-  position:sticky;
-  top:0;
-  z-index:50;
 }
 
-.header h1{
-  font-size:25px;
-  margin-bottom:5px;
+header h1{
+  font-size:27px;
+  margin-bottom:4px;
 }
 
-.header p{
-  color:#bcd6f7;
-  font-size:12px;
+header p{
+  color:#b8c7e6;
+  font-size:13px;
 }
 
 .nav{
@@ -60,36 +63,30 @@ button{
   gap:7px;
   padding:10px;
   overflow-x:auto;
-  background:#07182e;
+  background:#081a39;
   position:sticky;
-  top:76px;
-  z-index:45;
-  scrollbar-width:none;
-}
-
-.nav::-webkit-scrollbar{
-  display:none;
+  top:0;
+  z-index:50;
+  border-bottom:1px solid rgba(255,255,255,.1);
 }
 
 .nav button{
   flex:0 0 auto;
-  border:1px solid #24558e;
-  background:#0c2443;
-  color:#dcecff;
-  border-radius:9px;
-  padding:9px 12px;
-  font-size:12px;
+  border:0;
+  border-radius:10px;
+  padding:10px 12px;
+  background:#122a52;
+  color:#dce8ff;
+  font-size:13px;
+  white-space:nowrap;
 }
 
 .nav button.active{
-  background:#1768c4;
-  border-color:#3d91ed;
+  background:#1769e0;
   color:#fff;
 }
 
-.container{
-  max-width:900px;
-  margin:auto;
+main{
   padding:12px;
 }
 
@@ -102,302 +99,288 @@ button{
 }
 
 .card{
-  background:linear-gradient(145deg,#0b213d,#0a1a31);
-  border:1px solid #1c3c61;
-  border-radius:14px;
-  padding:14px;
+  background:#0d2144;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:15px;
+  padding:15px;
   margin-bottom:12px;
   box-shadow:0 8px 25px rgba(0,0,0,.18);
 }
 
 .card h2{
-  font-size:19px;
-  margin-bottom:6px;
+  font-size:21px;
+  margin-bottom:7px;
 }
 
 .card h3{
-  font-size:16px;
-  margin-bottom:8px;
+  font-size:17px;
+  margin-bottom:7px;
 }
 
 .muted{
-  color:#9db5d2;
-  font-size:12px;
-}
-
-.small{
-  font-size:11px;
-  color:#9db5d2;
-}
-
-.row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px;
+  color:#aebedc;
+  font-size:13px;
 }
 
 .field{
-  margin-bottom:10px;
+  margin-top:12px;
 }
 
 .field label{
   display:block;
-  font-size:12px;
-  color:#b8cce5;
+  font-size:13px;
+  color:#b8c8e6;
   margin-bottom:5px;
 }
 
-input,
-select,
-textarea{
+.field input,
+.field select{
   width:100%;
-  border:1px solid #284b70;
-  border-radius:9px;
-  background:#07182d;
+  border:1px solid #29456f;
+  background:#081936;
   color:#fff;
-  padding:10px;
+  border-radius:10px;
+  padding:11px 12px;
   outline:none;
 }
 
-textarea{
-  min-height:90px;
-  resize:vertical;
+.field input:focus,
+.field select:focus{
+  border-color:#3584ff;
 }
 
-input:focus,
-select:focus,
-textarea:focus{
-  border-color:#3185df;
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+@media(max-width:650px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
+
+.primary,
+.secondary,
+.danger{
+  width:100%;
+  border:0;
+  border-radius:11px;
+  padding:12px;
+  margin-top:12px;
+  color:#fff;
+  font-weight:bold;
 }
 
 .primary{
-  width:100%;
-  border:0;
-  border-radius:10px;
-  padding:12px;
-  color:#fff;
-  font-weight:bold;
-  background:linear-gradient(135deg,#087cf0,#1456bb);
+  background:#1769e0;
+}
+
+.primary:hover{
+  background:#2878ed;
 }
 
 .secondary{
-  border:1px solid #315c88;
-  border-radius:9px;
-  padding:9px 11px;
-  color:#dcecff;
-  background:#0b2544;
-}
-
-.success{
-  background:#11633f;
-  border-color:#26895f;
+  background:#183761;
 }
 
 .danger{
-  background:#64222c;
-  border-color:#963643;
+  background:#a52c3a;
 }
 
-.warning{
-  background:#654d18;
-  border-color:#8d7025;
-}
-
-.statusbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  margin-bottom:10px;
-}
-
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  border-radius:20px;
-  padding:5px 9px;
-  font-size:10px;
-  font-weight:bold;
-  border:1px solid transparent;
-}
-
-.badge.live{
-  background:#571b28;
-  border-color:#a83448;
-  color:#ff9cac;
-}
-
-.badge.result{
-  background:#153e2e;
-  border-color:#2a7958;
-  color:#8fe3bc;
-}
-
-.badge.upcoming{
-  background:#153a60;
-  border-color:#2869a5;
-  color:#91c9ff;
-}
-
-.live-dot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:#ff405d;
-  box-shadow:0 0 9px #ff405d;
-  animation:pulse 1.2s infinite;
-}
-
-@keyframes pulse{
-  0%,100%{opacity:1}
-  50%{opacity:.35}
-}
-
-/* LIVE SCORE PRO */
-
-.live-top{
-  background:linear-gradient(135deg,#0a2549,#0a477a);
-  border:1px solid #27649a;
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:12px;
-}
-
-.live-top-title{
-  font-size:21px;
-  font-weight:bold;
-}
-
-.live-top-sub{
-  margin-top:4px;
-  color:#aac8e8;
+.small-btn{
+  border:0;
+  border-radius:8px;
+  background:#1769e0;
+  color:#fff;
+  padding:8px 10px;
   font-size:12px;
 }
 
-.refresh-line{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  margin-top:12px;
-}
-
-.refresh-btn{
-  border:1px solid #4a82b7;
-  background:#0a2e55;
-  color:#fff;
-  border-radius:9px;
-  padding:8px 11px;
-}
-
-.match{
-  background:linear-gradient(145deg,#0a1e38,#08182d);
-  border:1px solid #1d4168;
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:12px;
-}
-
-.match-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:8px;
-}
-
-.match-name{
-  font-size:15px;
-  font-weight:bold;
-  line-height:1.35;
-}
-
-.match-meta{
-  color:#91a9c3;
-  font-size:11px;
-  margin-top:4px;
-}
-
-.scoreboard{
-  margin-top:14px;
-  background:#061426;
-  border:1px solid #183856;
-  border-radius:13px;
-  overflow:hidden;
-}
-
-.team-row{
+.status-row{
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:10px;
-  padding:13px;
-  border-bottom:1px solid #17334e;
+  flex-wrap:wrap;
+  margin-bottom:10px;
 }
 
-.team-row:last-child{
-  border-bottom:0;
+.live-badge{
+  display:inline-block;
+  background:#b71c2b;
+  color:#fff;
+  border-radius:20px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.result-badge{
+  display:inline-block;
+  background:#35506e;
+  color:#fff;
+  border-radius:20px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.match-card{
+  background:#0a1b38;
+  border:1px solid #203b65;
+  border-radius:14px;
+  padding:13px;
+  margin-top:10px;
+}
+
+.match-title{
+  font-size:15px;
+  font-weight:bold;
+  margin-bottom:4px;
+}
+
+.series{
+  color:#9eb2d3;
+  font-size:12px;
+  margin-bottom:9px;
+}
+
+.teams{
+  display:grid;
+  grid-template-columns:1fr 30px 1fr;
+  align-items:center;
+  gap:8px;
+  margin:10px 0;
+}
+
+.team{
+  background:#10284d;
+  border-radius:10px;
+  padding:10px;
+  text-align:center;
 }
 
 .team-name{
-  font-size:14px;
   font-weight:bold;
-  flex:1;
+  font-size:16px;
 }
 
 .team-score{
-  text-align:right;
-  font-size:19px;
+  margin-top:3px;
+  font-size:14px;
+  color:#dce8ff;
+}
+
+.vs{
+  text-align:center;
+  color:#7891b8;
   font-weight:bold;
 }
 
-.team-overs{
-  color:#91aac5;
-  font-size:10px;
-  margin-top:3px;
-}
-
-.batting{
-  color:#59c8ff;
-}
-
-.venue{
-  margin-top:10px;
-  color:#9eb8d2;
+.meta{
+  color:#9db2d5;
   font-size:11px;
+  margin-top:5px;
 }
 
-.match-actions{
+.actions{
   display:grid;
-  grid-template-columns:1fr 1fr 1fr;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+
+.actions button{
+  border:0;
+  border-radius:9px;
+  padding:9px;
+  background:#15345e;
+  color:#fff;
+  font-size:12px;
+}
+
+.loading{
+  text-align:center;
+  color:#b9c9e4;
+  padding:22px;
+}
+
+.error{
+  background:#431b25;
+  border:1px solid #81313f;
+  color:#ffbdc6;
+  border-radius:11px;
+  padding:12px;
+  margin-top:10px;
+}
+
+.success{
+  background:#153b2c;
+  border:1px solid #28664a;
+  color:#baf0d3;
+  border-radius:11px;
+  padding:12px;
+  margin-top:10px;
+}
+
+.filter-row{
+  display:flex;
   gap:7px;
+  overflow-x:auto;
+  margin:10px 0;
+}
+
+.filter-row button{
+  flex:0 0 auto;
+  border:0;
+  border-radius:9px;
+  padding:9px 12px;
+  background:#122b51;
+  color:#cbd9ef;
+}
+
+.filter-row button.active{
+  background:#1769e0;
+  color:#fff;
+}
+
+pre{
+  white-space:pre-wrap;
+  word-break:break-word;
+  overflow:auto;
+  font-size:11px;
+  color:#d7e4fa;
+}
+
+.poster-box,
+.card-preview{
+  border-radius:14px;
+  overflow:hidden;
+  background:#081936;
+  margin-top:12px;
+  min-height:100px;
+}
+
+.poster-box img,
+.card-preview img{
+  width:100%;
+  display:block;
+}
+
+.generated-image{
+  width:100%;
+  border-radius:12px;
+  display:block;
   margin-top:12px;
 }
-
-.match-actions button{
-  min-width:0;
-  font-size:11px;
-  padding:9px 5px;
-}
-
-.live-mode-btn{
-  background:linear-gradient(135deg,#b51f35,#751525);
-  border-color:#d74a5e;
-}
-
-/* LIVE OVERLAY */
 
 .live-overlay{
   position:fixed;
   inset:0;
-  z-index:9999;
-  background:#020913;
+  background:#020914;
+  z-index:200;
   display:none;
   overflow:auto;
 }
@@ -406,289 +389,100 @@ textarea:focus{
   display:block;
 }
 
-.live-box{
-  min-height:100vh;
-  padding:16px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  max-width:850px;
-  margin:auto;
-}
-
-.live-box-head{
+.live-head{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:10px;
-  margin-bottom:14px;
+  padding:14px;
+  background:#071a38;
+  position:sticky;
+  top:0;
+  z-index:2;
 }
 
-.live-box-title{
-  font-size:20px;
-  font-weight:bold;
+.live-head h2{
+  font-size:19px;
 }
 
 .close-live{
-  border:1px solid #5c728b;
-  background:#13253a;
-  color:#fff;
-  border-radius:10px;
+  border:0;
+  border-radius:9px;
   padding:9px 12px;
+  background:#a72d3b;
+  color:#fff;
 }
 
-.big-score{
-  border:1px solid #24557e;
-  border-radius:20px;
+.live-content{
+  max-width:900px;
+  margin:auto;
+  padding:12px;
+}
+
+.empty{
+  text-align:center;
+  padding:25px 10px;
+  color:#9db2d5;
+}
+
+footer{
+  text-align:center;
+  color:#7f96bc;
+  font-size:11px;
+  padding:25px 10px;
+}
+
+.hr{
+  height:1px;
+  background:rgba(255,255,255,.08);
+  margin:13px 0;
+}
+
+.scorecard-team{
+  background:#091a36;
+  border:1px solid #203c67;
+  border-radius:12px;
+  margin-top:10px;
   overflow:hidden;
-  background:linear-gradient(145deg,#0a2340,#051121);
-  box-shadow:0 15px 50px rgba(0,0,0,.45);
 }
 
-.big-status{
-  padding:14px;
-  text-align:center;
-  background:#0b294a;
-}
-
-.big-match{
-  text-align:center;
-  font-size:17px;
-  font-weight:bold;
-}
-
-.big-series{
-  color:#9db8d4;
-  font-size:11px;
-  margin-top:5px;
-}
-
-.big-teams{
-  padding:25px 15px;
-}
-
-.big-team{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  padding:18px 8px;
-  border-bottom:1px solid #183651;
-}
-
-.big-team:last-child{
-  border-bottom:0;
-}
-
-.big-team-name{
-  font-size:20px;
-  font-weight:bold;
-}
-
-.big-team-score{
-  text-align:right;
-}
-
-.big-runs{
-  font-size:34px;
-  font-weight:bold;
-}
-
-.big-overs{
-  color:#9eb7d0;
-  font-size:12px;
-  margin-top:3px;
-}
-
-.live-info{
-  padding:14px;
-  text-align:center;
-  border-top:1px solid #193953;
-  color:#a9c2dc;
-  font-size:12px;
-}
-
-.live-controls{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  margin-top:14px;
-}
-
-.live-controls button{
-  border:1px solid #315b80;
-  background:#0b2745;
-  color:#fff;
-  border-radius:10px;
-  padding:10px 14px;
-}
-
-/* FILTERS */
-
-.filters{
-  display:flex;
-  gap:7px;
-  overflow-x:auto;
-  margin-bottom:12px;
-  scrollbar-width:none;
-}
-
-.filters::-webkit-scrollbar{
-  display:none;
-}
-
-.filters button{
-  flex:0 0 auto;
-  border:1px solid #2b5279;
-  background:#0b2340;
-  color:#c9dff6;
-  border-radius:8px;
-  padding:8px 11px;
-  font-size:11px;
-}
-
-.filters button.active{
-  background:#1768c4;
-  border-color:#4797e8;
-  color:#fff;
-}
-
-/* FIXTURE */
-
-.fixture{
-  border:1px solid #1c3d60;
-  background:#091c34;
-  border-radius:13px;
+.scorecard-team h3{
   padding:12px;
-  margin-bottom:9px;
+  background:#10294f;
+  margin:0;
 }
 
-.fixture-title{
-  font-weight:bold;
-  font-size:14px;
-}
-
-.fixture-meta{
-  color:#93abc5;
-  font-size:11px;
-  margin-top:4px;
-}
-
-.fixture-actions{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-  margin-top:9px;
-}
-
-.fixture-actions button{
-  border:1px solid #315b82;
-  background:#0c2848;
-  color:#d9ebff;
-  border-radius:8px;
-  padding:7px 9px;
-  font-size:10px;
-}
-
-/* API RESULT */
-
-pre{
-  white-space:pre-wrap;
-  word-break:break-word;
-  background:#04101f;
-  border:1px solid #1b3a58;
-  border-radius:10px;
-  padding:12px;
-  color:#bfe0ff;
-  font-size:11px;
-  line-height:1.5;
-  max-height:600px;
-  overflow:auto;
-}
-
-/* AI */
-
-.generated{
-  margin-top:12px;
-}
-
-.generated img{
+.score-table{
   width:100%;
-  display:block;
-  border-radius:13px;
-  border:1px solid #285277;
-}
-
-.loading{
-  padding:15px;
-  text-align:center;
-  color:#9fc8ef;
-}
-
-.error{
-  background:#421b24;
-  border:1px solid #853847;
-  color:#ffb8c3;
-  border-radius:10px;
-  padding:11px;
+  border-collapse:collapse;
   font-size:12px;
 }
 
-/* PLAYER CARD */
-
-.player-card{
-  background:linear-gradient(145deg,#123c6b,#07182e);
-  border:1px solid #3a79ad;
-  border-radius:18px;
-  padding:20px;
-  text-align:center;
+.score-table th,
+.score-table td{
+  padding:9px 7px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  text-align:left;
 }
 
-.player-avatar{
-  width:95px;
-  height:95px;
-  margin:0 auto 12px;
-  border-radius:50%;
-  background:#0a203a;
-  border:3px solid #4a98e2;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:38px;
+.score-table th{
+  color:#a9bddb;
 }
 
-.rating{
-  font-size:38px;
-  font-weight:bold;
-  margin:10px 0;
-}
-
-.footer{
-  text-align:center;
-  color:#617b99;
-  font-size:10px;
-  padding:25px 10px 40px;
-}
-
-@media(max-width:600px){
-  .grid{
-    grid-template-columns:1fr;
+@media(max-width:500px){
+  header h1{
+    font-size:24px;
   }
 
-  .match-actions{
-    grid-template-columns:1fr 1fr;
+  main{
+    padding:9px;
   }
 
-  .match-actions button:first-child{
-    grid-column:span 2;
+  .teams{
+    grid-template-columns:1fr 22px 1fr;
   }
 
-  .big-team-name{
-    font-size:17px;
-  }
-
-  .big-runs{
-    font-size:29px;
+  .team-name{
+    font-size:14px;
   }
 }
 </style>
@@ -696,7 +490,9 @@ pre{
 
 <body>
 
-<header class="header">
+<div class="app">
+
+<header>
   <h1>🏏 Cricket Short</h1>
   <p>AI Cricket Player • Live Score • Fixtures • Scorecard</p>
 </header>
@@ -713,70 +509,92 @@ pre{
   <button onclick="showSection('news',this)">📰 News</button>
 </nav>
 
-<main class="container">
+<main>
 
-<!-- LIVE -->
+<!-- ================= LIVE ================= -->
 
 <section id="live" class="section active">
 
-  <div class="live-top">
-    <div class="live-top-title">🔴 Live Score Pro</div>
-    <div class="live-top-sub">
-      Live cricket matches with score, overs, venue and Live Mode
+  <div class="card">
+
+    <div class="status-row">
+      <div>
+        <h2>🔴 Live Cricket</h2>
+        <p class="muted" id="liveInfo">Loading live matches...</p>
+      </div>
+
+      <button class="small-btn" onclick="loadScores()">↻ Refresh</button>
     </div>
 
-    <div class="refresh-line">
-      <div id="liveInfo" class="small">Loading live matches...</div>
-      <button class="refresh-btn" onclick="loadScores()">🔄 Refresh</button>
+    <div id="liveResult">
+      <div class="loading">🔄 Live score loading...</div>
     </div>
-  </div>
 
-  <div id="liveCount" class="small" style="margin-bottom:10px;"></div>
-
-  <div id="liveList">
-    <div class="card loading">🔄 Live score loading...</div>
   </div>
 
 </section>
 
 
-<!-- FIXTURES -->
+<!-- ================= FIXTURES ================= -->
 
 <section id="fixtures" class="section">
 
   <div class="card">
+
     <h2>📅 Fixtures</h2>
-    <p class="muted">Upcoming, live and completed matches</p>
-  </div>
+    <p class="muted">Upcoming और completed matches</p>
 
-  <div class="filters">
-    <button class="active" onclick="loadFixtures('all',this)">All</button>
-    <button onclick="loadFixtures('upcoming',this)">Upcoming</button>
-    <button onclick="loadFixtures('live',this)">Live</button>
-    <button onclick="loadFixtures('result',this)">Results</button>
-  </div>
+    <div class="filter-row">
+      <button class="active" onclick="setFixtureFilter('all',this)">All</button>
+      <button onclick="setFixtureFilter('upcoming',this)">Upcoming</button>
+      <button onclick="setFixtureFilter('live',this)">Live</button>
+      <button onclick="setFixtureFilter('results',this)">Results</button>
+    </div>
 
-  <div id="fixturesList">
-    <div class="card loading">🔄 Fixtures loading...</div>
+    <div id="fixturesResult">
+      <div class="loading">🔄 Fixtures loading...</div>
+    </div>
+
   </div>
 
 </section>
 
 
-<!-- SCORECARD -->
+<!-- ================= SCORECARD ================= -->
 
 <section id="scorecard" class="section">
 
   <div class="card">
-    <h2>📊 Scorecard</h2>
-    <p class="muted">Match ID डालकर पूरा scorecard देखें</p>
 
-    <div class="field" style="margin-top:12px;">
+    <h2>📊 Scorecard</h2>
+
+    <p class="muted">
+      Match ID डालकर पूरा scorecard देखें
+    </p>
+
+    <div class="field">
+
       <label>Match ID</label>
-      <input id="scorecardId" placeholder="Enter match ID">
+
+      <input
+        id="scorecardId"
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Example: 151554"
+      >
+
     </div>
 
-    <button class="primary" onclick="loadScorecard()">📊 Load Scorecard</button>
+    <button
+      type="button"
+      class="primary"
+      onclick="loadScorecard()"
+    >
+      📊 Load Scorecard
+    </button>
+
   </div>
 
   <div id="scorecardResult"></div>
@@ -784,20 +602,39 @@ pre{
 </section>
 
 
-<!-- BALL BY BALL -->
+<!-- ================= BALL BY BALL ================= -->
 
 <section id="ball" class="section">
 
   <div class="card">
-    <h2>🏏 Ball-by-Ball</h2>
-    <p class="muted">Match ID डालकर ball-by-ball data देखें</p>
 
-    <div class="field" style="margin-top:12px;">
+    <h2>🏏 Ball-by-Ball</h2>
+
+    <p class="muted">
+      Match ID डालकर ball-by-ball data देखें
+    </p>
+
+    <div class="field">
+
       <label>Match ID</label>
-      <input id="ballId" placeholder="Enter match ID">
+
+      <input
+        id="ballMatchId"
+        type="text"
+        inputmode="text"
+        placeholder="Enter Match ID"
+      >
+
     </div>
 
-    <button class="primary" onclick="loadBallByBall()">🏏 Load Ball-by-Ball</button>
+    <button
+      type="button"
+      class="primary"
+      onclick="loadBallByBall()"
+    >
+      🏏 Load Ball-by-Ball
+    </button>
+
   </div>
 
   <div id="ballResult"></div>
@@ -805,20 +642,39 @@ pre{
 </section>
 
 
-<!-- POINTS -->
+<!-- ================= POINTS ================= -->
 
 <section id="points" class="section">
 
   <div class="card">
-    <h2>🎯 Points</h2>
-    <p class="muted">Match points information</p>
 
-    <div class="field" style="margin-top:12px;">
+    <h2>🎯 Match Points</h2>
+
+    <p class="muted">
+      Match ID डालकर points / match information देखें
+    </p>
+
+    <div class="field">
+
       <label>Match ID</label>
-      <input id="pointsId" placeholder="Enter match ID">
+
+      <input
+        id="pointsMatchId"
+        type="text"
+        inputmode="text"
+        placeholder="Enter Match ID"
+      >
+
     </div>
 
-    <button class="primary" onclick="loadPoints()">🎯 Load Points</button>
+    <button
+      type="button"
+      class="primary"
+      onclick="loadPoints()"
+    >
+      🎯 Load Points
+    </button>
+
   </div>
 
   <div id="pointsResult"></div>
@@ -826,29 +682,33 @@ pre{
 </section>
 
 
-<!-- AI PLAYER -->
+<!-- ================= AI PLAYER ================= -->
 
 <section id="ai" class="section">
 
   <div class="card">
-    <h2>🤖 AI Cricket Player</h2>
-    <p class="muted">Cloudflare Workers AI से cricket player image बनाएं</p>
 
-    <div class="grid" style="margin-top:12px;">
+    <h2>🤖 AI Cricket Player</h2>
+
+    <p class="muted">
+      Cricket player की AI image बनाएं
+    </p>
+
+    <div class="grid">
 
       <div class="field">
         <label>Player Name</label>
-        <input id="aiPlayer" value="Virat Kohli">
+        <input id="playerName" value="Virat Kohli">
       </div>
 
       <div class="field">
         <label>Team</label>
-        <input id="aiTeam" value="India">
+        <input id="playerTeam" value="India">
       </div>
 
       <div class="field">
         <label>Pose</label>
-        <select id="aiPose">
+        <select id="playerPose">
           <option>Batting</option>
           <option>Bowling</option>
           <option>Fielding</option>
@@ -858,8 +718,8 @@ pre{
       </div>
 
       <div class="field">
-        <label>Type</label>
-        <select id="aiType">
+        <label>Player Type</label>
+        <select id="playerType">
           <option>Batsman</option>
           <option>Bowler</option>
           <option>All-Rounder</option>
@@ -869,15 +729,15 @@ pre{
 
       <div class="field">
         <label>Hand</label>
-        <select id="aiHand">
-          <option>Right</option>
-          <option>Left</option>
+        <select id="playerHand">
+          <option>Right Hand</option>
+          <option>Left Hand</option>
         </select>
       </div>
 
       <div class="field">
         <label>Image Style</label>
-        <select id="aiStyle">
+        <select id="playerStyle">
           <option>Realistic</option>
           <option>Cinematic</option>
           <option>Sports Poster</option>
@@ -887,7 +747,7 @@ pre{
 
       <div class="field">
         <label>Jersey</label>
-        <select id="aiJersey">
+        <select id="playerJersey">
           <option>Blue</option>
           <option>Black</option>
           <option>Red</option>
@@ -898,22 +758,22 @@ pre{
 
       <div class="field">
         <label>Jersey Number</label>
-        <input id="aiNumber" value="18">
+        <input id="playerNumber" value="18">
       </div>
 
       <div class="field">
         <label>Stadium</label>
-        <select id="aiStadium">
-          <option>Modern</option>
-          <option>International</option>
-          <option>Night</option>
-          <option>Historic</option>
+        <select id="playerStadium">
+          <option>Modern Stadium</option>
+          <option>International Stadium</option>
+          <option>Night Stadium</option>
+          <option>Historic Stadium</option>
         </select>
       </div>
 
       <div class="field">
         <label>Weather</label>
-        <select id="aiWeather">
+        <select id="playerWeather">
           <option>Clear</option>
           <option>Cloudy</option>
           <option>Sunny</option>
@@ -923,7 +783,7 @@ pre{
 
       <div class="field">
         <label>Match Time</label>
-        <select id="aiMatchTime">
+        <select id="playerTime">
           <option>Day</option>
           <option>Night</option>
           <option>Sunset</option>
@@ -932,10 +792,10 @@ pre{
 
       <div class="field">
         <label>Camera</label>
-        <select id="aiCamera">
+        <select id="playerCamera">
           <option>Front</option>
           <option>Side</option>
-          <option>Low</option>
+          <option>Low Angle</option>
           <option>Close Up</option>
         </select>
       </div>
@@ -944,26 +804,37 @@ pre{
 
     <div class="field">
       <label>Tournament</label>
-      <input id="aiTournament" value="T20 World Cup">
+      <input id="playerTournament" value="T20 World Cup">
     </div>
 
-    <button class="primary" onclick="generateAI()">✨ Generate AI Player</button>
+    <button
+      type="button"
+      class="primary"
+      onclick="generatePlayerImage()"
+    >
+      🤖 Generate AI Player
+    </button>
 
-    <div id="aiResult"></div>
   </div>
+
+  <div id="aiResult"></div>
 
 </section>
 
 
-<!-- POSTER -->
+<!-- ================= POSTER ================= -->
 
 <section id="poster" class="section">
 
   <div class="card">
-    <h2>🎨 AI Cricket Poster</h2>
-    <p class="muted">Cricket news और match poster बनाएं</p>
 
-    <div class="grid" style="margin-top:12px;">
+    <h2>🎨 Cricket Poster</h2>
+
+    <p class="muted">
+      Cricket news के लिए poster prompt बनाएं
+    </p>
+
+    <div class="grid">
 
       <div class="field">
         <label>Player</label>
@@ -976,8 +847,8 @@ pre{
       </div>
 
       <div class="field">
-        <label>Opponent</label>
-        <input id="posterOpponent" value="West Indies">
+        <label>Match</label>
+        <input id="posterMatch" value="India vs West Indies">
       </div>
 
       <div class="field">
@@ -985,38 +856,40 @@ pre{
         <input id="posterType" value="International Match">
       </div>
 
+      <div class="field">
+        <label>Stadium</label>
+        <input id="posterStadium" value="International Stadium">
+      </div>
+
     </div>
 
-    <div class="field">
-      <label>Stadium</label>
-      <input id="posterStadium" value="International Stadium">
-    </div>
+    <button
+      type="button"
+      class="primary"
+      onclick="generatePoster()"
+    >
+      🎨 Generate Poster
+    </button>
 
-    <div class="field">
-      <label>Custom Poster Prompt</label>
-      <textarea id="posterPrompt" placeholder="Example: dramatic India vs West Indies cricket sports news poster, stadium floodlights, cheering crowd..."></textarea>
-    </div>
-
-    <button class="primary" onclick="generatePoster()">🎨 Generate Poster</button>
-
-    <div id="posterResult"></div>
   </div>
+
+  <div id="posterResult"></div>
 
 </section>
 
 
-<!-- PLAYER CARD -->
+<!-- ================= PLAYER CARD ================= -->
 
 <section id="playercard" class="section">
 
   <div class="card">
-    <h2>🪪 Player Card Pro</h2>
-    <p class="muted">अपना cricket player card बनाएं</p>
 
-    <div class="grid" style="margin-top:12px;">
+    <h2>🪪 Player Card</h2>
+
+    <div class="grid">
 
       <div class="field">
-        <label>Player</label>
+        <label>Player Name</label>
         <input id="cardPlayer" value="Virat Kohli">
       </div>
 
@@ -1027,66 +900,93 @@ pre{
 
       <div class="field">
         <label>Jersey Number</label>
-        <input id="cardJersey" value="18">
+        <input id="cardNumber" value="18">
       </div>
 
       <div class="field">
         <label>Rating</label>
-        <input id="cardRating" value="95" type="number">
+        <input id="cardRating" value="95">
       </div>
 
     </div>
 
-    <button class="primary" onclick="createPlayerCard()">🪪 Create Player Card</button>
+    <button
+      type="button"
+      class="primary"
+      onclick="generatePlayerCard()"
+    >
+      🪪 Generate Player Card
+    </button>
 
-    <div id="playerCardResult" style="margin-top:12px;"></div>
   </div>
+
+  <div id="playerCardResult"></div>
 
 </section>
 
 
-<!-- NEWS -->
+<!-- ================= NEWS ================= -->
 
 <section id="news" class="section">
 
   <div class="card">
+
     <h2>📰 Cricket News</h2>
-    <p class="muted">Latest cricket news के लिए trusted sources</p>
 
-    <div class="row" style="margin-top:14px;">
-      <button class="secondary" onclick="window.open('https://www.espncricinfo.com/','_blank')">
-        ESPNcricinfo
-      </button>
+    <p class="muted">
+      Latest cricket news के लिए official / trusted cricket websites
+    </p>
 
-      <button class="secondary" onclick="window.open('https://www.icc-cricket.com/','_blank')">
-        ICC Cricket
-      </button>
-    </div>
+    <button
+      type="button"
+      class="primary"
+      onclick="openNews('https://www.espncricinfo.com/')"
+    >
+      📰 ESPNcricinfo
+    </button>
+
+    <button
+      type="button"
+      class="secondary"
+      onclick="openNews('https://www.icc-cricket.com/')"
+    >
+      🏆 ICC Cricket
+    </button>
+
   </div>
 
 </section>
 
 </main>
 
-
-<footer class="footer">
+<footer>
   🏏 Cricket Short • AI Cricket • Live Score • Cricket Tools
 </footer>
 
+</div>
 
-<!-- LIVE MODE OVERLAY -->
+
+<!-- ================= LIVE MODE ================= -->
 
 <div id="liveOverlay" class="live-overlay">
 
-  <div class="live-box">
+  <div class="live-head">
 
-    <div class="live-box-head">
-      <div class="live-box-title">📺 LIVE MODE</div>
-      <button class="close-live" onclick="closeLiveMode()">✕ Close</button>
-    </div>
+    <h2>🔴 Cricket Short Live Mode</h2>
 
-    <div id="liveModeContent">
-      <div class="card loading">Loading...</div>
+    <button
+      class="close-live"
+      onclick="closeLiveMode()"
+    >
+      ✕ Close
+    </button>
+
+  </div>
+
+  <div class="live-content">
+
+    <div id="liveModeResult">
+      <div class="loading">🔄 Loading...</div>
     </div>
 
   </div>
@@ -1096,50 +996,16 @@ pre{
 
 <script>
 
-let allFixtures = [];
+const API_BASE = "";
+
 let selectedMatchId = "";
-let liveModeMatch = null;
-let liveModeTimer = null;
+let fixtureFilter = "all";
+let liveTimer = null;
 
 
-/* SECTION */
-
-function showSection(id, btn){
-
-  document.querySelectorAll(".section").forEach(function(el){
-    el.classList.remove("active");
-  });
-
-  const section = document.getElementById(id);
-
-  if(section){
-    section.classList.add("active");
-  }
-
-  document.querySelectorAll(".nav button").forEach(function(b){
-    b.classList.remove("active");
-  });
-
-  if(btn){
-    btn.classList.add("active");
-  }
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-  if(id === "live"){
-    loadScores();
-  }
-
-  if(id === "fixtures"){
-    loadFixtures("all");
-  }
-}
-
-
-/* HELPERS */
+/* ============================================================
+   BASIC HELPERS
+============================================================ */
 
 function escapeHTML(value){
 
@@ -1152,71 +1018,82 @@ function escapeHTML(value){
 }
 
 
-function escapeJS(value){
-  return String(value ?? "")
-    .replace(/\\/g,"\\\\")
-    .replace(/'/g,"\\'")
-    .replace(/"/g,"&quot;")
-    .replace(/\n/g," ");
-}
+async function getJSON(url,options={}){
 
+  const response =
+    await fetch(API_BASE + url,options);
 
-async function getJSON(url, options={}){
-
-  const response = await fetch(url, options);
-
-  const text = await response.text();
+  const text =
+    await response.text();
 
   let data;
 
   try{
     data = JSON.parse(text);
   }catch(e){
-    throw new Error(text || ("HTTP " + response.status));
+
+    throw new Error(
+      "Server ने valid JSON नहीं भेजा। HTTP " +
+      response.status
+    );
   }
 
   if(!response.ok){
-    throw new Error(data.error || data.message || ("HTTP " + response.status));
+
+    throw new Error(
+      data?.error ||
+      data?.message ||
+      "Request failed: HTTP " + response.status
+    );
   }
 
   return data;
 }
 
 
-/* STATUS */
+function showSection(id,button){
 
-function getStatus(match){
+  document
+    .querySelectorAll(".section")
+    .forEach(section=>{
+      section.classList.remove("active");
+    });
 
-  const value = String(
-    match?.status ??
-    match?.matchStatus ??
-    match?.state ??
-    match?.result ??
-    ""
-  ).toLowerCase();
+  const target =
+    document.getElementById(id);
 
-  if(
-    value.includes("live") ||
-    value.includes("playing") ||
-    value.includes("in progress") ||
-    value === "started"
-  ){
-    return "LIVE";
+  if(target){
+    target.classList.add("active");
   }
 
-  if(
-    value.includes("result") ||
-    value.includes("won") ||
-    value.includes("draw") ||
-    value.includes("tie") ||
-    value.includes("abandoned")
-  ){
-    return "RESULT";
+  document
+    .querySelectorAll(".nav button")
+    .forEach(btn=>{
+      btn.classList.remove("active");
+    });
+
+  if(button){
+    button.classList.add("active");
   }
 
-  return "UPCOMING";
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+  if(id === "live"){
+    loadScores();
+  }
+
+  if(id === "fixtures"){
+    loadFixtures(fixtureFilter);
+  }
 }
 
+
+/* ============================================================
+   MATCH HELPERS
+============================================================ */
 
 function getMatchId(match){
 
@@ -1224,6 +1101,7 @@ function getMatchId(match){
     match?.id ??
     match?.matchId ??
     match?.match_id ??
+    match?.matchID ??
     ""
   );
 }
@@ -1232,10 +1110,11 @@ function getMatchId(match){
 function getTeam1(match){
 
   return (
-    match?.team1?.name ||
-    match?.team1 ||
-    match?.teams?.[0]?.name ||
-    match?.teams?.[0] ||
+    match?.team1 ??
+    match?.first_team?.full_name ??
+    match?.first_team?.name ??
+    match?.teams?.[0]?.name ??
+    match?.teamInfo?.[0]?.name ??
     "Team 1"
   );
 }
@@ -1244,32 +1123,120 @@ function getTeam1(match){
 function getTeam2(match){
 
   return (
-    match?.team2?.name ||
-    match?.team2 ||
-    match?.teams?.[1]?.name ||
-    match?.teams?.[1] ||
+    match?.team2 ??
+    match?.second_team?.full_name ??
+    match?.second_team?.name ??
+    match?.teams?.[1]?.name ??
+    match?.teamInfo?.[1]?.name ??
     "Team 2"
   );
 }
 
 
-function getMatchName(match){
+function getScores(match){
+
+  /*
+    Latest worker normalized format:
+    team1, team2, score1, score2, overs1, overs2
+  */
+
+  if(
+    match &&
+    (
+      match.score1 !== undefined ||
+      match.score2 !== undefined
+    )
+  ){
+
+    return [
+
+      {
+        team:match.team1 || getTeam1(match),
+        score:match.score1 || "",
+        overs:match.overs1 || ""
+      },
+
+      {
+        team:match.team2 || getTeam2(match),
+        score:match.score2 || "",
+        overs:match.overs2 || ""
+      }
+
+    ];
+  }
+
+
+  if(Array.isArray(match?.score)){
+    return match.score;
+  }
+
+
+  if(Array.isArray(match?.scores)){
+    return match.scores;
+  }
+
+
+  if(Array.isArray(match?.teams)){
+
+    return match.teams;
+  }
+
+
+  return [];
+}
+
+
+function scoreTeam(score,index){
 
   return (
-    match?.name ||
-    match?.matchName ||
-    (getTeam1(match) + " vs " + getTeam2(match))
+    score?.team ??
+    score?.teamName ??
+    score?.name ??
+    score?.short_name ??
+    score?.shortName ??
+    "Team " + (index+1)
   );
 }
 
 
-function getDate(match){
+function scoreRuns(score){
 
   return (
-    match?.dateTimeGMT ||
-    match?.date ||
-    match?.startDate ||
-    match?.dateTime ||
+    score?.score ??
+    score?.runs ??
+    score?.summary ??
+    ""
+  );
+}
+
+
+function scoreOvers(score){
+
+  return (
+    score?.overs ??
+    score?.over ??
+    ""
+  );
+}
+
+
+function getFormat(match){
+
+  return (
+    match?.format ??
+    match?.match_type ??
+    match?.type ??
+    ""
+  );
+}
+
+
+function getStatus(match){
+
+  return (
+    match?.status ??
+    match?.short_status ??
+    match?.state ??
     ""
   );
 }
@@ -1278,10 +1245,9 @@ function getDate(match){
 function getVenue(match){
 
   return (
-    match?.venue ||
-    match?.venueInfo?.ground ||
-    match?.venueInfo?.name ||
-    "Venue unavailable"
+    match?.venue ??
+    match?.venue_name ??
+    ""
   );
 }
 
@@ -1289,285 +1255,208 @@ function getVenue(match){
 function getSeries(match){
 
   return (
-    match?.series ||
-    match?.seriesName ||
-    match?.tournament ||
+    match?.series ??
+    match?.series_name ??
     ""
   );
 }
 
 
-function getMatchType(match){
-
-  return (
-    match?.matchType ||
-    match?.type ||
-    ""
-  );
-}
-
-
-function getScores(match){
-
-  if(Array.isArray(match?.score)){
-    return match.score;
-  }
-
-  if(Array.isArray(match?.scores)){
-    return match.scores;
-  }
-
-  return [];
-}
-
-
-function scoreRuns(score){
-
-  if(score == null){
-    return "";
-  }
-
-  if(typeof score === "object"){
-
-    if(score.r != null) return score.r;
-    if(score.runs != null) return score.runs;
-    if(score.score != null) return score.score;
-
-    return "";
-  }
-
-  const text = String(score);
-
-  const match = text.match(/(\d+(?:\s*\/\s*\d+)?)/);
-
-  return match ? match[1] : text;
-}
-
-
-function scoreOvers(score){
-
-  if(score == null){
-    return "";
-  }
-
-  if(typeof score === "object"){
-
-    if(score.o != null) return score.o;
-    if(score.overs != null) return score.overs;
-
-    return "";
-  }
-
-  const text = String(score);
-
-  const match = text.match(/\(([^)]*ov[^)]*)\)/i);
-
-  return match ? match[1] : "";
-}
-
-
-function scoreTeam(score, index){
-
-  if(score && typeof score === "object"){
-
-    return (
-      score.inning ||
-      score.team ||
-      score.name ||
-      score.teamName ||
-      ("Team " + (index+1))
-    );
-  }
-
-  return "Team " + (index+1);
-}
-
-
-function isUpcoming(match){
-
-  return getStatus(match) === "UPCOMING";
-}
-
-
-function isResult(match){
-
-  return getStatus(match) === "RESULT";
-}
-
-
-/* LIVE SCORE */
+/* ============================================================
+   LIVE SCORE
+============================================================ */
 
 async function loadScores(){
 
-  const list = document.getElementById("liveList");
-  const info = document.getElementById("liveInfo");
-  const count = document.getElementById("liveCount");
+  const result =
+    document.getElementById("liveResult");
 
-  list.innerHTML =
-    '<div class="card loading">🔄 Live score loading...</div>';
+  const info =
+    document.getElementById("liveInfo");
+
+  result.innerHTML =
+    '<div class="loading">🔄 Live score loading...</div>';
 
   try{
 
-    const data = await getJSON("/api/live-score");
+    const data =
+      await getJSON("/api/live-score");
 
     const matches =
-      Array.isArray(data.matches)
-      ? data.matches
-      : Array.isArray(data.data)
-      ? data.data
-      : [];
-
-    const updated =
-      data.updatedAt
-      ? new Date(data.updatedAt).toLocaleTimeString()
-      : new Date().toLocaleTimeString();
-
-    info.textContent =
-      "Last updated: " + updated;
-
-    count.textContent =
-      "🔴 " + matches.length + " live match" +
-      (matches.length === 1 ? "" : "es");
+      Array.isArray(data)
+        ? data
+        : (
+          data?.matches ??
+          data?.data ??
+          data?.results ??
+          []
+        );
 
     if(!matches.length){
 
-      list.innerHTML = `
-        <div class="card">
-          <h3>🔴 No Live Match</h3>
-          <p class="muted">
-            अभी कोई live match API से उपलब्ध नहीं है।
-          </p>
-        </div>
-      `;
+      info.textContent =
+        "0 live matches";
+
+      result.innerHTML =
+        '<div class="empty">कोई live match नहीं मिला।</div>';
 
       return;
     }
 
-    list.innerHTML = matches
-      .map(renderMatch)
-      .join("");
+    info.textContent =
+      matches.length +
+      " live matches • Last updated: " +
+      new Date().toLocaleTimeString();
+
+    result.innerHTML =
+      matches
+        .map(match=>renderMatchCard(match,true))
+        .join("");
 
   }catch(error){
 
-    info.textContent = "Unable to update";
+    info.textContent =
+      "Live score unavailable";
 
-    list.innerHTML = `
-      <div class="error">
-        ❌ Live Score Error<br><br>
-        ${escapeHTML(error.message)}
-      </div>
-    `;
+    result.innerHTML =
+      `<div class="error">❌ ${escapeHTML(error.message)}</div>`;
   }
 }
 
 
-/* RENDER LIVE MATCH */
+function renderMatchCard(match,isLive=false){
 
-function renderMatch(match){
+  const id =
+    getMatchId(match);
 
-  const status = getStatus(match);
-  const team1 = getTeam1(match);
-  const team2 = getTeam2(match);
-  const name = getMatchName(match);
-  const venue = getVenue(match);
-  const series = getSeries(match);
-  const type = getMatchType(match);
-  const scores = getScores(match);
-  const id = getMatchId(match);
+  const team1 =
+    getTeam1(match);
 
-  let scoreHTML = "";
+  const team2 =
+    getTeam2(match);
 
-  if(scores.length){
+  const scores =
+    getScores(match);
 
-    scoreHTML = scores.map(function(s,index){
+  const s1 =
+    scores[0] || {};
 
-      const runs = scoreRuns(s);
-      const overs = scoreOvers(s);
-      const scoreTeamName = scoreTeam(s,index);
+  const s2 =
+    scores[1] || {};
 
-      return `
-        <div class="team-row">
+  const score1 =
+    scoreRuns(s1) || "-";
+
+  const score2 =
+    scoreRuns(s2) || "-";
+
+  const overs1 =
+    scoreOvers(s1);
+
+  const overs2 =
+    scoreOvers(s2);
+
+  const status =
+    getStatus(match);
+
+  const series =
+    getSeries(match);
+
+  const venue =
+    getVenue(match);
+
+  const format =
+    getFormat(match);
+
+  return `
+
+    <div class="match-card">
+
+      <div class="status-row">
+
+        <div class="match-title">
+          ${escapeHTML(team1)}
+          vs
+          ${escapeHTML(team2)}
+        </div>
+
+        <span class="${isLive ? "live-badge" : "result-badge"}">
+          ${escapeHTML(isLive ? "LIVE" : status || "MATCH")}
+        </span>
+
+      </div>
+
+      ${
+        series
+        ? `<div class="series">${escapeHTML(series)}</div>`
+        : ""
+      }
+
+      <div class="teams">
+
+        <div class="team">
+
           <div class="team-name">
-            ${escapeHTML(scoreTeamName)}
+            ${escapeHTML(team1)}
           </div>
 
           <div class="team-score">
-            ${escapeHTML(runs || "-")}
-            ${overs ? `
-              <div class="team-overs">
-                ${escapeHTML(overs)}
-              </div>
-            ` : ""}
-          </div>
-        </div>
-      `;
-
-    }).join("");
-
-  }else{
-
-    scoreHTML = `
-      <div class="team-row">
-        <div class="team-name">${escapeHTML(team1)}</div>
-        <div class="team-score">-</div>
-      </div>
-
-      <div class="team-row">
-        <div class="team-name">${escapeHTML(team2)}</div>
-        <div class="team-score">-</div>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="match">
-
-      <div class="match-head">
-
-        <div>
-          <div class="match-name">
-            ${escapeHTML(name)}
+            ${escapeHTML(score1)}
+            ${
+              overs1
+              ? ` (${escapeHTML(overs1)} ov)`
+              : ""
+            }
           </div>
 
-          <div class="match-meta">
-            ${escapeHTML(type)}
-            ${type && series ? " • " : ""}
-            ${escapeHTML(series)}
-          </div>
         </div>
 
-        <span class="badge live">
-          <span class="live-dot"></span>
-          LIVE
-        </span>
+        <div class="vs">VS</div>
+
+        <div class="team">
+
+          <div class="team-name">
+            ${escapeHTML(team2)}
+          </div>
+
+          <div class="team-score">
+            ${escapeHTML(score2)}
+            ${
+              overs2
+              ? ` (${escapeHTML(overs2)} ov)`
+              : ""
+            }
+          </div>
+
+        </div>
 
       </div>
 
-      <div class="scoreboard">
-        ${scoreHTML}
-      </div>
+      ${
+        format
+        ? `<div class="meta">🏏 ${escapeHTML(format)}</div>`
+        : ""
+      }
 
-      <div class="venue">
-        📍 ${escapeHTML(venue)}
-      </div>
+      ${
+        venue
+        ? `<div class="meta">📍 ${escapeHTML(venue)}</div>`
+        : ""
+      }
 
-      <div class="match-actions">
+      ${
+        status
+        ? `<div class="meta">ℹ️ ${escapeHTML(status)}</div>`
+        : ""
+      }
 
-        <button
-          class="secondary live-mode-btn"
-          onclick='openLiveMode(${JSON.stringify(match)})'>
-          📺 Live Mode
-        </button>
+      <div class="actions">
 
-        <button
-          class="secondary"
-          onclick="openScorecard('${escapeJS(id)}')">
+        <button onclick="openScorecard('${escapeHTML(id)}')">
           📊 Scorecard
         </button>
 
-        <button
-          class="secondary"
-          onclick="openBallByBall('${escapeJS(id)}')">
+        <button onclick="openBallByBall('${escapeHTML(id)}')">
           🏏 Ball-by-Ball
         </button>
 
@@ -1578,153 +1467,146 @@ function renderMatch(match){
 }
 
 
-/* FIXTURES */
+/* ============================================================
+   FIXTURES
+============================================================ */
 
-async function loadFixtures(filter="all", button=null){
+function setFixtureFilter(filter,button){
 
-  const list = document.getElementById("fixturesList");
+  fixtureFilter = filter;
+
+  document
+    .querySelectorAll(".filter-row button")
+    .forEach(btn=>{
+      btn.classList.remove("active");
+    });
 
   if(button){
-
-    document.querySelectorAll("#fixtures .filters button")
-      .forEach(function(b){
-        b.classList.remove("active");
-      });
-
     button.classList.add("active");
   }
 
-  list.innerHTML =
-    '<div class="card loading">🔄 Fixtures loading...</div>';
+  loadFixtures(filter);
+}
+
+
+async function loadFixtures(filter="all"){
+
+  const result =
+    document.getElementById("fixturesResult");
+
+  result.innerHTML =
+    '<div class="loading">🔄 Fixtures loading...</div>';
 
   try{
 
-    const data = await getJSON("/api/fixtures");
+    const data =
+      await getJSON(
+        "/api/fixtures?filter=" +
+        encodeURIComponent(filter)
+      );
 
-    allFixtures =
-      Array.isArray(data.matches)
-      ? data.matches
-      : Array.isArray(data.data)
-      ? data.data
-      : [];
-
-    let matches = allFixtures.slice();
-
-    if(filter === "live"){
-      matches = matches.filter(function(m){
-        return getStatus(m) === "LIVE";
-      });
-    }
-
-    if(filter === "upcoming"){
-      matches = matches.filter(isUpcoming);
-    }
-
-    if(filter === "result"){
-      matches = matches.filter(isResult);
-    }
+    const matches =
+      Array.isArray(data)
+        ? data
+        : (
+          data?.matches ??
+          data?.data ??
+          data?.results ??
+          []
+        );
 
     if(!matches.length){
 
-      list.innerHTML = `
-        <div class="card">
-          <h3>📅 No Matches</h3>
-          <p class="muted">
-            इस filter में कोई match नहीं मिला।
-          </p>
-        </div>
-      `;
+      result.innerHTML =
+        '<div class="empty">कोई fixture नहीं मिला।</div>';
 
       return;
     }
 
-    list.innerHTML =
-      matches.map(renderFixture).join("");
+    result.innerHTML =
+      matches
+        .map(match=>renderFixtureCard(match))
+        .join("");
 
   }catch(error){
 
-    list.innerHTML = `
-      <div class="error">
-        ❌ Fixtures Error<br><br>
-        ${escapeHTML(error.message)}
-      </div>
-    `;
+    result.innerHTML =
+      `<div class="error">❌ ${escapeHTML(error.message)}</div>`;
   }
 }
 
 
-function renderFixture(match){
+function renderFixtureCard(match){
 
-  const status = getStatus(match);
-  const id = getMatchId(match);
-  const date = getDate(match);
+  const id =
+    getMatchId(match);
 
-  let badgeClass = "upcoming";
-  let badgeText = "UPCOMING";
+  const team1 =
+    getTeam1(match);
 
-  if(status === "LIVE"){
-    badgeClass = "live";
-    badgeText = "LIVE";
-  }
+  const team2 =
+    getTeam2(match);
 
-  if(status === "RESULT"){
-    badgeClass = "result";
-    badgeText = "RESULT";
-  }
+  const status =
+    getStatus(match);
 
-  let dateText = "";
+  const series =
+    getSeries(match);
 
-  if(date){
+  const venue =
+    getVenue(match);
 
-    try{
-      dateText = new Date(date).toLocaleString();
-    }catch(e){
-      dateText = date;
-    }
-  }
+  const date =
+    match?.date ??
+    match?.startDate ??
+    match?.start_date ??
+    "";
 
   return `
-    <div class="fixture">
 
-      <div style="display:flex;justify-content:space-between;gap:8px;">
-        <div class="fixture-title">
-          ${escapeHTML(getMatchName(match))}
+    <div class="match-card">
+
+      <div class="status-row">
+
+        <div class="match-title">
+          ${escapeHTML(team1)}
+          vs
+          ${escapeHTML(team2)}
         </div>
 
-        <span class="badge ${badgeClass}">
-          ${badgeText}
+        <span class="result-badge">
+          ${escapeHTML(status || "MATCH")}
         </span>
+
       </div>
 
-      <div class="fixture-meta">
-        ${escapeHTML(dateText)}
-      </div>
+      ${
+        series
+        ? `<div class="series">${escapeHTML(series)}</div>`
+        : ""
+      }
 
-      <div class="fixture-meta">
-        📍 ${escapeHTML(getVenue(match))}
-      </div>
+      ${
+        date
+        ? `<div class="meta">📅 ${escapeHTML(date)}</div>`
+        : ""
+      }
 
-      <div class="fixture-actions">
+      ${
+        venue
+        ? `<div class="meta">📍 ${escapeHTML(venue)}</div>`
+        : ""
+      }
 
-        <button onclick="openScorecard('${escapeJS(id)}')">
+      <div class="actions">
+
+        <button onclick="openScorecard('${escapeHTML(id)}')">
           📊 Scorecard
         </button>
 
-        <button onclick="openBallByBall('${escapeJS(id)}')">
+        <button onclick="openBallByBall('${escapeHTML(id)}')">
           🏏 Ball-by-Ball
         </button>
-
-        <button onclick="openPoints('${escapeJS(id)}')">
-          🎯 Points
-        </button>
-
-        ${
-          status === "LIVE"
-          ? `<button onclick='openLiveMode(${JSON.stringify(match)})'>
-               📺 Live Mode
-             </button>`
-          : ""
-        }
 
       </div>
 
@@ -1733,38 +1615,32 @@ function renderFixture(match){
 }
 
 
-/* SCORECARD */
-
-function openScorecard(id){
-
-  selectedMatchId = id || "";
-
-  document.getElementById("scorecardId").value =
-    selectedMatchId;
-
-  const btn =
-    document.querySelector('.nav button[onclick*="scorecard"]');
-
-  showSection("scorecard",btn);
-
-  if(selectedMatchId){
-    loadScorecard();
-  }
-}
-
+/* ============================================================
+   SCORECARD
+============================================================ */
 
 async function loadScorecard(){
 
-  const id =
-    document.getElementById("scorecardId").value.trim();
+  const input =
+    document.getElementById("scorecardId");
 
   const result =
     document.getElementById("scorecardResult");
 
+  if(!input){
+
+    return;
+  }
+
+  const id =
+    String(input.value || "").trim();
+
   if(!id){
 
     result.innerHTML =
-      '<div class="error">❌ Match ID डालें।</div>';
+      '<div class="error">❌ Match ID डालें। Example: 151554</div>';
+
+    input.focus();
 
     return;
   }
@@ -1780,7 +1656,15 @@ async function loadScorecard(){
         encodeURIComponent(id)
       );
 
-    renderAPIResult(result,data);
+    if(data?.success === false){
+
+      throw new Error(
+        data.error ||
+        "Scorecard नहीं मिला।"
+      );
+    }
+
+    renderScorecard(result,data);
 
   }catch(error){
 
@@ -1790,33 +1674,158 @@ async function loadScorecard(){
 }
 
 
-/* BALL BY BALL */
+function renderScorecard(container,data){
 
-function openBallByBall(id){
+  /*
+    API response schema अलग हो सकता है,
+    इसलिए पहले readable summary और
+    फिर पूरा response दिखाया जाता है।
+  */
 
-  selectedMatchId = id || "";
+  const payload =
+    data?.data ??
+    data;
 
-  document.getElementById("ballId").value =
-    selectedMatchId;
+  let html = `
+    <div class="card">
 
-  const btn =
-    document.querySelector('.nav button[onclick*="ball"]');
+      <h2>📊 Scorecard</h2>
 
-  showSection("ball",btn);
+      <div class="success">
+        ✅ Scorecard data received successfully.
+      </div>
+
+  `;
+
+
+  const teams =
+    payload?.teams ??
+    payload?.scorecard ??
+    null;
+
+
+  if(Array.isArray(teams)){
+
+    teams.forEach((team,index)=>{
+
+      html += `
+        <div class="scorecard-team">
+
+          <h3>
+            🏏 ${escapeHTML(
+              team?.name ??
+              team?.team ??
+              team?.teamName ??
+              "Team " + (index+1)
+            )}
+          </h3>
+
+          <table class="score-table">
+
+            <tbody>
+
+              <tr>
+                <th>Score</th>
+                <td>
+                  ${escapeHTML(
+                    team?.score ??
+                    team?.summary ??
+                    team?.runs ??
+                    "-"
+                  )}
+                </td>
+              </tr>
+
+              <tr>
+                <th>Overs</th>
+                <td>
+                  ${escapeHTML(
+                    team?.overs ??
+                    team?.over ??
+                    "-"
+                  )}
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+      `;
+
+    });
+
+  }
+
+
+  html += `
+
+      <div class="hr"></div>
+
+      <details>
+
+        <summary>
+          🔎 Full API Response
+        </summary>
+
+        <pre style="margin-top:10px;">${escapeHTML(
+          JSON.stringify(data,null,2)
+        )}</pre>
+
+      </details>
+
+    </div>
+  `;
+
+
+  container.innerHTML =
+    html;
+}
+
+
+function openScorecard(id){
+
+  selectedMatchId =
+    String(id || "").trim();
+
+  const input =
+    document.getElementById("scorecardId");
+
+  if(input){
+
+    input.value =
+      selectedMatchId;
+  }
+
+  const button =
+    document.querySelector(
+      '.nav button[onclick*="scorecard"]'
+    );
+
+  showSection("scorecard",button);
 
   if(selectedMatchId){
-    loadBallByBall();
+
+    loadScorecard();
   }
 }
 
 
+/* ============================================================
+   BALL BY BALL
+============================================================ */
+
 async function loadBallByBall(){
 
-  const id =
-    document.getElementById("ballId").value.trim();
+  const input =
+    document.getElementById("ballMatchId");
 
   const result =
     document.getElementById("ballResult");
+
+  const id =
+    String(input?.value || "").trim();
 
   if(!id){
 
@@ -1847,33 +1856,45 @@ async function loadBallByBall(){
 }
 
 
-/* POINTS */
+function openBallByBall(id){
 
-function openPoints(id){
+  const value =
+    String(id || "").trim();
 
-  selectedMatchId = id || "";
+  const input =
+    document.getElementById("ballMatchId");
 
-  document.getElementById("pointsId").value =
-    selectedMatchId;
+  if(input){
+    input.value = value;
+  }
 
-  const btn =
-    document.querySelector('.nav button[onclick*="points"]');
+  const button =
+    document.querySelector(
+      '.nav button[onclick*="Ball-by-Ball"]'
+    );
 
-  showSection("points",btn);
+  showSection("ball",button);
 
-  if(selectedMatchId){
-    loadPoints();
+  if(value){
+    loadBallByBall();
   }
 }
 
 
+/* ============================================================
+   POINTS
+============================================================ */
+
 async function loadPoints(){
 
-  const id =
-    document.getElementById("pointsId").value.trim();
+  const input =
+    document.getElementById("pointsMatchId");
 
   const result =
     document.getElementById("pointsResult");
+
+  const id =
+    String(input?.value || "").trim();
 
   if(!id){
 
@@ -1904,145 +1925,184 @@ async function loadPoints(){
 }
 
 
-/* API RESULT */
+/* ============================================================
+   GENERIC API DISPLAY
+============================================================ */
 
 function renderAPIResult(container,data){
 
   container.innerHTML = `
+
     <div class="card">
-      <pre>${escapeHTML(JSON.stringify(data,null,2))}</pre>
+
+      <pre>${escapeHTML(
+        JSON.stringify(data,null,2)
+      )}</pre>
+
     </div>
   `;
 }
 
 
-/* AI IMAGE */
+/* ============================================================
+   AI IMAGE
+============================================================ */
 
-async function generateAI(){
+async function generatePlayerImage(){
 
   const result =
     document.getElementById("aiResult");
 
+  const player =
+    document.getElementById("playerName").value.trim();
+
+  const team =
+    document.getElementById("playerTeam").value.trim();
+
+  const pose =
+    document.getElementById("playerPose").value;
+
+  const type =
+    document.getElementById("playerType").value;
+
+  const hand =
+    document.getElementById("playerHand").value;
+
+  const style =
+    document.getElementById("playerStyle").value;
+
+  const jersey =
+    document.getElementById("playerJersey").value;
+
+  const number =
+    document.getElementById("playerNumber").value;
+
+  const stadium =
+    document.getElementById("playerStadium").value;
+
+  const weather =
+    document.getElementById("playerWeather").value;
+
+  const time =
+    document.getElementById("playerTime").value;
+
+  const camera =
+    document.getElementById("playerCamera").value;
+
+  const tournament =
+    document.getElementById("playerTournament").value;
+
+  if(!player){
+
+    result.innerHTML =
+      '<div class="error">❌ Player Name डालें।</div>';
+
+    return;
+  }
+
   result.innerHTML =
-    '<div class="card loading">🎨 AI image generating... Please wait...</div>';
+    '<div class="card loading">🤖 AI image generating... Please wait.</div>';
 
-  const body = {
-
-    player:
-      document.getElementById("aiPlayer").value,
-
-    team:
-      document.getElementById("aiTeam").value,
-
-    pose:
-      document.getElementById("aiPose").value,
-
-    type:
-      document.getElementById("aiType").value,
-
-    hand:
-      document.getElementById("aiHand").value,
-
-    style:
-      document.getElementById("aiStyle").value,
-
-    jersey:
-      document.getElementById("aiJersey").value,
-
-    number:
-      document.getElementById("aiNumber").value,
-
-    stadium:
-      document.getElementById("aiStadium").value,
-
-    weather:
-      document.getElementById("aiWeather").value,
-
-    matchTime:
-      document.getElementById("aiMatchTime").value,
-
-    camera:
-      document.getElementById("aiCamera").value,
-
-    tournament:
-      document.getElementById("aiTournament").value
-  };
+  const prompt = `Photorealistic cinematic cricket sports photography of ${player}, representing ${team}, ${pose} pose, ${type}, ${hand}, wearing a realistic ${team} ${jersey} cricket jersey with number ${number}, playing at a ${stadium}, ${weather} weather, ${time} match atmosphere, ${camera} camera angle, ${style} style, ${tournament} tournament atmosphere, packed cricket stadium, dramatic floodlights, realistic face, realistic body proportions, detailed cricket equipment, ultra realistic, high detail, professional sports photography, vertical 9:16, no text, no watermark.`;
 
   try{
 
     const response =
-      await fetch("/api/generate-image",{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(body)
-      });
+      await fetch(
+        API_BASE + "/api/generate-image",
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            prompt
+          })
+        }
+      );
 
     const contentType =
       response.headers.get("content-type") || "";
 
     if(!response.ok){
 
-      const errorText =
-        await response.text();
+      let message =
+        "AI image generation failed.";
 
-      throw new Error(errorText || "Image generation failed");
+      if(contentType.includes("application/json")){
+
+        const err =
+          await response.json();
+
+        message =
+          err?.error ||
+          err?.message ||
+          message;
+      }else{
+
+        const text =
+          await response.text();
+
+        if(text){
+          message = text;
+        }
+      }
+
+      throw new Error(message);
     }
 
-    if(contentType.includes("image/")){
 
-      const blob =
-        await response.blob();
+    if(contentType.includes("application/json")){
 
-      const url =
-        URL.createObjectURL(blob);
+      const data =
+        await response.json();
 
-      result.innerHTML = `
-        <div class="generated">
-          <img src="${url}" alt="Generated cricket player">
+      if(data?.image){
 
-          <div style="margin-top:9px;">
-            <a
-              href="${url}"
-              download="cricket-player.jpg"
-              style="display:block;text-align:center;text-decoration:none;"
-              class="primary">
-              ⬇️ Save Image
-            </a>
+        result.innerHTML = `
+
+          <div class="card">
+
+            <h3>✅ AI Image Ready</h3>
+
+            <img
+              class="generated-image"
+              src="${escapeHTML(data.image)}"
+              alt="Generated cricket player"
+            >
+
           </div>
-        </div>
-      `;
+        `;
+
+      }else{
+
+        renderAPIResult(result,data);
+      }
 
       return;
     }
 
-    const data =
-      await response.json();
 
-    if(data.image){
+    const blob =
+      await response.blob();
 
-      result.innerHTML = `
-        <div class="generated">
-          <img src="data:image/jpeg;base64,${data.image}">
-        </div>
-      `;
+    const imageURL =
+      URL.createObjectURL(blob);
 
-      return;
-    }
+    result.innerHTML = `
 
-    if(data.imageUrl){
+      <div class="card">
 
-      result.innerHTML = `
-        <div class="generated">
-          <img src="${escapeHTML(data.imageUrl)}">
-        </div>
-      `;
+        <h3>✅ AI Image Ready</h3>
 
-      return;
-    }
+        <img
+          class="generated-image"
+          src="${imageURL}"
+          alt="Generated cricket player"
+        >
 
-    throw new Error("Image data not found");
+      </div>
+    `;
 
   }catch(error){
 
@@ -2052,375 +2112,129 @@ async function generateAI(){
 }
 
 
-/* POSTER */
+/* ============================================================
+   POSTER
+============================================================ */
 
 async function generatePoster(){
+
+  const player =
+    document.getElementById("posterPlayer").value.trim();
+
+  const team =
+    document.getElementById("posterTeam").value.trim();
+
+  const match =
+    document.getElementById("posterMatch").value.trim();
+
+  const type =
+    document.getElementById("posterType").value.trim();
+
+  const stadium =
+    document.getElementById("posterStadium").value.trim();
 
   const result =
     document.getElementById("posterResult");
 
-  result.innerHTML =
-    '<div class="card loading">🎨 Poster generating... Please wait...</div>';
-
-  const player =
-    document.getElementById("posterPlayer").value;
-
-  const team =
-    document.getElementById("posterTeam").value;
-
-  const opponent =
-    document.getElementById("posterOpponent").value;
-
-  const matchType =
-    document.getElementById("posterType").value;
-
-  const stadium =
-    document.getElementById("posterStadium").value;
-
-  const customPrompt =
-    document.getElementById("posterPrompt").value.trim();
-
   const prompt =
-    customPrompt ||
-    `Photorealistic cinematic cricket sports news poster of ${player} representing ${team} against ${opponent}, ${matchType}, at ${stadium}, dramatic stadium floodlights, packed cheering cricket crowd, realistic cricket jersey, powerful sports photography, ultra realistic, high detail, vertical 9:16 composition, no text, no watermark`;
-
-  const body = {
-
-    player:player,
-    team:team,
-    pose:"Celebration",
-    type:"Batsman",
-    hand:"Right",
-    style:"Sports Poster",
-    jersey:"Blue",
-    number:"18",
-    stadium:stadium,
-    weather:"Dramatic Clouds",
-    matchTime:"Night",
-    camera:"Front",
-    tournament:matchType,
-
-    customPrompt:prompt
-  };
-
-  try{
-
-    const response =
-      await fetch("/api/generate-image",{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(body)
-      });
-
-    const contentType =
-      response.headers.get("content-type") || "";
-
-    if(!response.ok){
-
-      const errorText =
-        await response.text();
-
-      throw new Error(errorText || "Poster generation failed");
-    }
-
-    if(contentType.includes("image/")){
-
-      const blob =
-        await response.blob();
-
-      const url =
-        URL.createObjectURL(blob);
-
-      result.innerHTML = `
-        <div class="generated">
-          <img src="${url}" alt="Cricket poster">
-
-          <div style="margin-top:9px;">
-            <a
-              href="${url}"
-              download="cricket-poster.jpg"
-              style="display:block;text-align:center;text-decoration:none;"
-              class="primary">
-              ⬇️ Save Poster
-            </a>
-          </div>
-        </div>
-      `;
-
-      return;
-    }
-
-    const data =
-      await response.json();
-
-    if(data.image){
-
-      result.innerHTML = `
-        <div class="generated">
-          <img src="data:image/jpeg;base64,${data.image}">
-        </div>
-      `;
-
-      return;
-    }
-
-    throw new Error("Poster image data not found");
-
-  }catch(error){
-
-    result.innerHTML =
-      `<div class="error">❌ ${escapeHTML(error.message)}</div>`;
-  }
-}
-
-
-/* PLAYER CARD */
-
-function createPlayerCard(){
-
-  const player =
-    document.getElementById("cardPlayer").value || "Cricket Player";
-
-  const team =
-    document.getElementById("cardTeam").value || "India";
-
-  const jersey =
-    document.getElementById("cardJersey").value || "18";
-
-  const rating =
-    document.getElementById("cardRating").value || "95";
-
-  const result =
-    document.getElementById("playerCardResult");
+`Photorealistic cinematic cricket sports news poster featuring ${player} representing ${team}, ${match}, ${type}, at ${stadium}, dramatic stadium floodlights, packed cheering cricket crowd, powerful sports-news atmosphere, ultra realistic face, professional cricket photography, high detail, cinematic lighting, vertical 9:16, clean composition, no text, no watermark.`;
 
   result.innerHTML = `
-    <div class="player-card">
 
-      <div class="player-avatar">
-        🏏
-      </div>
+    <div class="card">
 
-      <h2>${escapeHTML(player)}</h2>
+      <h3>🎨 Poster Prompt</h3>
 
-      <p class="muted">
-        ${escapeHTML(team)}
-      </p>
-
-      <div class="rating">
-        ${escapeHTML(rating)}
-      </div>
-
-      <div class="small">
-        PLAYER RATING
-      </div>
-
-      <div style="margin-top:15px;">
-        <span class="badge upcoming">
-          JERSEY #${escapeHTML(jersey)}
-        </span>
-
-        <span class="badge result">
-          ${escapeHTML(team)}
-        </span>
-      </div>
+      <pre style="margin-top:10px;">${escapeHTML(prompt)}</pre>
 
     </div>
   `;
 }
 
 
-/* LIVE MODE */
+/* ============================================================
+   PLAYER CARD
+============================================================ */
 
-function openLiveMode(match){
+async function generatePlayerCard(){
 
-  liveModeMatch = match;
+  const player =
+    document.getElementById("cardPlayer").value.trim();
+
+  const team =
+    document.getElementById("cardTeam").value.trim();
+
+  const number =
+    document.getElementById("cardNumber").value.trim();
+
+  const rating =
+    document.getElementById("cardRating").value.trim();
+
+  const result =
+    document.getElementById("playerCardResult");
+
+  const prompt =
+`Professional cricket player card design for ${player}, ${team}, jersey number ${number}, player rating ${rating}, realistic cricket portrait, premium sports card design, dramatic stadium background, blue cricket theme, ultra detailed, clean modern composition, no watermark.`;
+
+  result.innerHTML = `
+
+    <div class="card">
+
+      <h3>🪪 Player Card Prompt</h3>
+
+      <pre style="margin-top:10px;">${escapeHTML(prompt)}</pre>
+
+    </div>
+  `;
+}
+
+
+/* ============================================================
+   NEWS
+============================================================ */
+
+function openNews(url){
+
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  );
+}
+
+
+/* ============================================================
+   LIVE MODE
+============================================================ */
+
+async function openLiveMode(){
 
   const overlay =
     document.getElementById("liveOverlay");
 
   overlay.classList.add("show");
 
-  document.body.style.overflow = "hidden";
+  await loadLiveMode();
 
-  renderLiveMode(match);
+  if(liveTimer){
+    clearInterval(liveTimer);
+  }
 
-  clearInterval(liveModeTimer);
-
-  liveModeTimer =
-    setInterval(async function(){
-
-      try{
-
-        const data =
-          await getJSON("/api/live-score");
-
-        const matches =
-          Array.isArray(data.matches)
-          ? data.matches
-          : Array.isArray(data.data)
-          ? data.data
-          : [];
-
-        const id =
-          getMatchId(liveModeMatch);
-
-        const updated =
-          matches.find(function(m){
-            return getMatchId(m) === id;
-          });
-
-        if(updated){
-
-          liveModeMatch = updated;
-
-          renderLiveMode(updated);
-        }
-
-      }catch(e){
-        /* Keep current scoreboard if refresh fails */
-      }
-
-    },60000);
+  liveTimer =
+    setInterval(
+      loadLiveMode,
+      15000
+    );
 }
 
 
-function renderLiveMode(match){
+async function loadLiveMode(){
 
-  const content =
-    document.getElementById("liveModeContent");
+  const result =
+    document.getElementById("liveModeResult");
 
-  const scores =
-    getScores(match);
-
-  let teamHTML = "";
-
-  if(scores.length){
-
-    teamHTML = scores.map(function(s,index){
-
-      const runs =
-        scoreRuns(s) || "-";
-
-      const overs =
-        scoreOvers(s);
-
-      const team =
-        scoreTeam(s,index);
-
-      return `
-        <div class="big-team">
-
-          <div class="big-team-name">
-            ${escapeHTML(team)}
-          </div>
-
-          <div class="big-team-score">
-
-            <div class="big-runs">
-              ${escapeHTML(runs)}
-            </div>
-
-            ${
-              overs
-              ? `<div class="big-overs">
-                   ${escapeHTML(overs)}
-                 </div>`
-              : ""
-            }
-
-          </div>
-
-        </div>
-      `;
-
-    }).join("");
-
-  }else{
-
-    teamHTML = `
-      <div class="big-team">
-        <div class="big-team-name">
-          ${escapeHTML(getTeam1(match))}
-        </div>
-        <div class="big-runs">-</div>
-      </div>
-
-      <div class="big-team">
-        <div class="big-team-name">
-          ${escapeHTML(getTeam2(match))}
-        </div>
-        <div class="big-runs">-</div>
-      </div>
-    `;
-  }
-
-  const updated =
-    new Date().toLocaleTimeString();
-
-  content.innerHTML = `
-    <div class="big-score">
-
-      <div class="big-status">
-
-        <div>
-          <span class="badge live">
-            <span class="live-dot"></span>
-            LIVE
-          </span>
-        </div>
-
-        <div class="big-match" style="margin-top:10px;">
-          ${escapeHTML(getMatchName(match))}
-        </div>
-
-        <div class="big-series">
-          ${escapeHTML(getSeries(match))}
-        </div>
-
-      </div>
-
-      <div class="big-teams">
-        ${teamHTML}
-      </div>
-
-      <div class="live-info">
-
-        📍 ${escapeHTML(getVenue(match))}
-
-        <br><br>
-
-        ${escapeHTML(getMatchType(match))}
-
-        <br>
-
-        Updated: ${escapeHTML(updated)}
-
-      </div>
-
-    </div>
-
-    <div class="live-controls">
-
-      <button onclick="refreshLiveMode()">
-        🔄 Refresh
-      </button>
-
-      <button onclick="closeLiveMode()">
-        ✕ Close
-      </button>
-
-    </div>
-  `;
-}
-
-
-async function refreshLiveMode(){
-
-  if(!liveModeMatch){
-    return;
-  }
+  result.innerHTML =
+    '<div class="loading">🔄 Live mode loading...</div>';
 
   try{
 
@@ -2428,80 +2242,66 @@ async function refreshLiveMode(){
       await getJSON("/api/live-score");
 
     const matches =
-      Array.isArray(data.matches)
-      ? data.matches
-      : Array.isArray(data.data)
-      ? data.data
-      : [];
+      Array.isArray(data)
+        ? data
+        : (
+          data?.matches ??
+          data?.data ??
+          data?.results ??
+          []
+        );
 
-    const id =
-      getMatchId(liveModeMatch);
+    if(!matches.length){
 
-    const updated =
-      matches.find(function(m){
-        return getMatchId(m) === id;
-      });
+      result.innerHTML =
+        '<div class="empty">कोई live match नहीं मिला।</div>';
 
-    if(updated){
-
-      liveModeMatch = updated;
-
-      renderLiveMode(updated);
-
-    }else{
-
-      document.getElementById("liveModeContent").innerHTML = `
-        <div class="card">
-          <h3>🔴 Match Update</h3>
-          <p class="muted">
-            यह match अब live list में उपलब्ध नहीं है।
-          </p>
-          <div style="margin-top:12px;">
-            <button class="secondary" onclick="closeLiveMode()">
-              Close
-            </button>
-          </div>
-        </div>
-      `;
+      return;
     }
+
+    result.innerHTML =
+      matches
+        .map(match=>renderMatchCard(match,true))
+        .join("");
 
   }catch(error){
 
-    alert("Live refresh failed: " + error.message);
+    result.innerHTML =
+      `<div class="error">❌ ${escapeHTML(error.message)}</div>`;
   }
 }
 
 
 function closeLiveMode(){
 
-  clearInterval(liveModeTimer);
+  const overlay =
+    document.getElementById("liveOverlay");
 
-  liveModeTimer = null;
+  overlay.classList.remove("show");
 
-  liveModeMatch = null;
+  if(liveTimer){
 
-  document.getElementById("liveOverlay")
-    .classList.remove("show");
+    clearInterval(liveTimer);
 
-  document.body.style.overflow = "";
+    liveTimer = null;
+  }
 }
 
 
-/* INITIAL LOAD */
+/* ============================================================
+   STARTUP
+============================================================ */
 
-loadScores();
+document.addEventListener(
+  "DOMContentLoaded",
+  function(){
 
-setInterval(function(){
-
-  if(
-    document.getElementById("live").classList.contains("active")
-  ){
     loadScores();
-  }
 
-},300000);
+  }
+);
 
 </script>
 
 </body>
-      </html>
+        </html>
