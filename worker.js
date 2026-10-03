@@ -50,6 +50,7 @@ function parseScore(scoreText) {
     wickets = Number(scoreMatch[2]);
   } else {
     const runMatch = text.match(/(\d+)/);
+
     if (runMatch) {
       runs = Number(runMatch[1]);
     }
@@ -204,20 +205,25 @@ function formatCricScoreMatch(match) {
     dateTimeGMT: match?.dateTimeGMT || "",
     series: match?.series_id || match?.series || "",
     teams: [team1, team2],
+
     teamInfo: teamInfo.map(item => ({
       name: item?.name || "",
       shortname: item?.shortname || "",
       img: item?.img || ""
     })),
+
     score: scoreList,
+
     currentInnings:
       scoreList[battingIndex] ||
       scoreList[scoreList.length - 1] ||
       null,
+
     tossWinner: match?.tossWinner || "",
     tossChoice: match?.tossChoice || "",
     result: match?.status || "",
     description: match?.status || "",
+
     raw: match
   };
 }
@@ -237,8 +243,11 @@ function sortMatches(matches) {
       return statusA - statusB;
     }
 
-    const dateA = new Date(a.dateTimeGMT || a.date || 0).getTime();
-    const dateB = new Date(b.dateTimeGMT || b.date || 0).getTime();
+    const dateA =
+      new Date(a.dateTimeGMT || a.date || 0).getTime();
+
+    const dateB =
+      new Date(b.dateTimeGMT || b.date || 0).getTime();
 
     return dateA - dateB;
   });
@@ -262,8 +271,10 @@ async function getAllCricketMatches(env) {
   });
 
   if (!response.ok) {
+    const text = await response.text();
+
     throw new Error(
-      `Cricket API HTTP ${response.status}`
+      `Cricket API HTTP ${response.status}: ${text}`
     );
   }
 
@@ -273,7 +284,8 @@ async function getAllCricketMatches(env) {
     throw new Error(
       data?.reason ||
       data?.message ||
-      "Cricket API returned failure"
+      data?.error ||
+      JSON.stringify(data)
     );
   }
 
@@ -282,7 +294,8 @@ async function getAllCricketMatches(env) {
       ? data.data
       : [];
 
-  const matches = rawMatches.map(formatCricScoreMatch);
+  const matches =
+    rawMatches.map(formatCricScoreMatch);
 
   return sortMatches(matches);
 }
@@ -303,11 +316,15 @@ async function getMatchDetail(env, endpoint, matchId) {
   const apiKey = env.CRICKET_API_KEY;
 
   if (!apiKey) {
-    throw new Error("CRICKET_API_KEY is not configured");
+    throw new Error(
+      "CRICKET_API_KEY is not configured"
+    );
   }
 
   if (!matchId) {
-    throw new Error("Match ID is required");
+    throw new Error(
+      "Match ID is required"
+    );
   }
 
   const url =
@@ -323,19 +340,29 @@ async function getMatchDetail(env, endpoint, matchId) {
     }
   });
 
+  // ----------------------------------------------------------
+  // IMPORTANT:
+  // Return actual Cricket API response when HTTP fails
+  // ----------------------------------------------------------
   if (!response.ok) {
+    const text = await response.text();
+
     throw new Error(
-      `Cricket API HTTP ${response.status}`
+      `Cricket API HTTP ${response.status}: ${text}`
     );
   }
 
   const data = await response.json();
 
+  // ----------------------------------------------------------
+  // Show actual Cricket API failure reason
+  // ----------------------------------------------------------
   if (data?.status === "failure") {
     throw new Error(
       data?.reason ||
       data?.message ||
-      "Cricket API returned failure"
+      data?.error ||
+      JSON.stringify(data)
     );
   }
 
@@ -461,17 +488,23 @@ function base64ToUint8Array(base64) {
 
 async function generateAIImage(env, body) {
   if (!env.AI) {
-    throw new Error("Workers AI binding is not configured");
+    throw new Error(
+      "Workers AI binding is not configured"
+    );
   }
 
-  const prompt = buildAIImagePrompt(body);
+  const prompt =
+    buildAIImagePrompt(body);
 
-  const result = await env.AI.run(AI_MODEL, {
-    prompt
-  });
+  const result =
+    await env.AI.run(AI_MODEL, {
+      prompt
+    });
 
   if (!result) {
-    throw new Error("Workers AI returned an empty response");
+    throw new Error(
+      "Workers AI returned an empty response"
+    );
   }
 
   if (result instanceof ArrayBuffer) {
@@ -483,18 +516,26 @@ async function generateAIImage(env, body) {
   }
 
   if (result?.image) {
-    return base64ToUint8Array(result.image);
+    return base64ToUint8Array(
+      result.image
+    );
   }
 
   if (result?.data?.image) {
-    return base64ToUint8Array(result.data.image);
+    return base64ToUint8Array(
+      result.data.image
+    );
   }
 
-  throw new Error("Workers AI image response was not recognized");
+  throw new Error(
+    "Workers AI image response was not recognized"
+  );
 }
 
 function errorMessage(error) {
-  if (!error) return "Unknown error";
+  if (!error) {
+    return "Unknown error";
+  }
 
   if (error instanceof Error) {
     return error.message;
@@ -505,8 +546,11 @@ function errorMessage(error) {
 
 export default {
   async fetch(request, env) {
-    const url = new URL(request.url);
-    const pathname = url.pathname;
+    const url =
+      new URL(request.url);
+
+    const pathname =
+      url.pathname;
 
     if (request.method === "OPTIONS") {
       return new Response(null, {
@@ -516,6 +560,7 @@ export default {
     }
 
     try {
+
       // --------------------------------------------------------
       // HEALTH
       // --------------------------------------------------------
@@ -530,6 +575,7 @@ export default {
           workersAI: Boolean(env.AI),
           cricketApiKey: Boolean(env.CRICKET_API_KEY),
           assets: Boolean(env.ASSETS),
+
           endpoints: [
             "/api/generate",
             "/api/generate-image",
@@ -551,14 +597,16 @@ export default {
         pathname === "/api/live-score" &&
         request.method === "GET"
       ) {
-        const matches = await getCricketScores(env);
+        const matches =
+          await getCricketScores(env);
 
         return jsonResponse({
           success: true,
           count: matches.length,
           matches,
           data: matches,
-          lastUpdated: new Date().toISOString()
+          lastUpdated:
+            new Date().toISOString()
         });
       }
 
@@ -569,14 +617,16 @@ export default {
         pathname === "/api/fixtures" &&
         request.method === "GET"
       ) {
-        const matches = await getFixtures(env);
+        const matches =
+          await getFixtures(env);
 
         return jsonResponse({
           success: true,
           count: matches.length,
           matches,
           data: matches,
-          lastUpdated: new Date().toISOString()
+          lastUpdated:
+            new Date().toISOString()
         });
       }
 
@@ -587,7 +637,8 @@ export default {
         pathname === "/api/scorecard" &&
         request.method === "GET"
       ) {
-        const matchId = url.searchParams.get("id");
+        const matchId =
+          url.searchParams.get("id");
 
         if (!matchId) {
           return jsonResponse(
@@ -599,11 +650,12 @@ export default {
           );
         }
 
-        const data = await getMatchDetail(
-          env,
-          "match_scorecard",
-          matchId
-        );
+        const data =
+          await getMatchDetail(
+            env,
+            "match_scorecard",
+            matchId
+          );
 
         return jsonResponse({
           success: true,
@@ -619,7 +671,8 @@ export default {
         pathname === "/api/match-points" &&
         request.method === "GET"
       ) {
-        const matchId = url.searchParams.get("id");
+        const matchId =
+          url.searchParams.get("id");
 
         if (!matchId) {
           return jsonResponse(
@@ -631,11 +684,12 @@ export default {
           );
         }
 
-        const data = await getMatchDetail(
-          env,
-          "match_points",
-          matchId
-        );
+        const data =
+          await getMatchDetail(
+            env,
+            "match_points",
+            matchId
+          );
 
         return jsonResponse({
           success: true,
@@ -647,20 +701,21 @@ export default {
       // --------------------------------------------------------
       // BALL BY BALL
       // --------------------------------------------------------
-      // Intentionally kept safe until the exact Cricket API
-      // ball-by-ball endpoint is confirmed.
       if (
         pathname === "/api/ball-by-ball" &&
         request.method === "GET"
       ) {
-        const matchId = url.searchParams.get("id");
+        const matchId =
+          url.searchParams.get("id");
 
         return jsonResponse(
           {
             success: false,
             configured: false,
             matchId: matchId || "",
-            error: "BALL_BY_BALL_ENDPOINT_NOT_CONFIGURED",
+            error:
+              "BALL_BY_BALL_ENDPOINT_NOT_CONFIGURED",
+
             message:
               "Ball-by-ball API endpoint is not configured yet."
           },
@@ -678,29 +733,41 @@ export default {
         let body;
 
         try {
-          body = await request.json();
+          body =
+            await request.json();
         } catch {
           return jsonResponse(
             {
               success: false,
-              error: "Invalid JSON request body"
+              error:
+                "Invalid JSON request body"
             },
             400
           );
         }
 
         const imageBytes =
-          await generateAIImage(env, body || {});
+          await generateAIImage(
+            env,
+            body || {}
+          );
 
-        return new Response(imageBytes, {
-          status: 200,
-          headers: {
-            ...corsHeaders(),
-            "Content-Type": "image/jpeg",
-            "Content-Disposition":
-              "inline; filename=\"cricket-short-ai.jpg\""
+        return new Response(
+          imageBytes,
+          {
+            status: 200,
+
+            headers: {
+              ...corsHeaders(),
+
+              "Content-Type":
+                "image/jpeg",
+
+              "Content-Disposition":
+                "inline; filename=\"cricket-short-ai.jpg\""
+            }
           }
-        });
+        );
       }
 
       // --------------------------------------------------------
@@ -713,29 +780,41 @@ export default {
         let body;
 
         try {
-          body = await request.json();
+          body =
+            await request.json();
         } catch {
           return jsonResponse(
             {
               success: false,
-              error: "Invalid JSON request body"
+              error:
+                "Invalid JSON request body"
             },
             400
           );
         }
 
         const imageBytes =
-          await generateAIImage(env, body || {});
+          await generateAIImage(
+            env,
+            body || {}
+          );
 
-        return new Response(imageBytes, {
-          status: 200,
-          headers: {
-            ...corsHeaders(),
-            "Content-Type": "image/jpeg",
-            "Content-Disposition":
-              "inline; filename=\"cricket-short-ai.jpg\""
+        return new Response(
+          imageBytes,
+          {
+            status: 200,
+
+            headers: {
+              ...corsHeaders(),
+
+              "Content-Type":
+                "image/jpeg",
+
+              "Content-Disposition":
+                "inline; filename=\"cricket-short-ai.jpg\""
+            }
           }
-        });
+        );
       }
 
       // --------------------------------------------------------
@@ -745,14 +824,16 @@ export default {
         pathname === "/api/score" &&
         request.method === "GET"
       ) {
-        const matches = await getCricketScores(env);
+        const matches =
+          await getCricketScores(env);
 
         return jsonResponse({
           success: true,
           count: matches.length,
           matches,
           data: matches,
-          lastUpdated: new Date().toISOString()
+          lastUpdated:
+            new Date().toISOString()
         });
       }
 
@@ -760,20 +841,27 @@ export default {
       // STATIC ASSETS
       // --------------------------------------------------------
       if (env.ASSETS) {
-        return env.ASSETS.fetch(request);
+        return env.ASSETS.fetch(
+          request
+        );
       }
 
       // --------------------------------------------------------
       // ROOT
       // --------------------------------------------------------
-      if (pathname === "/" && request.method === "GET") {
+      if (
+        pathname === "/" &&
+        request.method === "GET"
+      ) {
         return new Response(
           "Cricket Short Worker is running.",
           {
             status: 200,
+
             headers: {
               ...corsHeaders(),
-              "Content-Type": "text/plain; charset=utf-8"
+              "Content-Type":
+                "text/plain; charset=utf-8"
             }
           }
         );
@@ -792,14 +880,17 @@ export default {
       );
 
     } catch (error) {
+
       return jsonResponse(
         {
           success: false,
-          error: errorMessage(error)
+          error:
+            errorMessage(error)
         },
         500
       );
     }
   }
 };
+
 // Production deployment trigger 2026-10-03
