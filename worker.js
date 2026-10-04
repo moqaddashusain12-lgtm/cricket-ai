@@ -1544,26 +1544,44 @@ export default {
             body
           );
 
-        // Workers AI image result
+
+        // ====================================================
+        // WORKERS AI FLUX IMAGE
+        // result.image is Base64
+        // Decode Base64 before returning image
+        // ====================================================
+
         if (
           result &&
           result.image
         ) {
 
+          const binaryString =
+            atob(result.image);
+
+          const img =
+            Uint8Array.from(
+              binaryString,
+              m => m.codePointAt(0)
+            );
+
           return new Response(
-            result.image,
+            img,
             {
               headers: {
                 ...corsHeaders(),
                 "Content-Type":
-                  "image/png"
+                  "image/jpeg"
               }
             }
           );
         }
 
 
-        // ArrayBuffer / image response
+        // ====================================================
+        // ARRAYBUFFER / IMAGE RESPONSE
+        // ====================================================
+
         if (
           result instanceof ArrayBuffer
         ) {
@@ -1581,7 +1599,10 @@ export default {
         }
 
 
-        // Blob
+        // ====================================================
+        // BLOB
+        // ====================================================
+
         if (
           result instanceof Blob
         ) {
@@ -1598,6 +1619,10 @@ export default {
           );
         }
 
+
+        // ====================================================
+        // JSON FALLBACK
+        // ====================================================
 
         return json(
           {
