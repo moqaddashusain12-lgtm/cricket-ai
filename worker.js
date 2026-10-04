@@ -1,16 +1,29 @@
 // ============================================================
 // 🏏 CRICKET SHORT - FINAL WORKER.JS
-// Live Score + Fixtures + Scorecard + Ball-by-Ball
-// Match Points + Workers AI Image Generation
+// ============================================================
+// Live Score      -> ONLY REAL LIVE MATCHES
+// Fixtures        -> ONLY UPCOMING MATCHES
+// Scorecard       -> Match Scorecard
+// Ball-by-Ball    -> Match Commentary
+// Match Points    -> Safe fallback
+// AI Image        -> Cloudflare Workers AI / Flux Schnell
 // ============================================================
 
-const AI_MODEL = "@cf/black-forest-labs/flux-1-schnell";
+
+const AI_MODEL =
+  "@cf/black-forest-labs/flux-1-schnell";
+
 
 const CRICKET_API_URL =
   "https://api.cricapi.com/v1/cricScore";
 
+
 const CRICKET_LIVE_API_URL =
   "https://cricketliveapi.com/api/v1/cricket/live";
+
+
+const CRICKET_FIXTURES_API_URL =
+  "https://cricketliveapi.com/api/v1/cricket/matches/upcoming";
 
 
 // ============================================================
@@ -18,13 +31,16 @@ const CRICKET_LIVE_API_URL =
 // ============================================================
 
 function corsHeaders(extra = {}) {
+
   return {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods":
+      "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers":
       "Content-Type, Authorization, X-API-Key",
     ...extra
   };
+
 }
 
 
@@ -32,17 +48,24 @@ function corsHeaders(extra = {}) {
 // JSON RESPONSE
 // ============================================================
 
-function jsonResponse(data, status = 200, extra = {}) {
+function jsonResponse(
+  data,
+  status = 200,
+  extra = {}
+) {
+
   return new Response(
     JSON.stringify(data),
     {
       status,
       headers: corsHeaders({
-        "Content-Type": "application/json; charset=utf-8",
+        "Content-Type":
+          "application/json; charset=utf-8",
         ...extra
       })
     }
   );
+
 }
 
 
@@ -50,15 +73,19 @@ function jsonResponse(data, status = 200, extra = {}) {
 // ERROR RESPONSE
 // ============================================================
 
-function errorResponse(message, status = 500, extra = {}) {
+function errorResponse(
+  message,
+  status = 500
+) {
+
   return jsonResponse(
     {
       success: false,
       error: message
     },
-    status,
-    extra
+    status
   );
+
 }
 
 
@@ -67,37 +94,23 @@ function errorResponse(message, status = 500, extra = {}) {
 // ============================================================
 
 async function safeJSON(response) {
-  const text = await response.text();
+
+  const text =
+    await response.text();
 
   try {
+
     return JSON.parse(text);
+
   } catch {
+
     return {
       success: false,
       raw: text
     };
-  }
-}
 
-
-// ============================================================
-// FETCH JSON
-// ============================================================
-
-async function fetchJSON(url, options = {}) {
-  const response = await fetch(url, options);
-
-  const data = await safeJSON(response);
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message ||
-      data?.error ||
-      `HTTP ${response.status}`
-    );
   }
 
-  return data;
 }
 
 
@@ -106,9 +119,11 @@ async function fetchJSON(url, options = {}) {
 // ============================================================
 
 function normalizeMatch(match = {}) {
-  const teams = Array.isArray(match.teams)
-    ? match.teams
-    : [];
+
+  const teams =
+    Array.isArray(match.teams)
+      ? match.teams
+      : [];
 
   return {
     ...match,
@@ -120,9 +135,22 @@ function normalizeMatch(match = {}) {
       match.event_id ??
       null,
 
+    matchId:
+      match.matchId ??
+      match.id ??
+      match.match_id ??
+      match.event_id ??
+      null,
+
     name:
       match.name ??
       match.matchName ??
+      match.title ??
+      "",
+
+    matchName:
+      match.matchName ??
+      match.name ??
       match.title ??
       "",
 
@@ -145,82 +173,314 @@ function normalizeMatch(match = {}) {
 
     teams
   };
+
 }
 
 
 // ============================================================
-// STATUS
+// GET RAW STATUS
+// ============================================================
+
+function getRawStatus(match = {}) {
+
+  return String(
+    match.status ??
+    match.matchStatus ??
+    match.state ??
+    match.match_status ??
+    ""
+  )
+    .trim()
+    .toLowerCase();
+
+}
+
+
+// ============================================================
+// CHECK REAL LIVE MATCH
+// ============================================================
+
+function isActuallyLive(match = {}) {
+
+  const status =
+    getRawStatus(match);
+
+
+  // ----------------------------------------------------------
+  // Clear LIVE words
+  // ----------------------------------------------------------
+
+  if (
+    status === "live" ||
+    status === "live match" ||
+    status === "playing" ||
+    status === "in progress" ||
+    status === "in-progress" ||
+    status === "ongoing" ||
+    status === "started" ||
+    status === "1st innings" ||
+    status === "2nd innings"
+  ) {
+
+    return true;
+
+  }
+
+
+  // ----------------------------------------------------------
+  // Explicit non-live states
+  // ----------------------------------------------------------
+
+  if (
+    status.includes("result") ||
+    status.includes("won") ||
+    status.includes("loss") ||
+    status.includes("draw") ||
+    status.includes("complete") ||
+    status.includes("completed") ||
+    status.includes("finished") ||
+    status.includes("abandoned") ||
+    status.includes("cancelled") ||
+    status.includes("canceled") ||
+    status.includes("upcoming") ||
+    status.includes("scheduled") ||
+    status.includes("preview") ||
+    status.includes("not started") ||
+    status.includes("yet to start") ||
+    status.includes("stumps")
+  ) {
+
+    return false;
+
+  }
+
+
+  // ----------------------------------------------------------
+  // More live indicators
+  // ----------------------------------------------------------
+
+  if (
+    status.includes("live") ||
+    status.includes("playing") ||
+    status.includes("in progress") ||
+    status.includes("ongoing")
+  ) {
+
+    return true;
+
+  }
+
+
+  // ----------------------------------------------------------
+  // Default: NOT LIVE
+  // ----------------------------------------------------------
+
+  return false;
+
+}
+
+
+// ============================================================
+// CHECK UPCOMING
+// ============================================================
+
+function isUpcoming(match = {}) {
+
+  const status =
+    getRawStatus(match);
+
+
+  if (
+    status.includes("upcoming") ||
+    status.includes("scheduled") ||
+    status.includes("preview") ||
+    status.includes("not started") ||
+    status.includes("yet to start")
+  ) {
+
+    return true;
+
+  }
+
+
+  if (
+    status.includes("result") ||
+    status.includes("won") ||
+    status.includes("loss") ||
+    status.includes("draw") ||
+    status.includes("complete") ||
+    status.includes("completed") ||
+    status.includes("finished") ||
+    status.includes("abandoned") ||
+    status.includes("cancelled") ||
+    status.includes("canceled") ||
+    status.includes("stumps")
+  ) {
+
+    return false;
+
+  }
+
+
+  // If API gives a future date/time, treat as upcoming.
+  const dateValue =
+    match.date ??
+    match.startDate ??
+    match.startTime ??
+    match.dateTime ??
+    match.datetime ??
+    match.timestamp ??
+    null;
+
+
+  if (dateValue) {
+
+    const parsed =
+      Date.parse(dateValue);
+
+    if (
+      Number.isFinite(parsed) &&
+      parsed > Date.now()
+    ) {
+
+      return true;
+
+    }
+
+  }
+
+
+  return false;
+
+}
+
+
+// ============================================================
+// DISPLAY STATUS
 // ============================================================
 
 function getStatus(match = {}) {
 
-  const raw = String(
-    match.status ??
-    match.matchStatus ??
-    match.state ??
-    ""
-  ).toLowerCase();
-
   if (
-    raw.includes("live") ||
-    raw.includes("playing") ||
-    raw.includes("in progress")
+    isActuallyLive(match)
   ) {
+
     return "LIVE";
+
   }
+
+
+  const raw =
+    getRawStatus(match);
+
 
   if (
     raw.includes("delay") ||
     raw.includes("rain")
   ) {
+
     return "DELAYED";
+
   }
+
 
   if (
     raw.includes("stump")
   ) {
+
     return "STUMPS";
+
   }
+
 
   if (
-    raw.includes("complete") ||
-    raw.includes("finished") ||
     raw.includes("result") ||
     raw.includes("won") ||
-    raw.includes("loss")
+    raw.includes("loss") ||
+    raw.includes("draw") ||
+    raw.includes("complete") ||
+    raw.includes("completed") ||
+    raw.includes("finished")
   ) {
+
     return "RESULT";
+
   }
 
+
+  if (
+    isUpcoming(match)
+  ) {
+
+    return "UPCOMING";
+
+  }
+
+
   return "UPCOMING";
+
 }
 
 
 // ============================================================
-// CRICAPI SCORE
+// CRICAPI
 // ============================================================
 
 async function getCricketScores(env) {
 
   if (!env.CRICKET_API_KEY) {
-    throw new Error("CRICKET_API_KEY secret is missing");
+
+    throw new Error(
+      "CRICKET_API_KEY secret is missing"
+    );
+
   }
 
-  const url =
-    `${CRICKET_API_URL}?apikey=${encodeURIComponent(
-      env.CRICKET_API_KEY
-    )}`;
 
-  const data = await fetchJSON(url);
+  const url =
+    `${CRICKET_API_URL}?apikey=${
+      encodeURIComponent(
+        env.CRICKET_API_KEY
+      )
+    }`;
+
+
+  const response =
+    await fetch(url);
+
+
+  const data =
+    await safeJSON(response);
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      data?.message ||
+      data?.error ||
+      `CricAPI HTTP ${response.status}`
+    );
+
+  }
+
 
   const list =
     data?.data ??
     data?.matches ??
     [];
 
-  return Array.isArray(list)
-    ? list.map(normalizeMatch)
-    : [];
+
+  if (!Array.isArray(list)) {
+
+    return [];
+
+  }
+
+
+  return list.map(
+    normalizeMatch
+  );
+
 }
 
 
@@ -228,27 +488,37 @@ async function getCricketScores(env) {
 // CRICKET LIVE API
 // ============================================================
 
-async function getLiveScores(env) {
+async function fetchCricketLiveAPI(env) {
 
   if (!env.CRICKET_LIVE_API_TOKEN) {
+
     throw new Error(
       "CRICKET_LIVE_API_TOKEN secret is missing"
     );
+
   }
 
-  const response = await fetch(
-    CRICKET_LIVE_API_URL,
-    {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Authorization":
-          `Bearer ${env.CRICKET_LIVE_API_TOKEN}`
-      }
-    }
-  );
 
-  const data = await safeJSON(response);
+  const response =
+    await fetch(
+      CRICKET_LIVE_API_URL,
+      {
+        method: "GET",
+        headers: {
+          "Accept":
+            "application/json",
+          "Authorization":
+            `Bearer ${
+              env.CRICKET_LIVE_API_TOKEN
+            }`
+        }
+      }
+    );
+
+
+  const data =
+    await safeJSON(response);
+
 
   if (!response.ok) {
 
@@ -257,7 +527,9 @@ async function getLiveScores(env) {
       data?.error ||
       `CricketLiveAPI HTTP ${response.status}`
     );
+
   }
+
 
   const list =
     data?.data ??
@@ -265,50 +537,54 @@ async function getLiveScores(env) {
     data?.results ??
     [];
 
+
   if (!Array.isArray(list)) {
+
     return [];
+
   }
 
-  return list.map(normalizeMatch);
+
+  return list.map(
+    normalizeMatch
+  );
+
 }
 
 
 // ============================================================
-// ALL CRICKET MATCHES
+// ONLY LIVE MATCHES
 // ============================================================
 
-async function getAllCricketMatches(env) {
+async function getLiveScores(env) {
 
-  try {
-
-    const live = await getLiveScores(env);
-
-    if (live.length > 0) {
-      return live;
-    }
-
-  } catch (error) {
-
-    console.log(
-      "CricketLiveAPI failed:",
-      error?.message
-    );
-  }
-
-
-  try {
-
-    return await getCricketScores(env);
-
-  } catch (error) {
-
-    console.log(
-      "CricAPI failed:",
-      error?.message
+  const matches =
+    await fetchCricketLiveAPI(
+      env
     );
 
-    return [];
-  }
+
+  // ----------------------------------------------------------
+  // IMPORTANT:
+  // CricketLiveAPI /cricket/live is returning some RESULT
+  // matches in the current response.
+  //
+  // Therefore we filter them here.
+  // ----------------------------------------------------------
+
+  const liveMatches =
+    matches.filter(
+      isActuallyLive
+    );
+
+
+  return liveMatches.map(
+    match => ({
+      ...match,
+      status: "LIVE"
+    })
+  );
+
 }
 
 
@@ -319,27 +595,34 @@ async function getAllCricketMatches(env) {
 async function getFixtures(env) {
 
   if (!env.CRICKET_LIVE_API_TOKEN) {
+
     throw new Error(
       "CRICKET_LIVE_API_TOKEN secret is missing"
     );
+
   }
 
-  const url =
-    "https://cricketliveapi.com/api/v1/cricket/matches/upcoming";
 
-  const response = await fetch(
-    url,
-    {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Authorization":
-          `Bearer ${env.CRICKET_LIVE_API_TOKEN}`
+  const response =
+    await fetch(
+      CRICKET_FIXTURES_API_URL,
+      {
+        method: "GET",
+        headers: {
+          "Accept":
+            "application/json",
+          "Authorization":
+            `Bearer ${
+              env.CRICKET_LIVE_API_TOKEN
+            }`
+        }
       }
-    }
-  );
+    );
 
-  const data = await safeJSON(response);
+
+  const data =
+    await safeJSON(response);
+
 
   if (!response.ok) {
 
@@ -348,14 +631,105 @@ async function getFixtures(env) {
       data?.error ||
       `Fixtures HTTP ${response.status}`
     );
+
   }
 
+
+  const list =
+    data?.data ??
+    data?.matches ??
+    data?.results ??
+    [];
+
+
+  // ----------------------------------------------------------
+  // Keep only upcoming matches.
+  // ----------------------------------------------------------
+
+  if (Array.isArray(list)) {
+
+    const fixtures =
+      list
+        .map(normalizeMatch)
+        .filter(isUpcoming)
+        .map(match => ({
+          ...match,
+          status: "UPCOMING"
+        }));
+
+
+    return {
+      ...data,
+      success:
+        data?.success !== false,
+      count:
+        fixtures.length,
+      data:
+        fixtures
+    };
+
+  }
+
+
   return data;
+
 }
 
 
 // ============================================================
-// GENERIC MATCH DETAIL
+// SCORE
+// ============================================================
+
+async function getScore(env) {
+
+  // Try CricketLiveAPI first.
+  try {
+
+    const live =
+      await fetchCricketLiveAPI(
+        env
+      );
+
+
+    if (live.length > 0) {
+
+      return live;
+
+    }
+
+  } catch (error) {
+
+    console.log(
+      "CricketLiveAPI score error:",
+      error?.message
+    );
+
+  }
+
+
+  // Fallback to CricAPI.
+  try {
+
+    return await getCricketScores(
+      env
+    );
+
+  } catch (error) {
+
+    console.log(
+      "CricAPI score error:",
+      error?.message
+    );
+
+    return [];
+
+  }
+
+}
+
+
+// ============================================================
+// MATCH DETAIL
 // ============================================================
 
 async function getMatchDetail(
@@ -365,13 +739,20 @@ async function getMatchDetail(
 ) {
 
   if (!env.CRICKET_LIVE_API_TOKEN) {
+
     throw new Error(
       "CRICKET_LIVE_API_TOKEN secret is missing"
     );
+
   }
 
+
   if (!matchId) {
-    throw new Error("Match ID is required");
+
+    throw new Error(
+      "Match ID is required"
+    );
+
   }
 
 
@@ -386,44 +767,65 @@ async function getMatchDetail(
   if (type === "scorecard") {
 
     primaryURL =
-      `https://cricketliveapi.com/api/v1/cricket/scorecard/${encodeURIComponent(
-        matchId
-      )}`;
+      `https://cricketliveapi.com/api/v1/cricket/scorecard/${
+        encodeURIComponent(
+          matchId
+        )
+      }`;
+
 
     fallbackURL =
-      `https://cricketliveapi.com/api/v1/cricket/match/${encodeURIComponent(
-        matchId
-      )}/scorecard`;
+      `https://cricketliveapi.com/api/v1/cricket/match/${
+        encodeURIComponent(
+          matchId
+        )
+      }/scorecard`;
+
   }
 
 
   // ----------------------------------------------------------
-  // COMMENTARY / BALL BY BALL
+  // COMMENTARY
   // ----------------------------------------------------------
 
-  else if (type === "commentary") {
+  else if (
+    type === "commentary"
+  ) {
 
     primaryURL =
-      `https://cricketliveapi.com/api/v1/cricket/commentary/${encodeURIComponent(
-        matchId
-      )}`;
+      `https://cricketliveapi.com/api/v1/cricket/commentary/${
+        encodeURIComponent(
+          matchId
+        )
+      }`;
+
 
     fallbackURL =
-      `https://cricketliveapi.com/api/v1/cricket/match/${encodeURIComponent(
-        matchId
-      )}/commentary`;
+      `https://cricketliveapi.com/api/v1/cricket/match/${
+        encodeURIComponent(
+          matchId
+        )
+      }/commentary`;
+
   }
 
 
   else {
-    throw new Error("Unknown match detail type");
+
+    throw new Error(
+      "Unknown match detail type"
+    );
+
   }
 
 
   const headers = {
-    "Accept": "application/json",
+    "Accept":
+      "application/json",
     "Authorization":
-      `Bearer ${env.CRICKET_LIVE_API_TOKEN}`
+      `Bearer ${
+        env.CRICKET_LIVE_API_TOKEN
+      }`
   };
 
 
@@ -433,22 +835,29 @@ async function getMatchDetail(
 
   try {
 
-    const response = await fetch(
-      primaryURL,
-      {
-        method: "GET",
-        headers
-      }
-    );
+    const response =
+      await fetch(
+        primaryURL,
+        {
+          method: "GET",
+          headers
+        }
+      );
 
-    const data = await safeJSON(response);
+
+    const data =
+      await safeJSON(response);
+
 
     if (response.ok) {
+
       return data;
+
     }
 
+
     console.log(
-      `${type} primary failed:`,
+      `${type} primary HTTP:`,
       response.status
     );
 
@@ -458,6 +867,7 @@ async function getMatchDetail(
       `${type} primary error:`,
       error?.message
     );
+
   }
 
 
@@ -465,15 +875,19 @@ async function getMatchDetail(
   // FALLBACK
   // ----------------------------------------------------------
 
-  const response = await fetch(
-    fallbackURL,
-    {
-      method: "GET",
-      headers
-    }
-  );
+  const response =
+    await fetch(
+      fallbackURL,
+      {
+        method: "GET",
+        headers
+      }
+    );
 
-  const data = await safeJSON(response);
+
+  const data =
+    await safeJSON(response);
+
 
   if (!response.ok) {
 
@@ -482,43 +896,50 @@ async function getMatchDetail(
       data?.error ||
       `${type} HTTP ${response.status}`
     );
+
   }
 
+
   return data;
+
 }
 
 
 // ============================================================
 // MATCH POINTS
 // ============================================================
-// IMPORTANT:
-// CricketLiveAPI documentation supplied for this project
-// does not confirm a points-table endpoint.
-// Therefore we safely return "not configured" instead of
-// inventing an API endpoint.
-// ============================================================
 
 async function getMatchPoints() {
 
   return {
+
     success: true,
+
     configured: false,
+
     message:
       "Match Points API endpoint is not configured.",
+
     data: []
+
   };
+
 }
 
 
 // ============================================================
-// BASE64
+// BYTES -> BASE64
 // ============================================================
 
-function bytesToBase64(bytes) {
+function bytesToBase64(
+  bytes
+) {
 
   let binary = "";
 
-  const chunkSize = 0x8000;
+  const chunkSize =
+    0x8000;
+
 
   for (
     let i = 0;
@@ -535,32 +956,45 @@ function bytesToBase64(bytes) {
         )
       );
 
+
     binary += String.fromCharCode(
       ...chunk
     );
+
   }
 
+
   return btoa(binary);
+
 }
 
 
 // ============================================================
-// CONVERT IMAGE VALUE TO BASE64
+// IMAGE VALUE -> BASE64
 // ============================================================
 
-async function imageValueToBase64(value) {
+async function imageValueToBase64(
+  value
+) {
 
   if (!value) {
+
     return null;
+
   }
 
 
   // ArrayBuffer
-  if (value instanceof ArrayBuffer) {
+  if (
+    value instanceof ArrayBuffer
+  ) {
 
     return bytesToBase64(
-      new Uint8Array(value)
+      new Uint8Array(
+        value
+      )
     );
+
   }
 
 
@@ -577,6 +1011,7 @@ async function imageValueToBase64(value) {
         value.byteLength
       )
     );
+
   }
 
 
@@ -589,57 +1024,76 @@ async function imageValueToBase64(value) {
     const buffer =
       await value.arrayBuffer();
 
+
     return bytesToBase64(
-      new Uint8Array(buffer)
+      new Uint8Array(
+        buffer
+      )
     );
+
   }
 
 
   // String
-  if (typeof value === "string") {
+  if (
+    typeof value === "string"
+  ) {
 
-    // Already data URL
     if (
-      value.startsWith("data:image/")
+      value.startsWith(
+        "data:image/"
+      )
     ) {
 
       const comma =
         value.indexOf(",");
 
+
       if (comma !== -1) {
+
         return value.substring(
           comma + 1
         );
+
       }
+
     }
 
 
-    // Assume plain base64
     return value;
+
   }
 
 
-  // Array of numbers
-  if (Array.isArray(value)) {
+  // Array of bytes
+  if (
+    Array.isArray(value)
+  ) {
 
     try {
 
       return bytesToBase64(
-        new Uint8Array(value)
+        new Uint8Array(
+          value
+        )
       );
 
     } catch {
+
       return null;
+
     }
+
   }
 
 
   return null;
+
 }
 
 
 // ============================================================
-// WORKERS AI IMAGE GENERATION
+// AI IMAGE GENERATION
 // ============================================================
 
 async function generateImage(
@@ -648,6 +1102,7 @@ async function generateImage(
 ) {
 
   let body;
+
 
   try {
 
@@ -659,11 +1114,14 @@ async function generateImage(
     throw new Error(
       "Invalid JSON request"
     );
+
   }
 
 
   const prompt =
-    String(body?.prompt ?? "").trim();
+    String(
+      body?.prompt ?? ""
+    ).trim();
 
 
   if (!prompt) {
@@ -671,6 +1129,7 @@ async function generateImage(
     throw new Error(
       "Prompt is required"
     );
+
   }
 
 
@@ -679,6 +1138,7 @@ async function generateImage(
     throw new Error(
       "Workers AI binding 'AI' is missing"
     );
+
   }
 
 
@@ -689,9 +1149,8 @@ async function generateImage(
 
 
   // ----------------------------------------------------------
-  // IMPORTANT
-  // Do NOT send unsupported parameters like seed.
-  // Flux Schnell only receives the prompt here.
+  // IMPORTANT:
+  // Do NOT add seed or other unsupported Flux parameters.
   // ----------------------------------------------------------
 
   const result =
@@ -710,8 +1169,7 @@ async function generateImage(
 
 
   // ----------------------------------------------------------
-  // CASE 1
-  // Workers AI returned ArrayBuffer
+  // DIRECT ARRAYBUFFER
   // ----------------------------------------------------------
 
   if (
@@ -722,19 +1180,21 @@ async function generateImage(
       result,
       {
         status: 200,
-        headers: corsHeaders({
-          "Content-Type": "image/jpeg",
-          "Cache-Control":
-            "no-store"
-        })
+        headers:
+          corsHeaders({
+            "Content-Type":
+              "image/jpeg",
+            "Cache-Control":
+              "no-store"
+          })
       }
     );
+
   }
 
 
   // ----------------------------------------------------------
-  // CASE 2
-  // Workers AI returned Uint8Array
+  // DIRECT UINT8ARRAY
   // ----------------------------------------------------------
 
   if (
@@ -751,23 +1211,26 @@ async function generateImage(
             result.byteLength
           );
 
+
     return new Response(
       bytes,
       {
         status: 200,
-        headers: corsHeaders({
-          "Content-Type": "image/jpeg",
-          "Cache-Control":
-            "no-store"
-        })
+        headers:
+          corsHeaders({
+            "Content-Type":
+              "image/jpeg",
+            "Cache-Control":
+              "no-store"
+          })
       }
     );
+
   }
 
 
   // ----------------------------------------------------------
-  // CASE 3
-  // Workers AI returned Response
+  // RESPONSE
   // ----------------------------------------------------------
 
   if (
@@ -781,23 +1244,26 @@ async function generateImage(
       ) ||
       "image/jpeg";
 
+
     return new Response(
       result.body,
       {
-        status: result.status,
-        headers: corsHeaders({
-          "Content-Type":
-            contentType,
-          "Cache-Control":
-            "no-store"
-        })
+        status:
+          result.status,
+        headers:
+          corsHeaders({
+            "Content-Type":
+              contentType,
+            "Cache-Control":
+              "no-store"
+          })
       }
     );
+
   }
 
 
   // ----------------------------------------------------------
-  // CASE 4
   // result.image
   // ----------------------------------------------------------
 
@@ -808,20 +1274,23 @@ async function generateImage(
         result.image
       );
 
+
     if (base64) {
 
       return jsonResponse({
         success: true,
         image: base64,
-        mimeType: "image/jpeg",
+        mimeType:
+          "image/jpeg",
         prompt
       });
+
     }
+
   }
 
 
   // ----------------------------------------------------------
-  // CASE 5
   // result.data
   // ----------------------------------------------------------
 
@@ -832,20 +1301,23 @@ async function generateImage(
         result.data
       );
 
+
     if (base64) {
 
       return jsonResponse({
         success: true,
         image: base64,
-        mimeType: "image/jpeg",
+        mimeType:
+          "image/jpeg",
         prompt
       });
+
     }
+
   }
 
 
   // ----------------------------------------------------------
-  // CASE 6
   // result.output
   // ----------------------------------------------------------
 
@@ -856,48 +1328,56 @@ async function generateImage(
         result.output
       );
 
+
     if (base64) {
 
       return jsonResponse({
         success: true,
         image: base64,
-        mimeType: "image/jpeg",
+        mimeType:
+          "image/jpeg",
         prompt
       });
+
     }
+
   }
 
 
   // ----------------------------------------------------------
-  // CASE 7
-  // Array result
+  // ARRAY RESULT
   // ----------------------------------------------------------
 
-  if (Array.isArray(result)) {
+  if (
+    Array.isArray(result)
+  ) {
 
-    for (const item of result) {
+    for (
+      const item of result
+    ) {
 
       const base64 =
         await imageValueToBase64(
           item
         );
 
+
       if (base64) {
 
         return jsonResponse({
           success: true,
           image: base64,
-          mimeType: "image/jpeg",
+          mimeType:
+            "image/jpeg",
           prompt
         });
+
       }
+
     }
+
   }
 
-
-  // ----------------------------------------------------------
-  // Nothing usable returned
-  // ----------------------------------------------------------
 
   console.log(
     "Workers AI raw result:",
@@ -908,6 +1388,7 @@ async function generateImage(
   throw new Error(
     "Workers AI did not return usable image data"
   );
+
 }
 
 
@@ -918,18 +1399,27 @@ async function generateImage(
 function health(env) {
 
   return jsonResponse({
+
     success: true,
-    app: "Cricket Short",
-    worker: "cricket-ai-app",
+
+    app:
+      "Cricket Short",
+
+    worker:
+      "cricket-ai-app",
 
     workersAI:
       Boolean(env.AI),
 
     cricketApiKey:
-      Boolean(env.CRICKET_API_KEY),
+      Boolean(
+        env.CRICKET_API_KEY
+      ),
 
     cricketLiveApiToken:
-      Boolean(env.CRICKET_LIVE_API_TOKEN),
+      Boolean(
+        env.CRICKET_LIVE_API_TOKEN
+      ),
 
     assets: true,
 
@@ -945,7 +1435,9 @@ function health(env) {
       "/api/health",
       "/api/debug-live"
     ]
+
   });
+
 }
 
 
@@ -957,13 +1449,16 @@ async function debugLive(env) {
 
   try {
 
-    if (!env.CRICKET_LIVE_API_TOKEN) {
+    if (
+      !env.CRICKET_LIVE_API_TOKEN
+    ) {
 
       return jsonResponse({
         success: false,
         error:
           "CRICKET_LIVE_API_TOKEN secret is missing"
       });
+
     }
 
 
@@ -976,7 +1471,9 @@ async function debugLive(env) {
             "Accept":
               "application/json",
             "Authorization":
-              `Bearer ${env.CRICKET_LIVE_API_TOKEN}`
+              `Bearer ${
+                env.CRICKET_LIVE_API_TOKEN
+              }`
           }
         }
       );
@@ -989,26 +1486,33 @@ async function debugLive(env) {
     return new Response(
       text,
       {
-        status: response.status,
-        headers: corsHeaders({
-          "Content-Type":
-            response.headers.get(
-              "Content-Type"
-            ) ||
-            "application/json"
-        })
+        status:
+          response.status,
+        headers:
+          corsHeaders({
+            "Content-Type":
+              response.headers.get(
+                "Content-Type"
+              ) ||
+              "application/json"
+          })
       }
     );
 
   } catch (error) {
 
     return jsonResponse({
+
       success: false,
+
       error:
         error?.message ||
         String(error)
+
     });
+
   }
+
 }
 
 
@@ -1018,7 +1522,10 @@ async function debugLive(env) {
 
 export default {
 
-  async fetch(request, env) {
+  async fetch(
+    request,
+    env
+  ) {
 
     // --------------------------------------------------------
     // OPTIONS
@@ -1036,11 +1543,15 @@ export default {
             corsHeaders()
         }
       );
+
     }
 
 
     const url =
-      new URL(request.url);
+      new URL(
+        request.url
+      );
+
 
     const pathname =
       url.pathname;
@@ -1057,10 +1568,12 @@ export default {
     // ========================================================
 
     if (
-      pathname === "/api/health"
+      pathname ===
+      "/api/health"
     ) {
 
       return health(env);
+
     }
 
 
@@ -1069,10 +1582,12 @@ export default {
     // ========================================================
 
     if (
-      pathname === "/api/debug-live"
+      pathname ===
+      "/api/debug-live"
     ) {
 
       return debugLive(env);
+
     }
 
 
@@ -1081,8 +1596,10 @@ export default {
     // ========================================================
 
     if (
-      pathname === "/api/generate-image" ||
-      pathname === "/api/generate"
+      pathname ===
+        "/api/generate-image" ||
+      pathname ===
+        "/api/generate"
     ) {
 
       if (
@@ -1093,6 +1610,7 @@ export default {
           "POST required",
           405
         );
+
       }
 
 
@@ -1110,21 +1628,26 @@ export default {
           error?.message
         );
 
+
         return errorResponse(
           error?.message ||
-          "Image generation failed",
+            "Image generation failed",
           500
         );
+
       }
+
     }
 
 
     // ========================================================
     // LIVE SCORE
+    // ONLY REAL LIVE MATCHES
     // ========================================================
 
     if (
-      pathname === "/api/live-score"
+      pathname ===
+      "/api/live-score"
     ) {
 
       try {
@@ -1136,9 +1659,15 @@ export default {
 
 
         return jsonResponse({
+
           success: true,
-          count: matches.length,
-          data: matches
+
+          count:
+            matches.length,
+
+          data:
+            matches
+
         });
 
       } catch (error) {
@@ -1151,10 +1680,12 @@ export default {
 
         return errorResponse(
           error?.message ||
-          "Live score failed",
+            "Live score failed",
           500
         );
+
       }
+
     }
 
 
@@ -1163,40 +1694,51 @@ export default {
     // ========================================================
 
     if (
-      pathname === "/api/score"
+      pathname ===
+      "/api/score"
     ) {
 
       try {
 
         const matches =
-          await getAllCricketMatches(
+          await getScore(
             env
           );
 
 
         return jsonResponse({
+
           success: true,
-          count: matches.length,
-          data: matches
+
+          count:
+            matches.length,
+
+          data:
+            matches
+
         });
 
       } catch (error) {
 
         return errorResponse(
           error?.message ||
-          "Score failed",
+            "Score failed",
           500
         );
+
       }
+
     }
 
 
     // ========================================================
     // FIXTURES
+    // ONLY UPCOMING MATCHES
     // ========================================================
 
     if (
-      pathname === "/api/fixtures"
+      pathname ===
+      "/api/fixtures"
     ) {
 
       try {
@@ -1213,12 +1755,20 @@ export default {
 
       } catch (error) {
 
+        console.log(
+          "Fixtures error:",
+          error?.message
+        );
+
+
         return errorResponse(
           error?.message ||
-          "Fixtures failed",
+            "Fixtures failed",
           500
         );
+
       }
+
     }
 
 
@@ -1227,7 +1777,8 @@ export default {
     // ========================================================
 
     if (
-      pathname === "/api/scorecard"
+      pathname ===
+      "/api/scorecard"
     ) {
 
       const matchId =
@@ -1242,6 +1793,7 @@ export default {
           "Match ID is required",
           400
         );
+
       }
 
 
@@ -1261,21 +1813,30 @@ export default {
 
       } catch (error) {
 
+        console.log(
+          "Scorecard error:",
+          error?.message
+        );
+
+
         return errorResponse(
           error?.message ||
-          "Scorecard failed",
+            "Scorecard failed",
           500
         );
+
       }
+
     }
 
 
     // ========================================================
-    // BALL BY BALL / COMMENTARY
+    // BALL-BY-BALL
     // ========================================================
 
     if (
-      pathname === "/api/ball-by-ball"
+      pathname ===
+      "/api/ball-by-ball"
     ) {
 
       const matchId =
@@ -1290,6 +1851,7 @@ export default {
           "Match ID is required",
           400
         );
+
       }
 
 
@@ -1309,12 +1871,20 @@ export default {
 
       } catch (error) {
 
+        console.log(
+          "Commentary error:",
+          error?.message
+        );
+
+
         return errorResponse(
           error?.message ||
-          "Ball-by-ball failed",
+            "Ball-by-ball failed",
           500
         );
+
       }
+
     }
 
 
@@ -1323,7 +1893,8 @@ export default {
     // ========================================================
 
     if (
-      pathname === "/api/match-points"
+      pathname ===
+      "/api/match-points"
     ) {
 
       try {
@@ -1340,10 +1911,12 @@ export default {
 
         return errorResponse(
           error?.message ||
-          "Match points failed",
+            "Match points failed",
           500
         );
+
       }
+
     }
 
 
@@ -1367,6 +1940,7 @@ export default {
             })
         }
       );
+
     }
 
 
@@ -1378,5 +1952,7 @@ export default {
       "Not Found",
       404
     );
+
   }
+
 };
