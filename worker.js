@@ -5,37 +5,63 @@
 // 🔴 Live Score
 // 📅 Fixtures
 // 📊 Scorecard
-// 🏏 Ball-by-Ball
-// 🎯 Match Points
+// 🏏 Ball-by-Ball Commentary
 // 🤖 AI Player / Poster / Player Card
 // ❤️ Health
 // 🐛 Debug Live
 //
-// LIVE API:
-// https://cricketliveapi.com/api/v1/cricket/live
+// AI MODEL:
+// @cf/black-forest-labs/flux-1-schnell
 //
-// CRICAPI:
+// CRICKET API:
 // https://api.cricapi.com/v1/cricScore
 //
-// WORKERS AI:
-// @cf/black-forest-labs/flux-1-schnell
+// CRICKET LIVE API:
+// https://cricketliveapi.com/api/v1/cricket/live
+//
+// SCORECARD:
+// https://cricketliveapi.com/api/v1/cricket/scorecard/{matchId}
+//
+// COMMENTARY:
+// https://cricketliveapi.com/api/v1/cricket/commentary/{matchId}
 // ============================================================
 
-
-// ============================================================
-// CONFIG
-// ============================================================
 
 const AI_MODEL =
   "@cf/black-forest-labs/flux-1-schnell";
 
+
+// ============================================================
+// CRICAPI
+// ============================================================
+
 const CRICKET_API_URL =
   "https://api.cricapi.com/v1/cricScore";
 
+
+// ============================================================
+// CRICKET LIVE API
+// ============================================================
+
+// THIS IS THE CURRENT WORKING LIVE ENDPOINT
 const CRICKET_LIVE_API_URL =
   "https://cricketliveapi.com/api/v1/cricket/live";
 
+
+// Official documented endpoints from your dashboard
 const CRICKET_LIVE_SCORECARD_URL =
+  "https://cricketliveapi.com/api/v1/cricket/scorecard";
+
+const CRICKET_LIVE_COMMENTARY_URL =
+  "https://cricketliveapi.com/api/v1/cricket/commentary";
+
+
+// Alternate documented format.
+// Used only as fallback if the primary endpoint returns 404.
+const CRICKET_LIVE_SCORECARD_ALT_URL =
+  "https://cricketliveapi.com/api/v1/cricket/match";
+
+const CRICKET_LIVE_COMMENTARY_ALT_URL =
   "https://cricketliveapi.com/api/v1/cricket/match";
 
 
@@ -46,11 +72,15 @@ const CRICKET_LIVE_SCORECARD_URL =
 function corsHeaders(extra = {}) {
   return {
     "Access-Control-Allow-Origin": "*",
+
     "Access-Control-Allow-Methods":
       "GET, POST, OPTIONS",
+
     "Access-Control-Allow-Headers":
-      "Content-Type, Authorization",
-    "Access-Control-Max-Age": "86400",
+      "Content-Type, Authorization, X-API-Key",
+
+    "Access-Control-Max-Age":
+      "86400",
 
     ...extra
   };
@@ -70,11 +100,14 @@ function json(
     JSON.stringify(data),
     {
       status,
-      headers: corsHeaders({
-        "Content-Type":
-          "application/json; charset=utf-8",
-        ...extraHeaders
-      })
+
+      headers:
+        corsHeaders({
+          "Content-Type":
+            "application/json; charset=utf-8",
+
+          ...extraHeaders
+        })
     }
   );
 }
@@ -90,17 +123,23 @@ function textResponse(
   contentType =
     "text/plain; charset=utf-8"
 ) {
-  return new Response(data, {
-    status,
-    headers: corsHeaders({
-      "Content-Type": contentType
-    })
-  });
+  return new Response(
+    data,
+    {
+      status,
+
+      headers:
+        corsHeaders({
+          "Content-Type":
+            contentType
+        })
+    }
+  );
 }
 
 
 // ============================================================
-// SAFE FETCH JSON
+// FETCH JSON
 // ============================================================
 
 async function fetchJSON(
@@ -108,22 +147,28 @@ async function fetchJSON(
   options = {},
   timeout = 20000
 ) {
+
   const controller =
     new AbortController();
 
   const timer =
     setTimeout(
-      () => controller.abort(),
+      () =>
+        controller.abort(),
       timeout
     );
 
   try {
+
     const response =
-      await fetch(url, {
-        ...options,
-        signal:
-          controller.signal
-      });
+      await fetch(
+        url,
+        {
+          ...options,
+          signal:
+            controller.signal
+        }
+      );
 
     const text =
       await response.text();
@@ -131,29 +176,48 @@ async function fetchJSON(
     let data = null;
 
     try {
-      data = text
-        ? JSON.parse(text)
-        : null;
+
+      data =
+        text
+          ? JSON.parse(text)
+          : null;
+
     } catch {
+
       data = {
         raw: text
       };
+
     }
 
+
     if (!response.ok) {
-      throw new Error(
-        `HTTP ${response.status}: ${
-          typeof text === "string"
-            ? text.substring(0, 500)
-            : "Request failed"
-        }`
-      );
+
+      const error =
+        new Error(
+          `HTTP ${response.status}: ${
+            typeof text === "string"
+              ? text.substring(0, 1000)
+              : "Request failed"
+          }`
+        );
+
+      error.status =
+        response.status;
+
+      error.url =
+        url;
+
+      throw error;
     }
+
 
     return data;
 
   } finally {
+
     clearTimeout(timer);
+
   }
 }
 
@@ -166,6 +230,7 @@ function safeString(
   value,
   fallback = ""
 ) {
+
   if (
     value === null ||
     value === undefined
@@ -182,6 +247,7 @@ function safeString(
 // ============================================================
 
 function parseScore(value) {
+
   if (
     value === null ||
     value === undefined
@@ -189,26 +255,33 @@ function parseScore(value) {
     return null;
   }
 
+
   if (
     typeof value === "object"
   ) {
     return value;
   }
 
+
   const str =
     String(value).trim();
+
 
   if (!str) {
     return null;
   }
+
 
   const match =
     str.match(
       /(\d+)\s*\/\s*(\d+)(?:\s*\(([^)]*)\))?/i
     );
 
+
   if (match) {
+
     return {
+
       runs:
         Number(match[1]),
 
@@ -223,13 +296,17 @@ function parseScore(value) {
     };
   }
 
+
   const runOnly =
     str.match(
       /^(\d+)(?:\s*\(([^)]*)\))?$/
     );
 
+
   if (runOnly) {
+
     return {
+
       runs:
         Number(runOnly[1]),
 
@@ -244,6 +321,7 @@ function parseScore(value) {
     };
   }
 
+
   return {
     raw: str
   };
@@ -251,12 +329,13 @@ function parseScore(value) {
 
 
 // ============================================================
-// STATUS FROM CRICKET LIVE API
+// LIVE API STATUS
 // ============================================================
 
 function getLiveApiStatus(
   match
 ) {
+
   const state =
     safeString(
       match?.state
@@ -277,96 +356,70 @@ function getLiveApiStatus(
       match?.status_detail
     ).toLowerCase();
 
-  // ----------------------------------------------------------
-  // IN PROGRESS
-  // ----------------------------------------------------------
 
   if (
-    state.includes(
-      "in progress"
-    ) ||
-    state.includes(
-      "live"
-    ) ||
-    status.includes(
-      "in progress"
-    ) ||
-    status.includes(
-      "live"
-    )
+    state.includes("in progress") ||
+    state.includes("live") ||
+    status.includes("in progress") ||
+    status.includes("live") ||
+    shortStatus === "live"
   ) {
+
     return "LIVE";
   }
 
-  // ----------------------------------------------------------
-  // UPCOMING / NOT STARTED
-  // ----------------------------------------------------------
 
   if (
-    state.includes(
-      "not started"
-    ) ||
-    state.includes(
-      "upcoming"
-    ) ||
-    state.includes(
-      "scheduled"
-    )
+    state.includes("not started") ||
+    state.includes("upcoming") ||
+    state.includes("scheduled")
   ) {
+
     return "UPCOMING";
   }
 
-  // ----------------------------------------------------------
-  // COMPLETE
-  // ----------------------------------------------------------
 
   if (
-    state.includes(
-      "complete"
-    ) ||
-    state.includes(
-      "completed"
-    ) ||
-    state.includes(
-      "finished"
-    ) ||
-    statusDetail.includes(
-      "won"
-    ) ||
-    shortStatus.includes(
-      "won"
-    ) ||
-    shortStatus.includes(
-      "draw"
-    )
+    state.includes("complete") ||
+    state.includes("completed") ||
+    state.includes("finished") ||
+    statusDetail.includes("won") ||
+    shortStatus.includes("won") ||
+    shortStatus.includes("draw")
   ) {
+
     return "RESULT";
   }
+
 
   return "UPCOMING";
 }
 
 
 // ============================================================
-// NORMALIZE SCORE
+// NORMALIZE LIVE TEAM SCORE
 // ============================================================
 
 function normalizeLiveTeamScore(
   team
 ) {
+
   if (!team) {
     return null;
   }
+
 
   const scoreText =
     safeString(
       team.score
     ).trim();
 
+
   const parsed =
     parseScore(
       scoreText
     );
+
 
   const innings =
     Array.isArray(
@@ -375,7 +428,9 @@ function normalizeLiveTeamScore(
       ? team.innings
       : [];
 
+
   return {
+
     runs:
       parsed?.runs ??
       null,
@@ -392,9 +447,9 @@ function normalizeLiveTeamScore(
       scoreText,
 
     innings:
-
       innings.map(
         inning => ({
+
           innings_id:
             inning?.innings_id ??
             null,
@@ -445,33 +500,48 @@ function normalizeLiveTeamScore(
 function normalizeLiveTeam(
   team
 ) {
+
   if (!team) {
+
     return {
+
       id: null,
+
       name: "",
+
       full_name: "",
+
       shortname: "",
+
       image_id: null,
+
       image: "",
+
       score: "",
+
       runs: null,
+
       wickets: null,
+
       overs: "",
+
       innings: []
     };
   }
+
 
   const normalizedScore =
     normalizeLiveTeamScore(
       team
     );
 
+
   return {
+
     id:
       team?.id ??
       null,
 
-    // Short name: IND / WI / ENGCH etc.
     name:
       safeString(
         team?.name
@@ -479,10 +549,11 @@ function normalizeLiveTeam(
 
     shortname:
       safeString(
+        team?.shortname ||
+        team?.short_name ||
         team?.name
       ),
 
-    // Full display name
     full_name:
       safeString(
         team?.full_name,
@@ -522,48 +593,46 @@ function normalizeLiveTeam(
 
 
 // ============================================================
-// ⭐ EXACT CRICKETLIVEAPI MATCH MAPPING
+// NORMALIZE LIVE MATCH
 // ============================================================
 
 function normalizeLiveMatch(
   match
 ) {
+
   const firstTeam =
     normalizeLiveTeam(
       match?.first_team
     );
+
 
   const secondTeam =
     normalizeLiveTeam(
       match?.second_team
     );
 
+
   const status =
     getLiveApiStatus(
       match
     );
 
-  return {
 
-    // --------------------------------------------------------
-    // MATCH ID
-    // --------------------------------------------------------
+  return {
 
     id:
       match?.match_id ??
+      match?.id ??
       null,
 
     match_id:
       match?.match_id ??
+      match?.id ??
       null,
 
     series_id:
       match?.series_id ??
       null,
-
-    // --------------------------------------------------------
-    // MATCH NAME
-    // --------------------------------------------------------
 
     name:
       match?.title ||
@@ -585,11 +654,8 @@ function normalizeLiveMatch(
       match?.match_type ||
       "",
 
-    // --------------------------------------------------------
-    // STATUS
-    // --------------------------------------------------------
-
     status:
+
       status,
 
     state:
@@ -609,10 +675,6 @@ function normalizeLiveMatch(
       match?.short_status ||
       "",
 
-    // --------------------------------------------------------
-    // SERIES
-    // --------------------------------------------------------
-
     series:
       match?.series_name ||
       "",
@@ -621,10 +683,6 @@ function normalizeLiveMatch(
       match?.series_name ||
       "",
 
-    // --------------------------------------------------------
-    // DATE
-    // --------------------------------------------------------
-
     date:
       match?.date ||
       "",
@@ -632,10 +690,6 @@ function normalizeLiveMatch(
     end_date:
       match?.end_date ||
       "",
-
-    // --------------------------------------------------------
-    // VENUE
-    // --------------------------------------------------------
 
     venue:
       match?.venue ||
@@ -648,10 +702,6 @@ function normalizeLiveMatch(
     venue_id:
       match?.venue_id ??
       null,
-
-    // --------------------------------------------------------
-    // TEAMS
-    // --------------------------------------------------------
 
     teams: [
       firstTeam,
@@ -670,11 +720,8 @@ function normalizeLiveMatch(
     second_team:
       secondTeam,
 
-    // --------------------------------------------------------
-    // SCORES
-    // --------------------------------------------------------
-
     scores: [
+
       normalizeLiveTeamScore(
         match?.first_team
       ),
@@ -682,11 +729,8 @@ function normalizeLiveMatch(
       normalizeLiveTeamScore(
         match?.second_team
       )
-    ],
 
-    // --------------------------------------------------------
-    // EXTRA
-    // --------------------------------------------------------
+    ],
 
     slug:
       match?.slug ||
@@ -702,18 +746,92 @@ function normalizeLiveMatch(
 
 
 // ============================================================
-// CRICAPI MATCH FORMAT
+// CRICAPI STATUS
+// ============================================================
+
+function getStatus(
+  match
+) {
+
+  const text = [
+
+    match?.status,
+
+    match?.matchStatus,
+
+    match?.state,
+
+    match?.result,
+
+    match?.venueStatus
+
+  ]
+
+    .filter(Boolean)
+
+    .join(" ")
+
+    .toLowerCase();
+
+
+  if (
+    text.includes("live") ||
+    text.includes("in progress") ||
+    text.includes("playing")
+  ) {
+
+    return "LIVE";
+  }
+
+
+  if (
+    text.includes("delay") ||
+    text.includes("rain")
+  ) {
+
+    return "DELAYED";
+  }
+
+
+  if (
+    text.includes("stumps") ||
+    text.includes("stump")
+  ) {
+
+    return "STUMPS";
+  }
+
+
+  if (
+    text.includes("won") ||
+    text.includes("result") ||
+    text.includes("completed") ||
+    text.includes("finished")
+  ) {
+
+    return "RESULT";
+  }
+
+
+  return "UPCOMING";
+}
+
+
+// ============================================================
+// FORMAT CRICAPI MATCH
 // ============================================================
 
 function formatCricScoreMatch(
   match
 ) {
+
   const teams =
     Array.isArray(
       match?.teams
     )
       ? match.teams
       : [];
+
 
   const teamInfo =
     Array.isArray(
@@ -722,6 +840,7 @@ function formatCricScoreMatch(
       ? match.teamInfo
       : [];
 
+
   const scores =
     Array.isArray(
       match?.score
@@ -729,11 +848,13 @@ function formatCricScoreMatch(
       ? match.score
       : [];
 
+
   const team1 =
     teams[0] ||
     teamInfo[0]?.name ||
     match?.team1 ||
     "Team 1";
+
 
   const team2 =
     teams[1] ||
@@ -741,13 +862,16 @@ function formatCricScoreMatch(
     match?.team2 ||
     "Team 2";
 
+
   const score1 =
     scores[0] ||
     null;
 
+
   const score2 =
     scores[1] ||
     null;
+
 
   return {
 
@@ -794,7 +918,9 @@ function formatCricScoreMatch(
       "",
 
     teams: [
+
       {
+
         name:
           team1,
 
@@ -809,6 +935,7 @@ function formatCricScoreMatch(
       },
 
       {
+
         name:
           team2,
 
@@ -821,11 +948,14 @@ function formatCricScoreMatch(
           teamInfo[1]?.img ||
           ""
       }
+
     ],
 
     scores: [
+
       score1
         ? {
+
             inning:
               score1?.inning ||
               "",
@@ -845,10 +975,13 @@ function formatCricScoreMatch(
               score1?.overs ??
               ""
           }
+
         : null,
+
 
       score2
         ? {
+
             inning:
               score2?.inning ||
               "",
@@ -868,7 +1001,9 @@ function formatCricScoreMatch(
               score2?.overs ??
               ""
           }
+
         : null
+
     ],
 
     result:
@@ -887,70 +1022,20 @@ function formatCricScoreMatch(
 
 
 // ============================================================
-// GENERIC STATUS FOR CRICAPI
-// ============================================================
-
-function getStatus(
-  match
-) {
-  const text = [
-    match?.status,
-    match?.matchStatus,
-    match?.state,
-    match?.result,
-    match?.venueStatus
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-
-  if (
-    text.includes("live") ||
-    text.includes("in progress") ||
-    text.includes("playing")
-  ) {
-    return "LIVE";
-  }
-
-  if (
-    text.includes("delay") ||
-    text.includes("rain")
-  ) {
-    return "DELAYED";
-  }
-
-  if (
-    text.includes("stumps") ||
-    text.includes("stump")
-  ) {
-    return "STUMPS";
-  }
-
-  if (
-    text.includes("won") ||
-    text.includes("result") ||
-    text.includes("completed") ||
-    text.includes("finished")
-  ) {
-    return "RESULT";
-  }
-
-  return "UPCOMING";
-}
-
-
-// ============================================================
-// GET ALL CRICAPI MATCHES
+// CRICAPI - ALL MATCHES
 // ============================================================
 
 async function getAllCricketMatches(
   env
 ) {
+
   if (!env.CRICKET_API_KEY) {
+
     throw new Error(
       "CRICKET_API_KEY secret missing"
     );
   }
+
 
   const url =
     `${CRICKET_API_URL}?apikey=` +
@@ -958,54 +1043,65 @@ async function getAllCricketMatches(
       env.CRICKET_API_KEY
     );
 
+
   const data =
     await fetchJSON(
       url
     );
 
+
   if (!data) {
     return [];
   }
+
 
   if (
     Array.isArray(
       data.data
     )
   ) {
+
     return data.data;
   }
+
 
   if (
     Array.isArray(
       data.matches
     )
   ) {
+
     return data.matches;
   }
+
 
   if (
     Array.isArray(
       data.result
     )
   ) {
+
     return data.result;
   }
+
 
   return [];
 }
 
 
 // ============================================================
-// GET CRICKET SCORES
+// CRICAPI SCORES
 // ============================================================
 
 async function getCricketScores(
   env
 ) {
+
   const matches =
     await getAllCricketMatches(
       env
     );
+
 
   return matches.map(
     formatCricScoreMatch
@@ -1014,21 +1110,24 @@ async function getCricketScores(
 
 
 // ============================================================
-// GET FIXTURES
+// FIXTURES
 // ============================================================
 
 async function getFixtures(
   env
 ) {
+
   const matches =
     await getAllCricketMatches(
       env
     );
 
+
   const formatted =
     matches.map(
       formatCricScoreMatch
     );
+
 
   return formatted.filter(
     match =>
@@ -1039,45 +1138,55 @@ async function getFixtures(
 
 
 // ============================================================
-// LIVE API HEADERS
+// CRICKET LIVE API HEADERS
 // ============================================================
 
 function liveHeaders(
   env
 ) {
+
   const headers = {
+
     "Accept":
       "application/json"
   };
 
+
   if (
     env.CRICKET_LIVE_API_TOKEN
   ) {
+
+    // Bearer authentication
     headers.Authorization =
       `Bearer ${env.CRICKET_LIVE_API_TOKEN}`;
 
+    // X-API-Key authentication
     headers["X-API-Key"] =
       env.CRICKET_LIVE_API_TOKEN;
   }
+
 
   return headers;
 }
 
 
 // ============================================================
-// GET LIVE SCORES - EXACT API
+// GET ALL LIVE API MATCHES
 // ============================================================
 
 async function getLiveScores(
   env
 ) {
+
   if (
     !env.CRICKET_LIVE_API_TOKEN
   ) {
+
     throw new Error(
       "CRICKET_LIVE_API_TOKEN secret missing"
     );
   }
+
 
   const data =
     await fetchJSON(
@@ -1088,13 +1197,6 @@ async function getLiveScores(
       }
     );
 
-  // Exact API format:
-  //
-  // {
-  //   success: true,
-  //   count: 6,
-  //   data: [...]
-  // }
 
   const list =
     Array.isArray(
@@ -1103,6 +1205,7 @@ async function getLiveScores(
       ? data.data
       : [];
 
+
   return list.map(
     normalizeLiveMatch
   );
@@ -1110,16 +1213,18 @@ async function getLiveScores(
 
 
 // ============================================================
-// GET ONLY ACTUAL LIVE MATCHES
+// ONLY LIVE MATCHES
 // ============================================================
 
 async function getOnlyLiveScores(
   env
 ) {
+
   const matches =
     await getLiveScores(
       env
     );
+
 
   return matches.filter(
     match =>
@@ -1130,35 +1235,83 @@ async function getOnlyLiveScores(
 
 
 // ============================================================
-// GET SCORECARD
+// 📊 SCORECARD
+// ============================================================
+//
+// PRIMARY:
+// /cricket/scorecard/{matchId}
+//
+// FALLBACK:
+// /cricket/match/{matchId}/scorecard
+//
 // ============================================================
 
 async function getScorecard(
   env,
   matchId
 ) {
+
   if (
     !env.CRICKET_LIVE_API_TOKEN
   ) {
+
     throw new Error(
       "CRICKET_LIVE_API_TOKEN secret missing"
     );
   }
 
+
   if (!matchId) {
+
     throw new Error(
       "match id required"
     );
   }
 
-  const url =
+
+  // PRIMARY ENDPOINT
+  const primaryUrl =
     `${CRICKET_LIVE_SCORECARD_URL}/` +
     encodeURIComponent(
       matchId
     );
 
+
+  try {
+
+    return await fetchJSON(
+      primaryUrl,
+      {
+        headers:
+          liveHeaders(env)
+      }
+    );
+
+  } catch (error) {
+
+    // Only try alternate endpoint
+    // when primary endpoint is 404.
+
+    if (
+      error?.status !== 404
+    ) {
+
+      throw error;
+    }
+  }
+
+
+  // FALLBACK ENDPOINT
+  const fallbackUrl =
+    `${CRICKET_LIVE_SCORECARD_ALT_URL}/` +
+    encodeURIComponent(
+      matchId
+    ) +
+    "/scorecard";
+
+
   return await fetchJSON(
-    url,
+    fallbackUrl,
     {
       headers:
         liveHeaders(env)
@@ -1168,148 +1321,132 @@ async function getScorecard(
 
 
 // ============================================================
-// GET BALL-BY-BALL
+// 🏏 BALL-BY-BALL COMMENTARY
+// ============================================================
+//
+// PRIMARY:
+// /cricket/commentary/{matchId}
+//
+// FALLBACK:
+// /cricket/match/{matchId}/commentary
+//
 // ============================================================
 
 async function getBallByBall(
   env,
   matchId
 ) {
+
   if (
     !env.CRICKET_LIVE_API_TOKEN
   ) {
+
     throw new Error(
       "CRICKET_LIVE_API_TOKEN secret missing"
     );
   }
 
+
   if (!matchId) {
+
     throw new Error(
       "match id required"
     );
   }
 
-  const base =
-    `${CRICKET_LIVE_SCORECARD_URL}/` +
+
+  // PRIMARY ENDPOINT
+  const primaryUrl =
+    `${CRICKET_LIVE_COMMENTARY_URL}/` +
     encodeURIComponent(
       matchId
     );
 
-  // First try ballByBall
+
   try {
 
-    const url =
-      `${base}?ballByBall=true`;
-
     return await fetchJSON(
-      url,
+      primaryUrl,
       {
         headers:
           liveHeaders(env)
       }
     );
 
-  } catch {
+  } catch (error) {
 
-    // Fallback to normal match endpoint
-    return await fetchJSON(
-      base,
-      {
-        headers:
-          liveHeaders(env)
-      }
-    );
+    if (
+      error?.status !== 404
+    ) {
+
+      throw error;
+    }
   }
+
+
+  // FALLBACK ENDPOINT
+  const fallbackUrl =
+    `${CRICKET_LIVE_COMMENTARY_ALT_URL}/` +
+    encodeURIComponent(
+      matchId
+    ) +
+    "/commentary";
+
+
+  return await fetchJSON(
+    fallbackUrl,
+    {
+      headers:
+        liveHeaders(env)
+    }
+  );
 }
 
 
 // ============================================================
-// MATCH POINTS
+// 🎯 MATCH POINTS
+// ============================================================
+//
+// IMPORTANT:
+// We DO NOT guess a points endpoint here.
+//
+// Your dashboard's listed API documentation did not give
+// a confirmed points-table endpoint for this exact API version.
+//
 // ============================================================
 
 async function getMatchPoints(
   env,
   matchId
 ) {
+
   if (!matchId) {
+
     throw new Error(
       "match id required"
     );
   }
 
-  // Try Cricket Live API
-  if (
-    env.CRICKET_LIVE_API_TOKEN
-  ) {
-
-    try {
-
-      const url =
-        `${CRICKET_LIVE_SCORECARD_URL}/` +
-        encodeURIComponent(
-          matchId
-        ) +
-        `?points=true`;
-
-      return await fetchJSON(
-        url,
-        {
-          headers:
-            liveHeaders(env)
-        }
-      );
-
-    } catch {
-      // Continue fallback
-    }
-  }
-
-  // CricAPI fallback
-  if (
-    env.CRICKET_API_KEY
-  ) {
-
-    const url =
-      `https://api.cricapi.com/v1/match_info` +
-      `?apikey=` +
-      encodeURIComponent(
-        env.CRICKET_API_KEY
-      ) +
-      `&id=` +
-      encodeURIComponent(
-        matchId
-      );
-
-    try {
-
-      return await fetchJSON(
-        url
-      );
-
-    } catch {
-
-      return {
-        success: true,
-        matchId:
-          matchId,
-        points: []
-      };
-    }
-  }
 
   return {
-    success: true,
+
+    success:
+      false,
 
     matchId:
       matchId,
 
-    points: []
+    available:
+      false,
+
+    error:
+      "Points endpoint is not configured because the exact endpoint is not confirmed in the current API documentation."
   };
 }
 
 
 // ============================================================
-// GENERIC MATCH DETAIL
+// GENERIC CRICAPI MATCH DETAIL
 // ============================================================
 
 async function getGenericMatchDetail(
@@ -1317,23 +1454,30 @@ async function getGenericMatchDetail(
   endpoint,
   matchId
 ) {
+
   if (!env.CRICKET_API_KEY) {
+
     throw new Error(
       "CRICKET_API_KEY secret missing"
     );
   }
 
+
   if (!endpoint) {
+
     throw new Error(
       "endpoint required"
     );
   }
 
+
   if (!matchId) {
+
     throw new Error(
       "match id required"
     );
   }
+
 
   const url =
     `https://api.cricapi.com/v1/` +
@@ -1349,6 +1493,7 @@ async function getGenericMatchDetail(
       matchId
     );
 
+
   return await fetchJSON(
     url
   );
@@ -1356,144 +1501,97 @@ async function getGenericMatchDetail(
 
 
 // ============================================================
-// 🤖 AI IMAGE GENERATOR
+// CONVERT UINT8ARRAY TO BASE64
 // ============================================================
-// IMPORTANT FIX:
-// Uses frontend body.prompt.
-// Returns Base64 JSON.
+
+function bytesToBase64(
+  bytes
+) {
+
+  let binary = "";
+
+  const chunkSize =
+    0x8000;
+
+
+  for (
+    let i = 0;
+    i < bytes.length;
+    i += chunkSize
+  ) {
+
+    const chunk =
+      bytes.subarray(
+        i,
+        Math.min(
+          i + chunkSize,
+          bytes.length
+        )
+      );
+
+
+    binary +=
+      String.fromCharCode(
+        ...chunk
+      );
+  }
+
+
+  return btoa(
+    binary
+  );
+}
+
+
+// ============================================================
+// 🤖 WORKERS AI IMAGE GENERATION
 // ============================================================
 
 async function generateImage(
-  env,
-  body = {}
+  request,
+  env
 ) {
+
   if (!env.AI) {
+
     throw new Error(
       "Workers AI binding missing"
     );
   }
 
-  let prompt = "";
 
-  // ----------------------------------------------------------
-  // FRONTEND PROMPT
-  // ----------------------------------------------------------
+  let body = {};
 
-  if (
-    typeof body.prompt ===
-    "string"
-  ) {
-    prompt =
-      body.prompt.trim();
+
+  try {
+
+    body =
+      await request.json();
+
+  } catch {
+
+    body = {};
   }
 
-  // ----------------------------------------------------------
-  // FALLBACK PROMPT
-  // ----------------------------------------------------------
+
+  const prompt =
+    safeString(
+      body?.prompt
+    ).trim();
+
 
   if (!prompt) {
 
-    const player =
-      body.playerName ||
-      body.player ||
-      "Virat Kohli";
-
-    const team =
-      body.team ||
-      "India";
-
-    const type =
-      body.type ||
-      "Batsman";
-
-    const pose =
-      body.pose ||
-      "batting";
-
-    const hand =
-      body.hand ||
-      "right hand";
-
-    const style =
-      body.style ||
-      "photorealistic";
-
-    const jersey =
-      body.jersey ||
-      body.color ||
-      "blue";
-
-    const number =
-      body.number ||
-      "18";
-
-    const stadium =
-      body.stadium ||
-      "modern cricket stadium";
-
-    const weather =
-      body.weather ||
-      "clear";
-
-    const time =
-      body.time ||
-      "day";
-
-    const camera =
-      body.camera ||
-      "front";
-
-    const tournament =
-      body.tournament ||
-      "T20 World Cup";
-
-    prompt = `
-Photorealistic cinematic professional cricket sports
-photography of ${player}, representing ${team},
-${pose} pose, ${type}, ${hand}, wearing a realistic
-${team} ${jersey} cricket jersey with number ${number},
-playing at a ${stadium}, ${weather} weather,
-${time} match atmosphere, ${camera} camera angle,
-${style} style, ${tournament} tournament atmosphere,
-packed cricket stadium, dramatic floodlights,
-realistic face, realistic body proportions,
-detailed cricket equipment, ultra realistic,
-high detail, professional sports photography,
-vertical 9:16, no text, no watermark.
-`
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  // ----------------------------------------------------------
-  // PROMPT VALIDATION
-  // ----------------------------------------------------------
-
-  if (!prompt) {
     throw new Error(
-      "Image prompt is empty"
+      "prompt required"
     );
   }
 
-  // FLUX maximum prompt length
-  if (
-    prompt.length > 2048
-  ) {
-    prompt =
-      prompt.substring(
-        0,
-        2048
-      );
-  }
 
-  console.log(
-    "AI IMAGE PROMPT:",
-    prompt
-  );
-
-  // ----------------------------------------------------------
-  // CLOUDFLARE WORKERS AI
-  // ----------------------------------------------------------
+  // IMPORTANT:
+  // Use the prompt sent by the frontend.
+  // This keeps AI Player, Poster and Player Card
+  // working exactly from their frontend prompts.
 
   const result =
     await env.AI.run(
@@ -1504,50 +1602,238 @@ vertical 9:16, no text, no watermark.
       }
     );
 
-  // ----------------------------------------------------------
-  // IMAGE VALIDATION
-  // ----------------------------------------------------------
 
-  if (
-    !result ||
-    typeof result.image !==
-      "string" ||
-    !result.image.trim()
-  ) {
-
-    console.log(
-      "Workers AI response:",
-      result
-    );
+  if (!result) {
 
     throw new Error(
-      "Workers AI ने image नहीं लौटाई"
+      "Workers AI returned empty result"
     );
   }
 
-  // ----------------------------------------------------------
-  // RETURN BASE64 JSON
-  // ----------------------------------------------------------
 
-  return {
+  // FLUX normally returns image bytes.
+  if (result.image) {
 
-    success:
-      true,
+    let bytes;
 
-    image:
-      result.image,
 
-    mimeType:
-      "image/jpeg",
+    if (
+      result.image instanceof Uint8Array
+    ) {
 
-    prompt:
-      prompt
-  };
+      bytes =
+        result.image;
+
+    } else if (
+      result.image instanceof ArrayBuffer
+    ) {
+
+      bytes =
+        new Uint8Array(
+          result.image
+        );
+
+    } else {
+
+      // Some runtime responses may
+      // provide an array-like value.
+
+      bytes =
+        new Uint8Array(
+          result.image
+        );
+    }
+
+
+    const base64 =
+      bytesToBase64(
+        bytes
+      );
+
+
+    return json({
+
+      success:
+        true,
+
+      image:
+        base64,
+
+      mimeType:
+        "image/jpeg",
+
+      prompt:
+        prompt
+
+    });
+  }
+
+
+  // Some versions may return image data
+  // under a different field.
+
+  if (
+    result.data
+  ) {
+
+    return json({
+
+      success:
+        true,
+
+      image:
+        result.data,
+
+      mimeType:
+        "image/jpeg",
+
+      prompt:
+        prompt
+    });
+  }
+
+
+  throw new Error(
+    "Workers AI did not return image data"
+  );
 }
 
 
 // ============================================================
-// REQUEST HANDLER
+// 🏥 HEALTH
+// ============================================================
+
+function healthResponse(
+  env
+) {
+
+  return json({
+
+    success:
+      true,
+
+    app:
+      "Cricket Short",
+
+    worker:
+      "cricket-ai-app",
+
+    workersAI:
+      !!env.AI,
+
+    cricketApiKey:
+      !!env.CRICKET_API_KEY,
+
+    cricketLiveApiToken:
+      !!env.CRICKET_LIVE_API_TOKEN,
+
+    assets:
+      true,
+
+    endpoints: [
+
+      "/api/generate",
+
+      "/api/generate-image",
+
+      "/api/score",
+
+      "/api/live-score",
+
+      "/api/fixtures",
+
+      "/api/scorecard",
+
+      "/api/ball-by-ball",
+
+      "/api/match-points",
+
+      "/api/health",
+
+      "/api/debug-live"
+
+    ]
+
+  });
+}
+
+
+// ============================================================
+// 🐛 DEBUG LIVE
+// ============================================================
+
+async function debugLive(
+  env
+) {
+
+  if (
+    !env.CRICKET_LIVE_API_TOKEN
+  ) {
+
+    return json({
+
+      success:
+        false,
+
+      error:
+        "CRICKET_LIVE_API_TOKEN secret missing"
+    }, 500);
+  }
+
+
+  try {
+
+    const data =
+      await fetchJSON(
+        CRICKET_LIVE_API_URL,
+        {
+          headers:
+            liveHeaders(env)
+        }
+      );
+
+
+    return json({
+
+      success:
+        true,
+
+      endpoint:
+        CRICKET_LIVE_API_URL,
+
+      count:
+        Array.isArray(
+          data?.data
+        )
+          ? data.data.length
+          : 0,
+
+      data:
+        data
+
+    });
+
+  } catch (error) {
+
+    return json({
+
+      success:
+        false,
+
+      endpoint:
+        CRICKET_LIVE_API_URL,
+
+      error:
+        error?.message ||
+        String(error)
+
+    }, 500);
+  }
+}
+
+
+// ============================================================
+// MAIN WORKER
 // ============================================================
 
 export default {
@@ -1558,18 +1844,20 @@ export default {
     ctx
   ) {
 
-    // ========================================================
-    // CORS OPTIONS
-    // ========================================================
+    // --------------------------------------------------------
+    // OPTIONS / CORS
+    // --------------------------------------------------------
 
     if (
       request.method ===
       "OPTIONS"
     ) {
+
       return new Response(
         null,
         {
-          status: 204,
+          status:
+            204,
 
           headers:
             corsHeaders()
@@ -1577,13 +1865,16 @@ export default {
       );
     }
 
+
     const url =
       new URL(
         request.url
       );
 
+
     const pathname =
       url.pathname;
+
 
     const method =
       request.method.toUpperCase();
@@ -1595,21 +1886,6 @@ export default {
 
     if (
       pathname === "/" &&
-      method === "GET"
-    ) {
-      return textResponse(
-        "🏏 Cricket Short Worker is running"
-      );
-    }
-
-
-    // ========================================================
-    // ❤️ HEALTH
-    // ========================================================
-
-    if (
-      pathname ===
-        "/api/health" &&
       method === "GET"
     ) {
 
@@ -1624,347 +1900,103 @@ export default {
         worker:
           "cricket-ai-app",
 
-        workersAI:
+        message:
+          "Cricket Short Worker is running",
+
+        ai:
           !!env.AI,
 
-        cricketApiKey:
-          !!env.CRICKET_API_KEY,
+        liveApi:
+          !!env.CRICKET_LIVE_API_TOKEN
 
-        cricketLiveApiToken:
-          !!env.CRICKET_LIVE_API_TOKEN,
-
-        assets:
-          true,
-
-        endpoints: [
-          "/api/generate",
-          "/api/generate-image",
-          "/api/score",
-          "/api/live-score",
-          "/api/fixtures",
-          "/api/scorecard",
-          "/api/ball-by-ball",
-          "/api/match-points",
-          "/api/health",
-          "/api/debug-live"
-        ]
       });
     }
 
 
     // ========================================================
-    // 🐛 DEBUG LIVE
+    // HEALTH
     // ========================================================
 
     if (
-      pathname ===
-        "/api/debug-live" &&
+      pathname === "/api/health" &&
       method === "GET"
+    ) {
+
+      return healthResponse(
+        env
+      );
+    }
+
+
+    // ========================================================
+    // DEBUG LIVE
+    // ========================================================
+
+    if (
+      pathname === "/api/debug-live" &&
+      method === "GET"
+    ) {
+
+      return await debugLive(
+        env
+      );
+    }
+
+
+    // ========================================================
+    // AI IMAGE
+    // ========================================================
+
+    if (
+      (
+        pathname === "/api/generate-image" ||
+        pathname === "/api/generate"
+      ) &&
+      method === "POST"
     ) {
 
       try {
 
-        const data =
-          await fetchJSON(
-            CRICKET_LIVE_API_URL,
-            {
-              headers:
-                liveHeaders(env)
-            }
-          );
+        return await generateImage(
+          request,
+          env
+        );
+
+      } catch (error) {
 
         return json({
 
           success:
-            true,
+            false,
 
-          endpoint:
-            CRICKET_LIVE_API_URL,
+          error:
+            error?.message ||
+            String(error)
 
-          hasToken:
-            !!env.CRICKET_LIVE_API_TOKEN,
-
-          data:
-            data
-        });
-
-      } catch (error) {
-
-        return json(
-          {
-
-            success:
-              false,
-
-            endpoint:
-              CRICKET_LIVE_API_URL,
-
-            hasToken:
-              !!env.CRICKET_LIVE_API_TOKEN,
-
-            error:
-              error?.message ||
-              "Debug request failed"
-
-          },
-          500
-        );
+        }, 500);
       }
     }
 
 
     // ========================================================
-    // 🤖 GENERATE IMAGE
+    // LIVE SCORE
     // ========================================================
 
     if (
-      pathname ===
-        "/api/generate-image"
-    ) {
-
-      if (
-        method !== "POST"
-      ) {
-
-        return json(
-          {
-            success:
-              false,
-
-            error:
-              "POST required"
-          },
-          405
-        );
-      }
-
-      try {
-
-        const body =
-          await request.json();
-
-        const result =
-          await generateImage(
-            env,
-            body
-          );
-
-        return json(
-          result
-        );
-
-      } catch (error) {
-
-        console.error(
-          "GENERATE IMAGE ERROR:",
-          error
-        );
-
-        return json(
-          {
-
-            success:
-              false,
-
-            error:
-              error?.message ||
-              "Image generation failed"
-
-          },
-          500
-        );
-      }
-    }
-
-
-    // ========================================================
-    // 🤖 /api/generate
-    // ========================================================
-
-    if (
-      pathname ===
-        "/api/generate"
-    ) {
-
-      if (
-        method !== "POST"
-      ) {
-
-        return json(
-          {
-            success:
-              false,
-
-            error:
-              "POST required"
-          },
-          405
-        );
-      }
-
-      try {
-
-        const body =
-          await request.json();
-
-        const result =
-          await generateImage(
-            env,
-            body
-          );
-
-        return json(
-          result
-        );
-
-      } catch (error) {
-
-        console.error(
-          "GENERATE ERROR:",
-          error
-        );
-
-        return json(
-          {
-
-            success:
-              false,
-
-            error:
-              error?.message ||
-              "Generation failed"
-
-          },
-          500
-        );
-      }
-    }
-
-
-    // ========================================================
-    // 🔴 LIVE SCORE
-    // ========================================================
-
-    if (
-      pathname ===
-        "/api/live-score" &&
-      method === "GET"
-    ) {
-
-      try {
-
-        // ----------------------------------------------------
-        // Primary: CricketLiveAPI
-        // ----------------------------------------------------
-
-        let matches = [];
-
-        if (
-          env.CRICKET_LIVE_API_TOKEN
-        ) {
-
-          try {
-
-            matches =
-              await getOnlyLiveScores(
-                env
-              );
-
-          } catch (error) {
-
-            console.error(
-              "LIVE API ERROR:",
-              error
-            );
-          }
-        }
-
-        // ----------------------------------------------------
-        // Fallback: CricAPI
-        // ----------------------------------------------------
-
-        if (
-          !matches.length &&
-          env.CRICKET_API_KEY
-        ) {
-
-          try {
-
-            const fallback =
-              await getCricketScores(
-                env
-              );
-
-            matches =
-              fallback.filter(
-                match =>
-                  match.status ===
-                  "LIVE"
-              );
-
-          } catch (error) {
-
-            console.error(
-              "CRICAPI LIVE FALLBACK ERROR:",
-              error
-            );
-          }
-        }
-
-        return json({
-
-          success:
-            true,
-
-          count:
-            matches.length,
-
-          matches:
-            matches,
-
-          updatedAt:
-            new Date().toISOString()
-
-        });
-
-      } catch (error) {
-
-        return json(
-          {
-
-            success:
-              false,
-
-            error:
-              error?.message ||
-              "Live score failed",
-
-            matches:
-              []
-
-          },
-          500
-        );
-      }
-    }
-
-
-    // ========================================================
-    // 📊 SCORE
-    // ========================================================
-
-    if (
-      pathname ===
-        "/api/score" &&
+      (
+        pathname === "/api/live-score" ||
+        pathname === "/api/live"
+      ) &&
       method === "GET"
     ) {
 
       try {
 
         const matches =
-          await getCricketScores(
+          await getOnlyLiveScores(
             env
           );
+
 
         return json({
 
@@ -1984,33 +2016,130 @@ export default {
 
       } catch (error) {
 
-        return json(
-          {
+        return json({
 
-            success:
-              false,
+          success:
+            false,
 
-            error:
-              error?.message ||
-              "Score request failed",
+          error:
+            error?.message ||
+            String(error),
 
-            matches:
-              []
+          matches:
+            []
 
-          },
-          500
-        );
+        }, 500);
       }
     }
 
 
     // ========================================================
-    // 📅 FIXTURES
+    // ALL LIVE DATA
     // ========================================================
 
     if (
-      pathname ===
-        "/api/fixtures" &&
+      pathname === "/api/live-score-all" &&
+      method === "GET"
+    ) {
+
+      try {
+
+        const matches =
+          await getLiveScores(
+            env
+          );
+
+
+        return json({
+
+          success:
+            true,
+
+          count:
+            matches.length,
+
+          matches:
+            matches,
+
+          updatedAt:
+            new Date().toISOString()
+
+        });
+
+      } catch (error) {
+
+        return json({
+
+          success:
+            false,
+
+          error:
+            error?.message ||
+            String(error),
+
+          matches:
+            []
+
+        }, 500);
+      }
+    }
+
+
+    // ========================================================
+    // CRICAPI SCORE
+    // ========================================================
+
+    if (
+      pathname === "/api/score" &&
+      method === "GET"
+    ) {
+
+      try {
+
+        const scores =
+          await getCricketScores(
+            env
+          );
+
+
+        return json({
+
+          success:
+            true,
+
+          count:
+            scores.length,
+
+          matches:
+            scores
+
+        });
+
+      } catch (error) {
+
+        return json({
+
+          success:
+            false,
+
+          error:
+            error?.message ||
+            String(error),
+
+          matches:
+            []
+
+        }, 500);
+      }
+    }
+
+
+    // ========================================================
+    // FIXTURES
+    // ========================================================
+
+    if (
+      pathname === "/api/fixtures" &&
       method === "GET"
     ) {
 
@@ -2021,6 +2150,7 @@ export default {
             env
           );
 
+
         return json({
 
           success:
@@ -2030,76 +2160,62 @@ export default {
             fixtures.length,
 
           fixtures:
-            fixtures,
-
-          matches:
-            fixtures,
-
-          updatedAt:
-            new Date().toISOString()
+            fixtures
 
         });
 
       } catch (error) {
 
-        return json(
-          {
+        return json({
 
-            success:
-              false,
+          success:
+            false,
 
-            error:
-              error?.message ||
-              "Fixtures request failed",
+          error:
+            error?.message ||
+            String(error),
 
-            fixtures:
-              [],
+          fixtures:
+            []
 
-            matches:
-              []
-
-          },
-          500
-        );
+        }, 500);
       }
     }
 
 
     // ========================================================
-    // 📊 SCORECARD
+    // SCORECARD
     // ========================================================
 
     if (
-      pathname ===
-        "/api/scorecard" &&
+      pathname === "/api/scorecard" &&
       method === "GET"
     ) {
 
+      const matchId =
+        url.searchParams.get(
+          "id"
+        ) ||
+        url.searchParams.get(
+          "matchId"
+        );
+
+
+      if (!matchId) {
+
+        return json({
+
+          success:
+            false,
+
+          error:
+            "match id required. Example: /api/scorecard?id=174340"
+
+        }, 400);
+      }
+
+
       try {
-
-        const matchId =
-          url.searchParams.get(
-            "id"
-          ) ||
-          url.searchParams.get(
-            "matchId"
-          );
-
-        if (!matchId) {
-
-          return json(
-            {
-
-              success:
-                false,
-
-              error:
-                "match id required"
-
-            },
-            400
-          );
-        }
 
         const data =
           await getScorecard(
@@ -2107,6 +2223,7 @@ export default {
             matchId
           );
 
+
         return json({
 
           success:
@@ -2115,9 +2232,6 @@ export default {
           matchId:
             matchId,
 
-          scorecard:
-            data,
-
           data:
             data
 
@@ -2125,58 +2239,56 @@ export default {
 
       } catch (error) {
 
-        return json(
-          {
+        return json({
 
-            success:
-              false,
+          success:
+            false,
 
-            error:
-              error?.message ||
-              "Scorecard request failed"
+          matchId:
+            matchId,
 
-          },
-          500
-        );
+          error:
+            error?.message ||
+            String(error)
+
+        }, error?.status || 500);
       }
     }
 
 
     // ========================================================
-    // 🏏 BALL-BY-BALL
+    // BALL-BY-BALL
     // ========================================================
 
     if (
-      pathname ===
-        "/api/ball-by-ball" &&
+      pathname === "/api/ball-by-ball" &&
       method === "GET"
     ) {
 
+      const matchId =
+        url.searchParams.get(
+          "id"
+        ) ||
+        url.searchParams.get(
+          "matchId"
+        );
+
+
+      if (!matchId) {
+
+        return json({
+
+          success:
+            false,
+
+          error:
+            "match id required. Example: /api/ball-by-ball?id=174340"
+
+        }, 400);
+      }
+
+
       try {
-
-        const matchId =
-          url.searchParams.get(
-            "id"
-          ) ||
-          url.searchParams.get(
-            "matchId"
-          );
-
-        if (!matchId) {
-
-          return json(
-            {
-
-              success:
-                false,
-
-              error:
-                "match id required"
-
-            },
-            400
-          );
-        }
 
         const data =
           await getBallByBall(
@@ -2184,6 +2296,7 @@ export default {
             matchId
           );
 
+
         return json({
 
           success:
@@ -2192,9 +2305,6 @@ export default {
           matchId:
             matchId,
 
-          ballByBall:
-            data,
-
           data:
             data
 
@@ -2202,223 +2312,207 @@ export default {
 
       } catch (error) {
 
-        return json(
-          {
+        return json({
 
-            success:
-              false,
+          success:
+            false,
 
-            error:
-              error?.message ||
-              "Ball-by-ball request failed"
+          matchId:
+            matchId,
 
-          },
-          500
-        );
+          error:
+            error?.message ||
+            String(error)
+
+        }, error?.status || 500);
       }
     }
 
 
     // ========================================================
-    // 🎯 MATCH POINTS
+    // MATCH POINTS
     // ========================================================
 
     if (
-      pathname ===
-        "/api/match-points" &&
+      pathname === "/api/match-points" &&
       method === "GET"
     ) {
 
-      try {
+      const matchId =
+        url.searchParams.get(
+          "id"
+        ) ||
+        url.searchParams.get(
+          "matchId"
+        );
 
-        const matchId =
-          url.searchParams.get(
-            "id"
-          ) ||
-          url.searchParams.get(
-            "matchId"
-          );
 
-        if (!matchId) {
-
-          return json(
-            {
-
-              success:
-                false,
-
-              error:
-                "match id required"
-
-            },
-            400
-          );
-        }
-
-        const data =
-          await getMatchPoints(
-            env,
-            matchId
-          );
+      if (!matchId) {
 
         return json({
 
           success:
-            true,
+            false,
 
-          matchId:
-            matchId,
+          error:
+            "match id required"
 
-          points:
-            data,
+        }, 400);
+      }
 
-          data:
-            data
 
-        });
+      try {
+
+        return json(
+          await getMatchPoints(
+            env,
+            matchId
+          )
+        );
 
       } catch (error) {
 
-        return json(
-          {
+        return json({
 
-            success:
-              false,
+          success:
+            false,
 
-            error:
-              error?.message ||
-              "Match points request failed"
+          error:
+            error?.message ||
+            String(error)
 
-          },
-          500
-        );
+        }, 500);
       }
     }
 
 
     // ========================================================
-    // GENERIC API DETAIL
+    // GENERIC CRICAPI DETAIL
+    // ========================================================
+    //
+    // Example:
+    // /api/detail?endpoint=match_info&id=174340
+    //
     // ========================================================
 
     if (
-      pathname.startsWith(
-        "/api/"
-      ) &&
+      pathname === "/api/detail" &&
       method === "GET"
     ) {
 
       const endpoint =
-        pathname
-          .replace(
-            "/api/",
-            ""
-          )
-          .trim();
+        url.searchParams.get(
+          "endpoint"
+        );
 
-      const knownRoutes = [
+      const matchId =
+        url.searchParams.get(
+          "id"
+        );
 
-        "health",
-
-        "debug-live",
-
-        "score",
-
-        "live-score",
-
-        "fixtures",
-
-        "scorecard",
-
-        "ball-by-ball",
-
-        "match-points",
-
-        "generate",
-
-        "generate-image"
-
-      ];
 
       if (
-        !knownRoutes.includes(
-          endpoint
-        )
+        !endpoint ||
+        !matchId
       ) {
 
-        const matchId =
-          url.searchParams.get(
-            "id"
-          ) ||
-          url.searchParams.get(
-            "matchId"
+        return json({
+
+          success:
+            false,
+
+          error:
+            "endpoint and id are required"
+
+        }, 400);
+      }
+
+
+      try {
+
+        const data =
+          await getGenericMatchDetail(
+            env,
+            endpoint,
+            matchId
           );
 
-        if (matchId) {
 
-          try {
+        return json({
 
-            const data =
-              await getGenericMatchDetail(
-                env,
-                endpoint,
-                matchId
-              );
+          success:
+            true,
 
-            return json({
+          endpoint:
+            endpoint,
 
-              success:
-                true,
+          matchId:
+            matchId,
 
-              endpoint:
-                endpoint,
+          data:
+            data
 
-              matchId:
-                matchId,
+        });
 
-              data:
-                data
+      } catch (error) {
 
-            });
+        return json({
 
-          } catch (error) {
+          success:
+            false,
 
-            return json(
-              {
+          error:
+            error?.message ||
+            String(error)
 
-                success:
-                  false,
-
-                error:
-                  error?.message ||
-                  "API request failed"
-
-              },
-              500
-            );
-          }
-        }
+        }, error?.status || 500);
       }
     }
 
 
     // ========================================================
-    // NOT FOUND
+    // 404
     // ========================================================
 
-    return json(
-      {
+    return json({
 
-        success:
-          false,
+      success:
+        false,
 
-        error:
-          "Not found",
+      error:
+        "Route not found",
 
-        path:
-          pathname
+      path:
+        pathname,
 
-      },
-      404
-    );
+      available: [
+
+        "/",
+
+        "/api/health",
+
+        "/api/debug-live",
+
+        "/api/generate",
+
+        "/api/generate-image",
+
+        "/api/score",
+
+        "/api/live-score",
+
+        "/api/live-score-all",
+
+        "/api/fixtures",
+
+        "/api/scorecard?id=174340",
+
+        "/api/ball-by-ball?id=174340",
+
+        "/api/match-points?id=174340"
+
+      ]
+
+    }, 404);
   }
 };
