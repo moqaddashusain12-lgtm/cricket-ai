@@ -358,9 +358,27 @@ pre{
 
 .generated-image{
   width:100%;
+  max-width:100%;
   border-radius:12px;
   display:block;
   margin-top:12px;
+  background:#081936;
+}
+
+.generated-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+
+.generated-actions button{
+  border:0;
+  border-radius:9px;
+  padding:10px;
+  background:#15345e;
+  color:#fff;
+  font-size:12px;
 }
 
 .live-overlay{
@@ -483,6 +501,10 @@ summary{
 
   .team-score{
     font-size:13px;
+  }
+
+  .generated-actions{
+    grid-template-columns:1fr;
   }
 }
 
@@ -1041,7 +1063,7 @@ summary{
     <h2>🎨 Cricket Poster</h2>
 
     <p class="muted">
-      Cricket news के लिए poster prompt बनाएं
+      Cricket news के लिए AI poster बनाएं
     </p>
 
 
@@ -1109,7 +1131,7 @@ summary{
       class="primary"
       onclick="generatePoster()">
 
-      🎨 Generate Poster
+      🎨 Generate AI Poster
 
     </button>
 
@@ -1131,6 +1153,10 @@ summary{
   <div class="card">
 
     <h2>🪪 Player Card</h2>
+
+    <p class="muted">
+      AI से premium cricket player card बनाएं
+    </p>
 
 
     <div class="grid">
@@ -1186,7 +1212,7 @@ summary{
       class="primary"
       onclick="generatePlayerCard()">
 
-      🪪 Generate Player Card
+      🪪 Generate AI Player Card
 
     </button>
 
@@ -1315,6 +1341,7 @@ function escapeHTML(value){
     .replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
+
 }
 
 
@@ -1366,6 +1393,7 @@ async function getJSON(url,options={}){
 
 
   return data;
+
 }
 
 
@@ -1483,15 +1511,6 @@ function getTeam2(match){
 ============================================================ */
 
 function getScores(match){
-
-  /*
-    Worker normalized response:
-
-    score1
-    score2
-    overs1
-    overs2
-  */
 
   if(
     match &&
@@ -1690,20 +1709,11 @@ function cleanOvers(overs){
     String(overs).trim();
 
 
-  /*
-    Remove accidental "(xx ov)"
-    if API sends it inside overs.
-  */
-
   value =
     value
       .replace(/\s*\(\s*[^)]*ov\s*\)\s*$/i,"")
       .trim();
 
-
-  /*
-    Remove trailing "ov"
-  */
 
   value =
     value
@@ -1738,13 +1748,6 @@ function formatScore(score){
 
   }
 
-
-  /*
-    IMPORTANT:
-    अगर score API में पहले से
-    "351/7 (49.6 ov)" आता है,
-    तो अलग से overs दोबारा नहीं जोड़ेंगे।
-  */
 
   if(runs){
 
@@ -1978,7 +1981,6 @@ function renderMatchCard(match,isLive=false){
 
       <div class="teams">
 
-
         <div class="team">
 
           <div class="team-name">
@@ -2008,7 +2010,6 @@ function renderMatchCard(match,isLive=false){
           </div>
 
         </div>
-
 
       </div>
 
@@ -2048,7 +2049,6 @@ function renderMatchCard(match,isLive=false){
 
       <div class="actions">
 
-
         <button
           type="button"
           onclick="openScorecard('${escapeHTML(id)}')">
@@ -2065,7 +2065,6 @@ function renderMatchCard(match,isLive=false){
           🏏 Ball-by-Ball
 
         </button>
-
 
       </div>
 
@@ -2211,7 +2210,6 @@ function renderFixtureCard(match){
 
     <div class="match-card">
 
-
       <div class="status-row">
 
         <div class="match-title">
@@ -2269,7 +2267,6 @@ function renderFixtureCard(match){
 
       <div class="actions">
 
-
         <button
           type="button"
           onclick="openScorecard('${escapeHTML(id)}')">
@@ -2287,9 +2284,7 @@ function renderFixtureCard(match){
 
         </button>
 
-
       </div>
-
 
     </div>
 
@@ -2579,8 +2574,6 @@ function renderScorecard(
 
   html += `
 
-      <div class="hr"></div>
-
       <details>
 
         <summary>
@@ -2859,6 +2852,182 @@ function renderAPIResult(
 
 
 /* ============================================================
+   IMAGE RESPONSE HELPER
+============================================================ */
+
+function showGeneratedImage(
+  result,
+  title,
+  imageSource,
+  prompt
+){
+
+  let imageSrc =
+    imageSource;
+
+
+  /*
+    अगर Worker सिर्फ Base64 भेजता है
+    तो JPEG data URL बनाएं।
+  */
+
+  if(
+    typeof imageSrc === "string" &&
+    !imageSrc.startsWith("data:") &&
+    !imageSrc.startsWith("http")
+  ){
+
+    imageSrc =
+      "data:image/jpeg;base64," +
+      imageSrc;
+
+  }
+
+
+  result.innerHTML = `
+
+    <div class="card">
+
+      <h3>
+        ${escapeHTML(title)}
+      </h3>
+
+      <img
+        class="generated-image"
+        src="${escapeHTML(imageSrc)}"
+        alt="${escapeHTML(title)}">
+
+      <div class="generated-actions">
+
+        <button
+          type="button"
+          onclick="openGeneratedImage('${escapeHTML(imageSrc)}')">
+
+          🔍 Open Image
+
+        </button>
+
+        <button
+          type="button"
+          onclick="copyPrompt(${JSON.stringify(prompt).replace(/</g,"\\u003c")})">
+
+          📋 Copy Prompt
+
+        </button>
+
+      </div>
+
+
+      <details>
+
+        <summary>
+          📝 Prompt
+        </summary>
+
+        <pre style="margin-top:10px;">${escapeHTML(prompt)}</pre>
+
+      </details>
+
+    </div>
+
+  `;
+
+}
+
+
+/* ============================================================
+   OPEN GENERATED IMAGE
+============================================================ */
+
+function openGeneratedImage(src){
+
+  try{
+
+    const win =
+      window.open(
+        "",
+        "_blank"
+      );
+
+
+    if(!win){
+
+      throw new Error(
+        "Popup blocked"
+      );
+
+    }
+
+
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Cricket Short AI Image</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <style>
+          body{
+            margin:0;
+            background:#07152f;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+          }
+          img{
+            max-width:100%;
+            max-height:100vh;
+            object-fit:contain;
+          }
+        </style>
+      </head>
+      <body>
+        <img src="${src}" alt="Cricket Short AI Image">
+      </body>
+      </html>
+    `);
+
+    win.document.close();
+
+  }catch(error){
+
+    alert(
+      "Image open नहीं हो पाई।"
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   COPY PROMPT
+============================================================ */
+
+async function copyPrompt(prompt){
+
+  try{
+
+    await navigator.clipboard.writeText(
+      prompt
+    );
+
+    alert(
+      "✅ Prompt copied"
+    );
+
+  }catch(error){
+
+    alert(
+      "Prompt copy नहीं हो पाया।"
+    );
+
+  }
+
+}
+
+
+/* ============================================================
    AI PLAYER IMAGE
 ============================================================ */
 
@@ -3059,24 +3228,12 @@ async function generatePlayerImage(){
 
       if(data?.image){
 
-        result.innerHTML = `
-
-          <div class="card">
-
-            <h3>
-              ✅ AI Image Ready
-            </h3>
-
-            <img
-              class="generated-image"
-              src="${escapeHTML(
-                data.image
-              )}"
-              alt="Generated cricket player">
-
-          </div>
-
-        `;
+        showGeneratedImage(
+          result,
+          "✅ AI Player Image Ready",
+          data.image,
+          prompt
+        );
 
       }else{
 
@@ -3103,22 +3260,12 @@ async function generatePlayerImage(){
       );
 
 
-    result.innerHTML = `
-
-      <div class="card">
-
-        <h3>
-          ✅ AI Image Ready
-        </h3>
-
-        <img
-          class="generated-image"
-          src="${imageURL}"
-          alt="Generated cricket player">
-
-      </div>
-
-    `;
+    showGeneratedImage(
+      result,
+      "✅ AI Player Image Ready",
+      imageURL,
+      prompt
+    );
 
 
   }catch(error){
@@ -3138,10 +3285,10 @@ async function generatePlayerImage(){
 
 
 /* ============================================================
-   POSTER
+   POSTER - REAL AI IMAGE
 ============================================================ */
 
-function generatePoster(){
+async function generatePoster(){
 
   const player =
     document.getElementById(
@@ -3179,34 +3326,179 @@ function generatePoster(){
     );
 
 
-  const prompt =
-`Photorealistic cinematic cricket sports news poster featuring ${player} representing ${team}, ${match}, ${type}, at ${stadium}, dramatic stadium floodlights, packed cheering cricket crowd, powerful sports-news atmosphere, ultra realistic face, professional cricket photography, high detail, cinematic lighting, vertical 9:16, clean composition, no text, no watermark.`;
+  if(
+    !player ||
+    !team ||
+    !match
+  ){
+
+    result.innerHTML = `
+      <div class="error">
+        ❌ Player, Team और Match भरें।
+      </div>
+    `;
+
+    return;
+
+  }
 
 
   result.innerHTML = `
-
-    <div class="card">
-
-      <h3>
-        🎨 Poster Prompt
-      </h3>
-
-      <pre style="margin-top:10px;">${escapeHTML(
-        prompt
-      )}</pre>
-
+    <div class="card loading">
+      🎨 AI Cricket Poster बन रहा है...<br>
+      Please wait...
     </div>
-
   `;
+
+
+  const prompt =
+`Photorealistic cinematic cricket sports news poster featuring ${player} representing ${team}, ${match}, ${type}, at ${stadium}, dramatic stadium floodlights, packed cheering cricket crowd, powerful sports-news atmosphere, realistic face, realistic body proportions, professional cricket photography, ultra detailed, cinematic lighting, premium sports poster, vertical 9:16 composition, subject fully visible, clean composition, no text, no watermark, no logo.`;
+
+
+  try{
+
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/generate-image",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:JSON.stringify({
+            prompt:prompt
+          })
+
+        }
+      );
+
+
+    const contentType =
+      response.headers.get(
+        "content-type"
+      ) || "";
+
+
+    if(!response.ok){
+
+      let message =
+        "Poster image generation failed.";
+
+
+      if(
+        contentType.includes(
+          "application/json"
+        )
+      ){
+
+        const errorData =
+          await response.json();
+
+
+        message =
+          errorData?.error ||
+          errorData?.message ||
+          message;
+
+      }else{
+
+        const errorText =
+          await response.text();
+
+
+        if(errorText){
+
+          message =
+            errorText;
+
+        }
+
+      }
+
+
+      throw new Error(
+        message
+      );
+
+    }
+
+
+    if(
+      contentType.includes(
+        "application/json"
+      )
+    ){
+
+      const data =
+        await response.json();
+
+
+      if(data?.image){
+
+        showGeneratedImage(
+          result,
+          "✅ Cricket Poster Ready",
+          data.image,
+          prompt
+        );
+
+      }else{
+
+        renderAPIResult(
+          result,
+          data
+        );
+
+      }
+
+
+      return;
+
+    }
+
+
+    const blob =
+      await response.blob();
+
+
+    const imageURL =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    showGeneratedImage(
+      result,
+      "✅ Cricket Poster Ready",
+      imageURL,
+      prompt
+    );
+
+
+  }catch(error){
+
+    result.innerHTML = `
+      <div class="error">
+        ❌ ${escapeHTML(
+          error.message
+        )}
+      </div>
+    `;
+
+  }
 
 }
 
 
 /* ============================================================
-   PLAYER CARD
+   PLAYER CARD - REAL AI IMAGE
 ============================================================ */
 
-function generatePlayerCard(){
+async function generatePlayerCard(){
 
   const player =
     document.getElementById(
@@ -3238,25 +3530,169 @@ function generatePlayerCard(){
     );
 
 
-  const prompt =
-`Professional cricket player card design for ${player}, ${team}, jersey number ${number}, player rating ${rating}, realistic cricket portrait, premium sports card design, dramatic stadium background, blue cricket theme, ultra detailed, clean modern composition, no watermark.`;
+  if(
+    !player ||
+    !team
+  ){
+
+    result.innerHTML = `
+      <div class="error">
+        ❌ Player Name और Team भरें।
+      </div>
+    `;
+
+    return;
+
+  }
 
 
   result.innerHTML = `
-
-    <div class="card">
-
-      <h3>
-        🪪 Player Card Prompt
-      </h3>
-
-      <pre style="margin-top:10px;">${escapeHTML(
-        prompt
-      )}</pre>
-
+    <div class="card loading">
+      🪪 AI Player Card बन रहा है...<br>
+      Please wait...
     </div>
-
   `;
+
+
+  const prompt =
+`Professional premium cricket player card design for ${player}, representing ${team}, jersey number ${number}, player rating ${rating}, realistic cricket portrait, realistic face, realistic body proportions, premium sports trading card design, professional cricket uniform, dramatic international cricket stadium background, blue cricket theme, powerful stadium lighting, ultra detailed, high quality sports photography, modern premium composition, portrait orientation, vertical 9:16, player prominently visible, clean professional design, no unnecessary text, no watermark, no logo.`;
+
+
+  try{
+
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/generate-image",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:JSON.stringify({
+            prompt:prompt
+          })
+
+        }
+      );
+
+
+    const contentType =
+      response.headers.get(
+        "content-type"
+      ) || "";
+
+
+    if(!response.ok){
+
+      let message =
+        "Player Card image generation failed.";
+
+
+      if(
+        contentType.includes(
+          "application/json"
+        )
+      ){
+
+        const errorData =
+          await response.json();
+
+
+        message =
+          errorData?.error ||
+          errorData?.message ||
+          message;
+
+      }else{
+
+        const errorText =
+          await response.text();
+
+
+        if(errorText){
+
+          message =
+            errorText;
+
+        }
+
+      }
+
+
+      throw new Error(
+        message
+      );
+
+    }
+
+
+    if(
+      contentType.includes(
+        "application/json"
+      )
+    ){
+
+      const data =
+        await response.json();
+
+
+      if(data?.image){
+
+        showGeneratedImage(
+          result,
+          "✅ Player Card Ready",
+          data.image,
+          prompt
+        );
+
+      }else{
+
+        renderAPIResult(
+          result,
+          data
+        );
+
+      }
+
+
+      return;
+
+    }
+
+
+    const blob =
+      await response.blob();
+
+
+    const imageURL =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    showGeneratedImage(
+      result,
+      "✅ Player Card Ready",
+      imageURL,
+      prompt
+    );
+
+
+  }catch(error){
+
+    result.innerHTML = `
+      <div class="error">
+        ❌ ${escapeHTML(
+          error.message
+        )}
+      </div>
+    `;
+
+  }
 
 }
 
@@ -3465,4 +3901,4 @@ document.addEventListener(
 </script>
 
 </body>
-  </html>
+      </html>
