@@ -558,6 +558,7 @@ footer{
 }
 
 @media(max-width:600px){
+
   main{
     padding:9px;
   }
@@ -584,21 +585,55 @@ footer{
 <body>
 
 <header>
+
   <div class="logo">🏏 Cricket Short</div>
-  <div class="subtitle">AI Cricket Player • Live Score • Fixtures • Scorecard</div>
+
+  <div class="subtitle">
+    AI Cricket Player • Live Score • Fixtures • Scorecard
+  </div>
 
   <nav id="mainNav">
-    <button class="active" onclick="showSection('live',this)">🔴 Live</button>
-    <button onclick="showSection('fixtures',this)">📅 Fixtures</button>
-    <button onclick="showSection('scorecard',this)">📊 Scorecard</button>
-    <button onclick="showSection('ball',this)">🏏 Ball-by-Ball</button>
-    <button onclick="showSection('points',this)">🎯 Points</button>
-    <button onclick="showSection('ai',this)">🤖 AI Player</button>
-    <button onclick="showSection('poster',this)">🎨 Poster</button>
-    <button onclick="showSection('playercard',this)">🪪 Player Card</button>
-    <button onclick="showSection('news',this)">📰 News</button>
+
+    <button class="active" onclick="showSection('live',this)">
+      🔴 Live
+    </button>
+
+    <button onclick="showSection('fixtures',this)">
+      📅 Fixtures
+    </button>
+
+    <button onclick="showSection('scorecard',this)">
+      📊 Scorecard
+    </button>
+
+    <button onclick="showSection('ball',this)">
+      🏏 Ball-by-Ball
+    </button>
+
+    <button onclick="showSection('points',this)">
+      🎯 Points
+    </button>
+
+    <button onclick="showSection('ai',this)">
+      🤖 AI Player
+    </button>
+
+    <button onclick="showSection('poster',this)">
+      🎨 Poster
+    </button>
+
+    <button onclick="showSection('playercard',this)">
+      🪪 Player Card
+    </button>
+
+    <button onclick="showSection('news',this)">
+      📰 News
+    </button>
+
   </nav>
+
 </header>
+
 
 <main>
 
@@ -607,19 +642,32 @@ footer{
 <section id="live" class="section active">
 
   <div class="card">
+
     <h2>🔴 Live Cricket</h2>
+
     <div class="section-desc">
       Live matches automatically load from the cricket API.
+      Auto refresh every 2 minutes.
     </div>
 
     <div class="action-row">
-      <button class="btn" onclick="loadScores()">↻ Refresh Live</button>
-      <button class="btn secondary" onclick="openLiveMode()">📺 Live Mode</button>
+
+      <button class="btn" onclick="loadScores()">
+        ↻ Refresh Live
+      </button>
+
+      <button class="btn secondary" onclick="openLiveMode()">
+        📺 Live Mode
+      </button>
+
     </div>
 
-    <div id="liveStatus" class="info" style="margin-top:10px;">
+    <div id="liveStatus"
+         class="info"
+         style="margin-top:10px;">
       Loading live matches...
     </div>
+
   </div>
 
   <div id="liveMatches"></div>
@@ -632,15 +680,26 @@ footer{
 <section id="fixtures" class="section">
 
   <div class="card">
+
     <h2>📅 Fixtures</h2>
+
     <div class="section-desc">
       Upcoming matches. Open any match directly for Scorecard or Ball-by-Ball.
     </div>
 
     <div class="action-row">
-      <button class="btn" onclick="loadFixtures()">↻ Refresh Fixtures</button>
-      <button class="btn secondary" onclick="showSection('scorecard')">📊 Scorecard</button>
+
+      <button class="btn" onclick="loadFixtures()">
+        ↻ Refresh Fixtures
+      </button>
+
+      <button class="btn secondary"
+              onclick="showSection('scorecard')">
+        📊 Scorecard
+      </button>
+
     </div>
+
   </div>
 
   <div id="fixturesList"></div>
@@ -657,20 +716,38 @@ footer{
     <h2>📊 Scorecard</h2>
 
     <div class="section-desc">
-      Live/fixture match से Match ID अपने-आप आ सकती है। चाहें तो Match ID manually भी डाल सकते हैं।
+      Live/fixture match से Match ID अपने-आप आ सकती है।
+      चाहें तो Match ID manually भी डाल सकते हैं।
     </div>
 
     <div class="field">
+
       <label>Match ID</label>
-      <input id="scorecardId" type="text" placeholder="उदाहरण: 174340">
+
+      <input
+        id="scorecardId"
+        type="text"
+        placeholder="उदाहरण: 174340"
+      >
+
     </div>
 
     <div class="action-row">
-      <button class="btn" onclick="loadScorecard()">📊 Load Scorecard</button>
-      <button class="btn secondary" onclick="clearScorecard()">✕ Clear</button>
+
+      <button class="btn" onclick="loadScorecard()">
+        📊 Load Scorecard
+      </button>
+
+      <button class="btn secondary"
+              onclick="clearScorecard()">
+        ✕ Clear
+      </button>
+
     </div>
 
-    <div id="scorecardOutput" class="output"></div>
+    <div id="scorecardOutput"
+         class="output">
+    </div>
 
   </div>
 
@@ -690,16 +767,33 @@ footer{
     </div>
 
     <div class="field">
+
       <label>Match ID</label>
-      <input id="ballMatchId" type="text" placeholder="उदाहरण: 174340">
+
+      <input
+        id="ballMatchId"
+        type="text"
+        placeholder="उदाहरण: 174340"
+      >
+
     </div>
 
     <div class="action-row">
-      <button class="btn" onclick="loadBallByBall()">🏏 Load Commentary</button>
-      <button class="btn secondary" onclick="clearBall()">✕ Clear</button>
+
+      <button class="btn" onclick="loadBallByBall()">
+        🏏 Load Commentary
+      </button>
+
+      <button class="btn secondary"
+              onclick="clearBall()">
+        ✕ Clear
+      </button>
+
     </div>
 
-    <div id="ballOutput" class="output"></div>
+    <div id="ballOutput"
+         class="output">
+    </div>
 
   </div>
 
@@ -715,20 +809,38 @@ footer{
     <h2>🎯 Match Points</h2>
 
     <div class="section-desc">
-      Points/Fantasy Points के लिए API में documented endpoint उपलब्ध है या नहीं, Worker सुरक्षित response दिखाएगा।
+      Points/Fantasy Points के लिए API में documented endpoint उपलब्ध है या नहीं,
+      Worker सुरक्षित response दिखाएगा।
     </div>
 
     <div class="field">
+
       <label>Match ID</label>
-      <input id="pointsMatchId" type="text" placeholder="Match ID">
+
+      <input
+        id="pointsMatchId"
+        type="text"
+        placeholder="Match ID"
+      >
+
     </div>
 
     <div class="action-row">
-      <button class="btn" onclick="loadPoints()">🎯 Check Points</button>
-      <button class="btn secondary" onclick="clearPoints()">✕ Clear</button>
+
+      <button class="btn" onclick="loadPoints()">
+        🎯 Check Points
+      </button>
+
+      <button class="btn secondary"
+              onclick="clearPoints()">
+        ✕ Clear
+      </button>
+
     </div>
 
-    <div id="pointsOutput" class="output"></div>
+    <div id="pointsOutput"
+         class="output">
+    </div>
 
   </div>
 
@@ -761,85 +873,132 @@ footer{
 
       <div class="field">
         <label>Pose</label>
+
         <select id="playerPose">
+
           <option value="Batting">Batting</option>
           <option value="Bowling">Bowling</option>
           <option value="Fielding">Fielding</option>
           <option value="Celebrating">Celebrating</option>
           <option value="Walking">Walking</option>
+
         </select>
+
       </div>
 
       <div class="field">
+
         <label>Player Type</label>
+
         <select id="playerType">
+
           <option>Batsman</option>
           <option>Bowler</option>
           <option>All-rounder</option>
           <option>Wicketkeeper</option>
+
         </select>
+
       </div>
 
       <div class="field">
+
         <label>Hand</label>
+
         <select id="playerHand">
+
           <option>Right Hand</option>
           <option>Left Hand</option>
+
         </select>
+
       </div>
 
       <div class="field">
+
         <label>Style</label>
+
         <select id="playerStyle">
+
           <option>Realistic</option>
           <option>Cinematic</option>
           <option>Photorealistic</option>
           <option>Sports Photography</option>
+
         </select>
+
       </div>
 
       <div class="field">
+
         <label>Jersey Color</label>
+
         <input id="playerJersey" value="Blue">
+
       </div>
 
       <div class="field">
+
         <label>Jersey Number</label>
+
         <input id="playerNumber" value="18">
+
       </div>
 
       <div class="field">
+
         <label>Stadium</label>
+
         <input id="playerStadium" value="Modern Stadium">
+
       </div>
 
       <div class="field">
+
         <label>Weather</label>
+
         <input id="playerWeather" value="Clear">
+
       </div>
 
       <div class="field">
+
         <label>Time</label>
+
         <input id="playerTime" value="Day">
+
       </div>
 
       <div class="field">
+
         <label>Camera</label>
+
         <input id="playerCamera" value="Front">
+
       </div>
 
       <div class="field full">
+
         <label>Tournament</label>
-        <input id="playerTournament" value="T20 World Cup">
+
+        <input id="playerTournament"
+               value="T20 World Cup">
+
       </div>
 
     </div>
 
-    <button class="btn" style="width:100%;margin-top:12px;" onclick="generatePlayerImage()">
+    <button class="btn"
+            style="width:100%;margin-top:12px;"
+            onclick="generatePlayerImage()">
+
       🤖 Generate AI Player
+
     </button>
 
-    <div id="playerOutput" class="image-output"></div>
+    <div id="playerOutput"
+         class="image-output">
+    </div>
 
   </div>
 
@@ -861,37 +1020,63 @@ footer{
     <div class="form-grid">
 
       <div class="field">
+
         <label>Player</label>
-        <input id="posterPlayer" value="Virat Kohli">
+
+        <input id="posterPlayer"
+               value="Virat Kohli">
+
       </div>
 
       <div class="field">
+
         <label>Team</label>
-        <input id="posterTeam" value="India">
+
+        <input id="posterTeam"
+               value="India">
+
       </div>
 
       <div class="field full">
+
         <label>Match</label>
-        <input id="posterMatch" value="India vs West Indies">
+
+        <input id="posterMatch"
+               value="India vs West Indies">
+
       </div>
 
       <div class="field">
+
         <label>Match Type</label>
-        <input id="posterType" value="International Match">
+
+        <input id="posterType"
+               value="International Match">
+
       </div>
 
       <div class="field">
+
         <label>Stadium</label>
-        <input id="posterStadium" value="Modern Cricket Stadium">
+
+        <input id="posterStadium"
+               value="Modern Cricket Stadium">
+
       </div>
 
     </div>
 
-    <button class="btn" style="width:100%;margin-top:12px;" onclick="generatePoster()">
+    <button class="btn"
+            style="width:100%;margin-top:12px;"
+            onclick="generatePoster()">
+
       🎨 Generate Poster
+
     </button>
 
-    <div id="posterOutput" class="image-output"></div>
+    <div id="posterOutput"
+         class="image-output">
+    </div>
 
   </div>
 
@@ -913,32 +1098,54 @@ footer{
     <div class="form-grid">
 
       <div class="field">
+
         <label>Player</label>
-        <input id="cardPlayer" value="Virat Kohli">
+
+        <input id="cardPlayer"
+               value="Virat Kohli">
+
       </div>
 
       <div class="field">
+
         <label>Team</label>
-        <input id="cardTeam" value="India">
+
+        <input id="cardTeam"
+               value="India">
+
       </div>
 
       <div class="field">
+
         <label>Jersey Number</label>
-        <input id="cardNumber" value="18">
+
+        <input id="cardNumber"
+               value="18">
+
       </div>
 
       <div class="field">
+
         <label>Rating</label>
-        <input id="cardRating" value="95">
+
+        <input id="cardRating"
+               value="95">
+
       </div>
 
     </div>
 
-    <button class="btn" style="width:100%;margin-top:12px;" onclick="generatePlayerCard()">
+    <button class="btn"
+            style="width:100%;margin-top:12px;"
+            onclick="generatePlayerCard()">
+
       🪪 Generate Player Card
+
     </button>
 
-    <div id="cardOutput" class="image-output"></div>
+    <div id="cardOutput"
+         class="image-output">
+    </div>
 
   </div>
 
@@ -959,18 +1166,26 @@ footer{
 
     <div class="news-grid">
 
-      <button class="news-btn" onclick="openNews('https://www.espncricinfo.com/')">
+      <button class="news-btn"
+              onclick="openNews('https://www.espncricinfo.com/')">
+
         📰 ESPNcricinfo
+
         <div style="font-size:10px;color:#9db5d8;margin-top:4px;">
           Cricket news, scores and analysis
         </div>
+
       </button>
 
-      <button class="news-btn" onclick="openNews('https://www.icc-cricket.com/')">
+      <button class="news-btn"
+              onclick="openNews('https://www.icc-cricket.com/')">
+
         🌐 ICC Cricket
+
         <div style="font-size:10px;color:#9db5d8;margin-top:4px;">
           Official international cricket news
         </div>
+
       </button>
 
     </div>
@@ -978,6 +1193,7 @@ footer{
   </div>
 
 </section>
+
 
 <footer>
   🏏 Cricket Short • Powered by Cloudflare Workers
@@ -988,17 +1204,27 @@ footer{
 
 <!-- ================= LIVE MODE ================= -->
 
-<div id="liveMode" class="live-mode">
+<div id="liveMode"
+     class="live-mode">
 
   <div class="live-header">
-    <div class="live-header-title">🏏 Cricket Short • Live Mode</div>
-    <button class="live-close" onclick="closeLiveMode()">✕ Close</button>
+
+    <div class="live-header-title">
+      🏏 Cricket Short • Live Mode
+    </div>
+
+    <button class="live-close"
+            onclick="closeLiveMode()">
+      ✕ Close
+    </button>
+
   </div>
 
   <div class="live-body">
 
-    <div id="liveTimer" class="live-timer">
-      Auto refresh: 15 seconds
+    <div id="liveTimer"
+         class="live-timer">
+      Auto refresh: 120 seconds
     </div>
 
     <div id="liveModeContent"></div>
@@ -1016,84 +1242,152 @@ footer{
 
 const API_BASE = "";
 
+const LIVE_REFRESH_MS = 120000;
+
+let liveAutoRefreshTimer = null;
+
 let liveModeTimer = null;
-let liveModeCountdown = 15;
+
+let liveModeCountdown = 120;
+
 
 function $(id){
+
   return document.getElementById(id);
+
 }
+
 
 function safeString(value){
-  if(value === null || value === undefined) return "";
+
+  if(value === null || value === undefined){
+    return "";
+  }
+
   return String(value);
+
 }
 
+
 function escapeHTML(value){
+
   return safeString(value)
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
+
 }
 
+
 function safeJSONArg(value){
-  return JSON.stringify(safeString(value));
+
+  return JSON.stringify(
+    safeString(value)
+  );
+
 }
+
 
 function showSection(id, button){
 
-  document.querySelectorAll(".section").forEach(section=>{
-    section.classList.remove("active");
-  });
+  document
+    .querySelectorAll(".section")
+    .forEach(section=>{
+
+      section.classList.remove("active");
+
+    });
+
 
   const section = $(id);
 
+
   if(section){
+
     section.classList.add("active");
+
   }
 
-  document.querySelectorAll("#mainNav button").forEach(btn=>{
-    btn.classList.remove("active");
-  });
+
+  document
+    .querySelectorAll("#mainNav button")
+    .forEach(btn=>{
+
+      btn.classList.remove("active");
+
+    });
+
 
   if(button){
+
     button.classList.add("active");
+
   }else{
 
-    const buttons = document.querySelectorAll("#mainNav button");
+    const buttons =
+      document.querySelectorAll("#mainNav button");
+
 
     buttons.forEach(btn=>{
-      if(btn.getAttribute("onclick") &&
-         btn.getAttribute("onclick").includes("'" + id + "'")){
+
+      const onclick =
+        btn.getAttribute("onclick") || "";
+
+
+      if(
+        onclick.includes(
+          "'" + id + "'"
+        )
+      ){
+
         btn.classList.add("active");
+
       }
+
     });
 
   }
+
 
   window.scrollTo({
     top:0,
     behavior:"smooth"
   });
+
 }
+
 
 async function getJSON(url, options = {}){
 
-  const response = await fetch(url, options);
+  const response =
+    await fetch(url, options);
 
-  const text = await response.text();
+
+  const text =
+    await response.text();
+
 
   let data = null;
 
+
   try{
-    data = text ? JSON.parse(text) : {};
+
+    data =
+      text
+      ? JSON.parse(text)
+      : {};
+
   }catch(error){
+
     throw new Error(
       "Server ने valid JSON नहीं भेजा। HTTP " +
       response.status
     );
+
   }
+
 
   if(!response.ok){
 
@@ -1102,25 +1396,45 @@ async function getJSON(url, options = {}){
       data?.message ||
       ("HTTP " + response.status);
 
+
     throw new Error(message);
+
   }
 
+
   return data;
+
 }
 
-function showLoading(element, text="Loading..."){
+
+function showLoading(
+  element,
+  text="Loading..."
+){
+
   element.innerHTML =
     `<div class="loading">⏳ ${escapeHTML(text)}</div>`;
+
 }
 
-function showError(element, error){
+
+function showError(element,error){
+
   element.innerHTML =
-    `<div class="error">❌ ${escapeHTML(error?.message || error)}</div>`;
+    `<div class="error">❌ ${
+      escapeHTML(error?.message || error)
+    }</div>`;
+
 }
 
-function showSuccess(element, text){
+
+function showSuccess(element,text){
+
   element.innerHTML =
-    `<div class="success">✅ ${escapeHTML(text)}</div>`;
+    `<div class="success">✅ ${
+      escapeHTML(text)
+    }</div>`;
+
 }
 
 
@@ -1132,6 +1446,7 @@ function unwrapData(value){
 
   let current = value;
 
+
   for(let i=0;i<5;i++){
 
     if(
@@ -1140,68 +1455,126 @@ function unwrapData(value){
       !Array.isArray(current) &&
       current.data !== undefined
     ){
+
       current = current.data;
+
       continue;
+
     }
 
     break;
+
   }
 
+
   return current;
+
 }
 
-function findArrayByKeys(root, keys){
 
-  if(!root || typeof root !== "object") return null;
+function findArrayByKeys(root,keys){
+
+  if(
+    !root ||
+    typeof root !== "object"
+  ){
+
+    return null;
+
+  }
+
 
   if(Array.isArray(root)){
 
     for(const item of root){
 
-      const found = findArrayByKeys(item, keys);
+      const found =
+        findArrayByKeys(item,keys);
 
-      if(found) return found;
+
+      if(found){
+        return found;
+      }
+
     }
 
+
     return null;
+
   }
+
 
   for(const key of keys){
 
     if(Array.isArray(root[key])){
+
       return root[key];
+
     }
+
   }
+
 
   for(const key of Object.keys(root)){
 
-    const found = findArrayByKeys(root[key], keys);
+    const found =
+      findArrayByKeys(
+        root[key],
+        keys
+      );
 
-    if(found) return found;
+
+    if(found){
+
+      return found;
+
+    }
+
   }
 
+
   return null;
+
 }
 
-function findValue(root, keys){
 
-  if(!root || typeof root !== "object") return null;
+function findValue(root,keys){
+
+  if(
+    !root ||
+    typeof root !== "object"
+  ){
+
+    return null;
+
+  }
+
 
   if(Array.isArray(root)){
 
     for(const item of root){
 
-      const found = findValue(item, keys);
+      const found =
+        findValue(item,keys);
 
-      if(found !== null &&
-         found !== undefined &&
-         found !== ""){
+
+      if(
+        found !== null &&
+        found !== undefined &&
+        found !== ""
+      ){
+
         return found;
+
       }
+
     }
 
+
     return null;
+
   }
+
 
   for(const key of keys){
 
@@ -1210,22 +1583,38 @@ function findValue(root, keys){
       root[key] !== null &&
       root[key] !== ""
     ){
+
       return root[key];
+
     }
+
   }
+
 
   for(const key of Object.keys(root)){
 
-    const found = findValue(root[key], keys);
+    const found =
+      findValue(
+        root[key],
+        keys
+      );
 
-    if(found !== null &&
-       found !== undefined &&
-       found !== ""){
+
+    if(
+      found !== null &&
+      found !== undefined &&
+      found !== ""
+    ){
+
       return found;
+
     }
+
   }
 
+
   return null;
+
 }
 
 
@@ -1235,11 +1624,18 @@ function findValue(root, keys){
 
 function getMatchId(match){
 
-  if(!match || typeof match !== "object"){
+  if(
+    !match ||
+    typeof match !== "object"
+  ){
+
     return "";
+
   }
 
+
   return safeString(
+
     match.match_id ??
     match.matchId ??
     match.id ??
@@ -1247,7 +1643,9 @@ function getMatchId(match){
     match.fixture_id ??
     match.fixtureId ??
     ""
+
   ).trim();
+
 }
 
 
@@ -1257,13 +1655,22 @@ function getMatchId(match){
 
 function getTeamName(team){
 
-  if(!team) return "Unknown Team";
+  if(!team){
 
-  if(typeof team === "string"){
-    return team;
+    return "Unknown Team";
+
   }
 
+
+  if(typeof team === "string"){
+
+    return team;
+
+  }
+
+
   return safeString(
+
     team.name ??
     team.team_name ??
     team.teamName ??
@@ -1272,14 +1679,23 @@ function getTeamName(team){
     team.title ??
     team.country ??
     "Unknown Team"
+
   );
+
 }
+
 
 function getTeams(match){
 
-  if(!match || typeof match !== "object"){
+  if(
+    !match ||
+    typeof match !== "object"
+  ){
+
     return [];
+
   }
+
 
   const possible =
     match.teams ??
@@ -1288,38 +1704,64 @@ function getTeams(match){
     match.competitors ??
     [];
 
+
   if(Array.isArray(possible)){
+
     return possible;
+
   }
 
-  if(possible && typeof possible === "object"){
 
-    const values = Object.values(possible);
+  if(
+    possible &&
+    typeof possible === "object"
+  ){
+
+    const values =
+      Object.values(possible);
+
 
     if(values.length){
+
       return values;
+
     }
+
   }
 
+
   const names = [
+
     match.team1,
     match.team2,
     match.home,
     match.away,
     match.home_team,
     match.away_team
+
   ].filter(Boolean);
 
+
   return names;
+
 }
+
 
 function scoreText(team){
 
-  if(!team) return "";
+  if(!team){
+
+    return "";
+
+  }
+
 
   if(typeof team === "string"){
+
     return "";
+
   }
+
 
   const score =
     team.score ??
@@ -1329,22 +1771,35 @@ function scoreText(team){
     team.innings ??
     "";
 
+
   if(typeof score === "object"){
 
     if(Array.isArray(score)){
-      return score.map(scoreText).filter(Boolean).join(" • ");
+
+      return score
+        .map(scoreText)
+        .filter(Boolean)
+        .join(" • ");
+
     }
 
+
     return safeString(
+
       score.score ??
       score.runs ??
       score.total ??
       ""
+
     );
+
   }
 
+
   return safeString(score);
+
 }
+
 
 function getScoreArray(match){
 
@@ -1355,93 +1810,157 @@ function getScoreArray(match){
     match?.teamScores ??
     [];
 
+
   if(Array.isArray(possible)){
+
     return possible;
+
   }
 
+
   return [];
+
 }
 
-function formatScore(team, index, match){
 
-  const direct = scoreText(team);
+function formatScore(
+  team,
+  index,
+  match
+){
 
-  if(direct) return direct;
+  const direct =
+    scoreText(team);
 
-  const scores = getScoreArray(match);
+
+  if(direct){
+
+    return direct;
+
+  }
+
+
+  const scores =
+    getScoreArray(match);
+
 
   if(scores[index] !== undefined){
 
-    if(typeof scores[index] === "object"){
+    if(
+      typeof scores[index] === "object"
+    ){
+
       return safeString(
+
         scores[index].score ??
         scores[index].runs ??
         scores[index].total ??
         ""
+
       );
+
     }
 
-    return safeString(scores[index]);
+
+    return safeString(
+      scores[index]
+    );
+
   }
 
+
   return "";
+
 }
+
 
 function getStatus(match){
 
-  const raw = safeString(
-    match?.status ??
-    match?.match_status ??
-    match?.state ??
-    match?.matchStatus ??
-    ""
-  ).toLowerCase();
+  const raw =
+    safeString(
+
+      match?.status ??
+      match?.match_status ??
+      match?.state ??
+      match?.matchStatus ??
+      ""
+
+    ).toLowerCase();
+
 
   if(
+
     raw.includes("live") ||
     raw.includes("playing") ||
     raw.includes("in progress") ||
     raw.includes("ongoing")
+
   ){
+
     return {
       text:"LIVE",
       cls:"live"
     };
+
   }
 
+
   if(
+
     raw.includes("complete") ||
     raw.includes("finished") ||
     raw.includes("result") ||
     raw.includes("won") ||
     raw.includes("loss")
+
   ){
+
     return {
       text:"RESULT",
       cls:"result"
     };
+
   }
 
+
   if(
+
     raw.includes("upcoming") ||
     raw.includes("scheduled") ||
     raw.includes("fixture")
+
   ){
+
     return {
       text:"UPCOMING",
       cls:"upcoming"
     };
+
   }
 
+
   return {
-    text:raw ? raw.toUpperCase() : "MATCH",
+
+    text:
+      raw
+      ? raw.toUpperCase()
+      : "MATCH",
+
     cls:""
+
   };
+
 }
+
 
 function getVenue(match){
 
-  if(!match) return "";
+  if(!match){
+
+    return "";
+
+  }
+
 
   const venue =
     match.venue ??
@@ -1450,32 +1969,50 @@ function getVenue(match){
     match.location ??
     "";
 
+
   if(typeof venue === "string"){
+
     return venue;
+
   }
 
-  if(venue && typeof venue === "object"){
+
+  if(
+    venue &&
+    typeof venue === "object"
+  ){
+
     return safeString(
+
       venue.name ??
       venue.venue_name ??
       venue.stadium ??
       ""
+
     );
+
   }
 
+
   return "";
+
 }
+
 
 function getSeries(match){
 
   return safeString(
+
     match?.series_name ??
     match?.seriesName ??
     match?.series?.name ??
     match?.series ??
     ""
+
   );
+
 }
+
 
 function getMatchTitle(match){
 
@@ -1486,22 +2023,33 @@ function getMatchTitle(match){
     match?.title ??
     "";
 
+
   if(direct){
+
     return safeString(direct);
+
   }
 
-  const teams = getTeams(match);
+
+  const teams =
+    getTeams(match);
+
 
   if(teams.length >= 2){
 
     return (
+
       getTeamName(teams[0]) +
       " vs " +
       getTeamName(teams[1])
+
     );
+
   }
 
+
   return "Cricket Match";
+
 }
 
 
@@ -1509,19 +2057,34 @@ function getMatchTitle(match){
    MATCH CARD
 ============================================================ */
 
-function renderMatchCard(match, isLive=false){
+function renderMatchCard(
+  match,
+  isLive=false
+){
 
-  const id = getMatchId(match);
+  const id =
+    getMatchId(match);
 
-  const status = getStatus(match);
 
-  const teams = getTeams(match);
+  const status =
+    getStatus(match);
 
-  const title = getMatchTitle(match);
 
-  const series = getSeries(match);
+  const teams =
+    getTeams(match);
 
-  const venue = getVenue(match);
+
+  const title =
+    getMatchTitle(match);
+
+
+  const series =
+    getSeries(match);
+
+
+  const venue =
+    getVenue(match);
+
 
   const date =
     match?.date ??
@@ -1530,28 +2093,43 @@ function renderMatchCard(match, isLive=false){
     match?.startTime ??
     "";
 
+
   let teamHTML = "";
+
 
   if(teams.length){
 
-    teamHTML = teams
-      .slice(0,2)
-      .map((team,index)=>{
+    teamHTML =
+      teams
+        .slice(0,2)
+        .map((team,index)=>{
 
-        return `
-          <div class="team-row">
-            <div class="team-name">
-              ${escapeHTML(getTeamName(team))}
+          return `
+
+            <div class="team-row">
+
+              <div class="team-name">
+                ${escapeHTML(
+                  getTeamName(team)
+                )}
+              </div>
+
+              <div class="team-score">
+                ${escapeHTML(
+                  formatScore(
+                    team,
+                    index,
+                    match
+                  )
+                )}
+              </div>
+
             </div>
 
-            <div class="team-score">
-              ${escapeHTML(formatScore(team,index,match))}
-            </div>
-          </div>
-        `;
+          `;
 
-      })
-      .join("");
+        })
+        .join("");
 
   }else{
 
@@ -1562,6 +2140,7 @@ function renderMatchCard(match, isLive=false){
       match?.home ??
       "";
 
+
     const team2 =
       match?.team2_name ??
       match?.team2Name ??
@@ -1569,36 +2148,60 @@ function renderMatchCard(match, isLive=false){
       match?.away ??
       "";
 
+
     teamHTML = `
+
       <div class="team-row">
-        <div class="team-name">${escapeHTML(team1)}</div>
+
+        <div class="team-name">
+          ${escapeHTML(team1)}
+        </div>
+
         <div class="team-score"></div>
+
       </div>
 
       <div class="team-row">
-        <div class="team-name">${escapeHTML(team2)}</div>
+
+        <div class="team-name">
+          ${escapeHTML(team2)}
+        </div>
+
         <div class="team-score"></div>
+
       </div>
+
     `;
+
   }
 
-  const idArg = safeJSONArg(id);
+
+  const idArg =
+    safeJSONArg(id);
+
 
   return `
+
     <div class="match-card">
 
       <div class="match-top">
 
         <div>
+
           <div class="match-title">
             ${escapeHTML(title)}
           </div>
 
           ${
             series
-            ? `<div class="match-series">${escapeHTML(series)}</div>`
+            ? `
+              <div class="match-series">
+                ${escapeHTML(series)}
+              </div>
+            `
             : ""
           }
+
         </div>
 
         <div class="status ${status.cls}">
@@ -1607,9 +2210,11 @@ function renderMatchCard(match, isLive=false){
 
       </div>
 
+
       <div class="teams">
         ${teamHTML}
       </div>
+
 
       <div class="match-meta">
 
@@ -1633,18 +2238,28 @@ function renderMatchCard(match, isLive=false){
 
       </div>
 
+
       <div class="match-actions">
 
         <button
           class="btn"
-          ${id ? `onclick="openScorecard(${idArg})"` : "disabled"}
+          ${
+            id
+            ? `onclick="openScorecard(${idArg})"`
+            : "disabled"
+          }
         >
           📊 Scorecard
         </button>
 
+
         <button
           class="btn secondary"
-          ${id ? `onclick="openBallByBall(${idArg})"` : "disabled"}
+          ${
+            id
+            ? `onclick="openBallByBall(${idArg})"`
+            : "disabled"
+          }
         >
           🏏 Ball-by-Ball
         </button>
@@ -1652,7 +2267,9 @@ function renderMatchCard(match, isLive=false){
       </div>
 
     </div>
+
   `;
+
 }
 
 
@@ -1662,23 +2279,38 @@ function renderMatchCard(match, isLive=false){
 
 async function loadScores(){
 
-  const statusBox = $("liveStatus");
-  const container = $("liveMatches");
+  const statusBox =
+    $("liveStatus");
+
+
+  const container =
+    $("liveMatches");
+
 
   statusBox.innerHTML =
     "⏳ Live matches loading...";
 
+
   container.innerHTML =
-    `<div class="loading">🏏 Loading live cricket...</div>`;
+    `<div class="loading">
+      🏏 Loading live cricket...
+    </div>`;
+
 
   try{
 
     const data =
-      await getJSON(API_BASE + "/api/live-score");
+      await getJSON(
+        API_BASE +
+        "/api/live-score"
+      );
+
 
     const matches =
       findArrayByKeys(
+
         data,
+
         [
           "matches",
           "data",
@@ -1686,64 +2318,106 @@ async function loadScores(){
           "live",
           "live_matches"
         ]
+
       ) || [];
 
-    let finalMatches = matches;
 
-    /*
-      यदि response का data खुद array है।
-    */
+    let finalMatches =
+      matches;
+
+
     if(
       !finalMatches.length &&
       Array.isArray(data?.data)
     ){
-      finalMatches = data.data;
+
+      finalMatches =
+        data.data;
+
     }
 
-    /*
-      कुछ responses में data object हो सकता है।
-    */
+
     if(
       !finalMatches.length &&
       Array.isArray(data)
     ){
-      finalMatches = data;
+
+      finalMatches =
+        data;
+
     }
 
-    statusBox.innerHTML =
-      `🔴 <b>${finalMatches.length}</b> live match(s) available • Last updated: ${new Date().toLocaleTimeString()}`;
+
+    statusBox.innerHTML = `
+
+      🔴 <b>${finalMatches.length}</b>
+      live match(s) available
+
+      • Last updated:
+      ${new Date().toLocaleTimeString()}
+
+      • Auto refresh: 2 minutes
+
+    `;
+
 
     if(!finalMatches.length){
 
       container.innerHTML = `
+
         <div class="card">
+
           <div class="empty">
-            <div style="font-size:28px;">🏏</div>
+
+            <div style="font-size:28px;">
+              🏏
+            </div>
+
             <div style="margin-top:8px;font-weight:800;">
               अभी कोई लाइव मैच नहीं है
             </div>
+
             <div style="margin-top:5px;font-size:11px;">
               Refresh दबाकर फिर check करें।
             </div>
+
           </div>
+
         </div>
+
       `;
 
       return;
+
     }
+
 
     container.innerHTML =
       finalMatches
-        .map(match=>renderMatchCard(match,true))
+        .map(match=>
+          renderMatchCard(
+            match,
+            true
+          )
+        )
         .join("");
+
 
   }catch(error){
 
     statusBox.innerHTML =
-      `<span style="color:#ffd0d6;">❌ Live score error</span>`;
+      `<span style="color:#ffd0d6;">
+        ❌ Live score error
+      </span>`;
 
-    showError(container,error);
+
+    showError(
+      container,
+      error
+    );
+
   }
+
 }
 
 
@@ -1753,19 +2427,30 @@ async function loadScores(){
 
 async function loadFixtures(){
 
-  const container = $("fixturesList");
+  const container =
+    $("fixturesList");
+
 
   container.innerHTML =
-    `<div class="loading">⏳ Fixtures loading...</div>`;
+    `<div class="loading">
+      ⏳ Fixtures loading...
+    </div>`;
+
 
   try{
 
     const data =
-      await getJSON(API_BASE + "/api/fixtures");
+      await getJSON(
+        API_BASE +
+        "/api/fixtures"
+      );
+
 
     let matches =
       findArrayByKeys(
+
         data,
+
         [
           "matches",
           "fixtures",
@@ -1773,45 +2458,77 @@ async function loadFixtures(){
           "results",
           "data"
         ]
+
       ) || [];
 
-    if(!matches.length && Array.isArray(data?.data)){
-      matches = data.data;
+
+    if(
+      !matches.length &&
+      Array.isArray(data?.data)
+    ){
+
+      matches =
+        data.data;
+
     }
+
 
     if(!matches.length){
 
       container.innerHTML = `
+
         <div class="card">
+
           <div class="empty">
             📅 अभी fixtures available नहीं हैं।
           </div>
+
         </div>
+
       `;
 
       return;
+
     }
+
 
     container.innerHTML =
       matches
-        .map(match=>renderFixtureCard(match))
+        .map(match=>
+          renderFixtureCard(match)
+        )
         .join("");
+
 
   }catch(error){
 
-    showError(container,error);
+    showError(
+      container,
+      error
+    );
+
   }
+
 }
+
 
 function renderFixtureCard(match){
 
-  const id = getMatchId(match);
+  const id =
+    getMatchId(match);
 
-  const title = getMatchTitle(match);
 
-  const series = getSeries(match);
+  const title =
+    getMatchTitle(match);
 
-  const venue = getVenue(match);
+
+  const series =
+    getSeries(match);
+
+
+  const venue =
+    getVenue(match);
+
 
   const date =
     match?.date ??
@@ -1820,23 +2537,33 @@ function renderFixtureCard(match){
     match?.startTime ??
     "";
 
-  const idArg = safeJSONArg(id);
+
+  const idArg =
+    safeJSONArg(id);
+
 
   return `
+
     <div class="match-card">
 
       <div class="match-top">
 
         <div>
+
           <div class="match-title">
             ${escapeHTML(title)}
           </div>
 
           ${
             series
-            ? `<div class="match-series">${escapeHTML(series)}</div>`
+            ? `
+              <div class="match-series">
+                ${escapeHTML(series)}
+              </div>
+            `
             : ""
           }
+
         </div>
 
         <div class="status upcoming">
@@ -1844,6 +2571,7 @@ function renderFixtureCard(match){
         </div>
 
       </div>
+
 
       <div class="match-meta">
 
@@ -1867,18 +2595,28 @@ function renderFixtureCard(match){
 
       </div>
 
+
       <div class="match-actions">
 
         <button
           class="btn"
-          ${id ? `onclick="openScorecard(${idArg})"` : "disabled"}
+          ${
+            id
+            ? `onclick="openScorecard(${idArg})"`
+            : "disabled"
+          }
         >
           📊 Scorecard
         </button>
 
+
         <button
           class="btn secondary"
-          ${id ? `onclick="openBallByBall(${idArg})"` : "disabled"}
+          ${
+            id
+            ? `onclick="openBallByBall(${idArg})"`
+            : "disabled"
+          }
         >
           🏏 Ball-by-Ball
         </button>
@@ -1886,61 +2624,104 @@ function renderFixtureCard(match){
       </div>
 
     </div>
+
   `;
+
 }
 
 
 /* ============================================================
-   OPEN MATCH TOOLS DYNAMICALLY
+   OPEN MATCH TOOLS
 ============================================================ */
 
 function setToolMatchId(id){
 
-  const cleanId = safeString(id).trim();
+  const cleanId =
+    safeString(id).trim();
+
 
   if(!cleanId){
+
     return;
+
   }
+
 
   if($("scorecardId")){
-    $("scorecardId").value = cleanId;
+
+    $("scorecardId").value =
+      cleanId;
+
   }
+
 
   if($("ballMatchId")){
-    $("ballMatchId").value = cleanId;
+
+    $("ballMatchId").value =
+      cleanId;
+
   }
 
+
   if($("pointsMatchId")){
-    $("pointsMatchId").value = cleanId;
+
+    $("pointsMatchId").value =
+      cleanId;
+
   }
+
 }
+
 
 async function openScorecard(id){
 
   if(!id){
-    alert("Match ID उपलब्ध नहीं है।");
+
+    alert(
+      "Match ID उपलब्ध नहीं है।"
+    );
+
     return;
+
   }
+
 
   setToolMatchId(id);
 
-  showSection("scorecard");
+
+  showSection(
+    "scorecard"
+  );
+
 
   await loadScorecard();
+
 }
+
 
 async function openBallByBall(id){
 
   if(!id){
-    alert("Match ID उपलब्ध नहीं है।");
+
+    alert(
+      "Match ID उपलब्ध नहीं है।"
+    );
+
     return;
+
   }
+
 
   setToolMatchId(id);
 
-  showSection("ball");
+
+  showSection(
+    "ball"
+  );
+
 
   await loadBallByBall();
+
 }
 
 
@@ -1950,126 +2731,198 @@ async function openBallByBall(id){
 
 function clearScorecard(){
 
-  $("scorecardId").value = "";
-  $("scorecardOutput").innerHTML = "";
+  $("scorecardId").value =
+    "";
+
+
+  $("scorecardOutput").innerHTML =
+    "";
+
 }
+
 
 async function loadScorecard(){
 
   const id =
-    safeString($("scorecardId").value).trim();
+    safeString(
+      $("scorecardId").value
+    ).trim();
+
 
   const output =
     $("scorecardOutput");
 
+
   if(!id){
 
     output.innerHTML = `
+
       <div class="error">
         ❌ पहले Match ID डालें।
       </div>
+
     `;
 
     return;
+
   }
+
 
   showLoading(
     output,
     "Scorecard loading..."
   );
 
+
   try{
 
     const data =
       await getJSON(
+
         API_BASE +
         "/api/scorecard?id=" +
         encodeURIComponent(id)
+
       );
 
-    renderScorecard(data,id);
+
+    renderScorecard(
+      data,
+      id
+    );
+
 
   }catch(error){
 
-    showError(output,error);
+    showError(
+      output,
+      error
+    );
+
   }
+
 }
+
 
 function findInnings(data){
 
   const direct =
     findArrayByKeys(
+
       data,
+
       [
         "innings",
         "scorecard",
         "batting_scorecard",
         "battingScorecard"
       ]
+
     );
 
+
   return direct || [];
+
 }
+
 
 function extractBatting(innings){
 
-  if(!innings || typeof innings !== "object"){
+  if(
+    !innings ||
+    typeof innings !== "object"
+  ){
+
     return [];
+
   }
 
+
   return (
+
     innings.batting ??
     innings.batsmen ??
     innings.batters ??
     innings.batting_scorecard ??
     innings.battingScorecard ??
     []
+
   );
+
 }
+
 
 function extractBowling(innings){
 
-  if(!innings || typeof innings !== "object"){
+  if(
+    !innings ||
+    typeof innings !== "object"
+  ){
+
     return [];
+
   }
 
+
   return (
+
     innings.bowling ??
     innings.bowlers ??
     innings.bowling_scorecard ??
     innings.bowlingScorecard ??
     []
+
   );
+
 }
+
 
 function playerName(player){
 
-  if(!player) return "";
+  if(!player){
 
-  if(typeof player === "string"){
-    return player;
+    return "";
+
   }
 
+
+  if(typeof player === "string"){
+
+    return player;
+
+  }
+
+
   return safeString(
+
     player.name ??
     player.player_name ??
     player.playerName ??
     player.batsman ??
     player.bowler ??
     ""
+
   );
+
 }
 
-function renderInnings(innings,index){
+
+function renderInnings(
+  innings,
+  index
+){
 
   const team =
     safeString(
+
       innings?.team ??
       innings?.team_name ??
       innings?.teamName ??
       innings?.name ??
       `Innings ${index+1}`
+
     );
+
 
   const runs =
     innings?.runs ??
@@ -2078,203 +2931,334 @@ function renderInnings(innings,index){
     innings?.totalRuns ??
     "";
 
+
   const wickets =
     innings?.wickets ??
     innings?.wicket ??
     "";
+
 
   const overs =
     innings?.overs ??
     innings?.over ??
     "";
 
+
   const batting =
     extractBatting(innings);
+
 
   const bowling =
     extractBowling(innings);
 
-  let battingRows = "";
 
-  if(Array.isArray(batting) && batting.length){
+  let battingRows =
+    "";
+
+
+  if(
+    Array.isArray(batting) &&
+    batting.length
+  ){
 
     battingRows =
-      batting.map(player=>{
 
-        const name = playerName(player);
+      batting
+        .map(player=>{
 
-        const runs =
-          player?.runs ??
-          player?.r ??
-          player?.score ??
-          "";
+          const name =
+            playerName(player);
 
-        const balls =
-          player?.balls ??
-          player?.b ??
-          player?.balls_faced ??
-          "";
 
-        const fours =
-          player?.fours ??
-          player?.four ??
-          player?.4s ??
-          "";
+          const playerRuns =
+            player?.runs ??
+            player?.r ??
+            player?.score ??
+            "";
 
-        const sixes =
-          player?.sixes ??
-          player?.six ??
-          player?.6s ??
-          "";
 
-        const sr =
-          player?.strike_rate ??
-          player?.strikeRate ??
-          player?.sr ??
-          "";
+          const balls =
+            player?.balls ??
+            player?.b ??
+            player?.balls_faced ??
+            "";
 
-        const dismissal =
-          player?.dismissal ??
-          player?.out_desc ??
-          player?.outDesc ??
-          "";
 
-        return `
-          <tr>
-            <td>
-              <b>${escapeHTML(name)}</b>
-              ${
-                dismissal
-                ? `<br><span style="font-size:9px;color:#819ac1;">${escapeHTML(dismissal)}</span>`
-                : ""
-              }
-            </td>
-            <td>${escapeHTML(runs)}</td>
-            <td>${escapeHTML(balls)}</td>
-            <td>${escapeHTML(fours)}</td>
-            <td>${escapeHTML(sixes)}</td>
-            <td>${escapeHTML(sr)}</td>
-          </tr>
-        `;
+          /*
+            IMPORTANT FIX:
+            Numeric property names 4s / 6s
+            must use bracket notation.
+          */
 
-      }).join("");
+          const fours =
+            player?.fours ??
+            player?.four ??
+            player?.["4s"] ??
+            "";
+
+
+          const sixes =
+            player?.sixes ??
+            player?.six ??
+            player?.["6s"] ??
+            "";
+
+
+          const sr =
+            player?.strike_rate ??
+            player?.strikeRate ??
+            player?.sr ??
+            "";
+
+
+          const dismissal =
+            player?.dismissal ??
+            player?.out_desc ??
+            player?.outDesc ??
+            "";
+
+
+          return `
+
+            <tr>
+
+              <td>
+
+                <b>
+                  ${escapeHTML(name)}
+                </b>
+
+                ${
+                  dismissal
+                  ? `
+                    <br>
+                    <span style="
+                      font-size:9px;
+                      color:#819ac1;
+                    ">
+                      ${escapeHTML(dismissal)}
+                    </span>
+                  `
+                  : ""
+                }
+
+              </td>
+
+              <td>
+                ${escapeHTML(playerRuns)}
+              </td>
+
+              <td>
+                ${escapeHTML(balls)}
+              </td>
+
+              <td>
+                ${escapeHTML(fours)}
+              </td>
+
+              <td>
+                ${escapeHTML(sixes)}
+              </td>
+
+              <td>
+                ${escapeHTML(sr)}
+              </td>
+
+            </tr>
+
+          `;
+
+        })
+        .join("");
+
 
   }else{
 
     battingRows = `
+
       <tr>
+
         <td colspan="6">
           Batting data not available
         </td>
+
       </tr>
+
     `;
+
   }
 
-  let bowlingRows = "";
 
-  if(Array.isArray(bowling) && bowling.length){
+  let bowlingRows =
+    "";
+
+
+  if(
+    Array.isArray(bowling) &&
+    bowling.length
+  ){
 
     bowlingRows =
-      bowling.map(player=>{
 
-        const name = playerName(player);
+      bowling
+        .map(player=>{
 
-        const overs =
-          player?.overs ??
-          player?.o ??
-          "";
+          const name =
+            playerName(player);
 
-        const maidens =
-          player?.maidens ??
-          player?.m ??
-          "";
 
-        const runs =
-          player?.runs ??
-          player?.r ??
-          "";
+          const playerOvers =
+            player?.overs ??
+            player?.o ??
+            "";
 
-        const wickets =
-          player?.wickets ??
-          player?.w ??
-          "";
 
-        const economy =
-          player?.economy ??
-          player?.eco ??
-          "";
+          const maidens =
+            player?.maidens ??
+            player?.m ??
+            "";
 
-        return `
-          <tr>
-            <td>${escapeHTML(name)}</td>
-            <td>${escapeHTML(overs)}</td>
-            <td>${escapeHTML(maidens)}</td>
-            <td>${escapeHTML(runs)}</td>
-            <td>${escapeHTML(wickets)}</td>
-            <td>${escapeHTML(economy)}</td>
-          </tr>
-        `;
 
-      }).join("");
+          const playerRuns =
+            player?.runs ??
+            player?.r ??
+            "";
+
+
+          const playerWickets =
+            player?.wickets ??
+            player?.w ??
+            "";
+
+
+          const economy =
+            player?.economy ??
+            player?.eco ??
+            "";
+
+
+          return `
+
+            <tr>
+
+              <td>
+                ${escapeHTML(name)}
+              </td>
+
+              <td>
+                ${escapeHTML(playerOvers)}
+              </td>
+
+              <td>
+                ${escapeHTML(maidens)}
+              </td>
+
+              <td>
+                ${escapeHTML(playerRuns)}
+              </td>
+
+              <td>
+                ${escapeHTML(playerWickets)}
+              </td>
+
+              <td>
+                ${escapeHTML(economy)}
+              </td>
+
+            </tr>
+
+          `;
+
+        })
+        .join("");
+
 
   }else{
 
     bowlingRows = `
+
       <tr>
+
         <td colspan="6">
           Bowling data not available
         </td>
+
       </tr>
+
     `;
+
   }
 
+
   return `
+
     <div class="innings">
 
       <div class="innings-title">
         🏏 ${escapeHTML(team)}
       </div>
 
+
       <div class="score-summary">
 
         <div class="summary-box">
-          <div class="summary-label">SCORE</div>
+
+          <div class="summary-label">
+            SCORE
+          </div>
+
           <div class="summary-value">
+
             ${escapeHTML(runs)}
+
             ${
               wickets !== ""
               ? "/" + escapeHTML(wickets)
               : ""
             }
+
           </div>
+
         </div>
 
+
         <div class="summary-box">
-          <div class="summary-label">OVERS</div>
+
+          <div class="summary-label">
+            OVERS
+          </div>
+
           <div class="summary-value">
             ${escapeHTML(overs)}
           </div>
+
         </div>
 
       </div>
+
 
       <div style="font-weight:800;margin-top:10px;">
         🏏 Batting
       </div>
+
 
       <div class="table-wrap">
 
         <table>
 
           <thead>
+
             <tr>
+
               <th>Batter</th>
               <th>R</th>
               <th>B</th>
               <th>4s</th>
               <th>6s</th>
               <th>SR</th>
+
             </tr>
+
           </thead>
 
           <tbody>
@@ -2285,23 +3269,29 @@ function renderInnings(innings,index){
 
       </div>
 
+
       <div style="font-weight:800;margin-top:14px;">
         🎯 Bowling
       </div>
+
 
       <div class="table-wrap">
 
         <table>
 
           <thead>
+
             <tr>
+
               <th>Bowler</th>
               <th>O</th>
               <th>M</th>
               <th>R</th>
               <th>W</th>
               <th>Eco</th>
+
             </tr>
+
           </thead>
 
           <tbody>
@@ -2313,127 +3303,198 @@ function renderInnings(innings,index){
       </div>
 
     </div>
+
   `;
+
 }
 
-function renderScorecard(data,id){
+
+function renderScorecard(
+  data,
+  id
+){
 
   const output =
     $("scorecardOutput");
 
-  const payload =
-    unwrapData(data);
 
   const innings =
     findInnings(data);
 
+
   let html = `
+
     <div class="success">
+
       Scorecard data received successfully.
+
       <br>
+
       <span style="font-size:10px;">
         Match ID: ${escapeHTML(id)}
       </span>
+
     </div>
+
   `;
+
 
   const matchName =
     findValue(
+
       data,
+
       [
         "match_name",
         "matchName",
         "name",
         "title"
       ]
+
     );
+
 
   if(matchName){
 
     html += `
-      <div class="card" style="margin-top:10px;">
-        <b>🏏 ${escapeHTML(matchName)}</b>
+
+      <div class="card"
+           style="margin-top:10px;">
+
+        <b>
+          🏏 ${escapeHTML(matchName)}
+        </b>
+
       </div>
+
     `;
+
   }
 
-  /*
-    यदि innings मिलती हैं तो tables दिखाएँ।
-  */
-  if(Array.isArray(innings) && innings.length){
 
-    html += innings
-      .map((item,index)=>
-        renderInnings(item,index)
-      )
-      .join("");
+  if(
+    Array.isArray(innings) &&
+    innings.length
+  ){
+
+    html +=
+
+      innings
+        .map(
+          (item,index)=>
+            renderInnings(
+              item,
+              index
+            )
+        )
+        .join("");
+
 
   }else{
 
-    /*
-      कुछ API response में scorecard structure अलग हो सकता है।
-      Raw response हमेशा उपलब्ध रहेगा।
-    */
-
     const score =
       findValue(
+
         data,
+
         [
           "score",
           "current_score",
           "currentScore",
           "runs"
         ]
+
       );
+
 
     const overs =
       findValue(
+
         data,
+
         [
           "overs",
           "current_overs",
           "currentOvers"
         ]
+
       );
+
 
     if(score || overs){
 
       html += `
+
         <div class="score-summary">
 
           <div class="summary-box">
-            <div class="summary-label">SCORE</div>
+
+            <div class="summary-label">
+              SCORE
+            </div>
+
             <div class="summary-value">
               ${escapeHTML(score || "-")}
             </div>
+
           </div>
 
+
           <div class="summary-box">
-            <div class="summary-label">OVERS</div>
+
+            <div class="summary-label">
+              OVERS
+            </div>
+
             <div class="summary-value">
               ${escapeHTML(overs || "-")}
             </div>
+
           </div>
 
         </div>
+
       `;
+
     }
 
+
     html += `
+
       <div class="info">
-        ℹ️ Scorecard response मिला है। नीचे Full API Response देखें।
+
+        ℹ️ Scorecard response मिला है।
+        नीचे Full API Response देखें।
+
       </div>
+
     `;
+
   }
 
+
   html += `
+
     <details class="raw">
-      <summary>🔎 Full API Response</summary>
-      <pre>${escapeHTML(JSON.stringify(data,null,2))}</pre>
+
+      <summary>
+        🔎 Full API Response
+      </summary>
+
+      <pre>
+${escapeHTML(
+  JSON.stringify(data,null,2)
+)}
+      </pre>
+
     </details>
+
   `;
 
-  output.innerHTML = html;
+
+  output.innerHTML =
+    html;
+
 }
 
 
@@ -2443,13 +3504,20 @@ function renderScorecard(data,id){
 
 function clearBall(){
 
-  $("ballMatchId").value = "";
-  $("ballOutput").innerHTML = "";
+  $("ballMatchId").value =
+    "";
+
+
+  $("ballOutput").innerHTML =
+    "";
+
 }
+
 
 function findCommentary(data){
 
   const preferredKeys = [
+
     "commentary",
     "commentaries",
     "comments",
@@ -2458,7 +3526,9 @@ function findCommentary(data){
     "deliveries",
     "balls",
     "events"
+
   ];
+
 
   const found =
     findArrayByKeys(
@@ -2466,20 +3536,33 @@ function findCommentary(data){
       preferredKeys
     );
 
+
   return found || [];
+
 }
+
 
 function getBallText(ball){
 
-  if(ball === null || ball === undefined){
+  if(
+    ball === null ||
+    ball === undefined
+  ){
+
     return "";
+
   }
+
 
   if(typeof ball === "string"){
+
     return ball;
+
   }
 
+
   return safeString(
+
     ball.commentary ??
     ball.comment ??
     ball.text ??
@@ -2488,40 +3571,63 @@ function getBallText(ball){
     ball.result ??
     ball.message ??
     ""
+
   );
+
 }
+
 
 function getBallOver(ball){
 
-  if(!ball || typeof ball !== "object"){
+  if(
+    !ball ||
+    typeof ball !== "object"
+  ){
+
     return "";
+
   }
 
+
   return safeString(
+
     ball.over ??
     ball.over_number ??
     ball.overNumber ??
     ball.ball ??
     ball.delivery ??
     ""
+
   );
+
 }
+
 
 function renderMiniScore(data){
 
   const mini =
     findValue(
+
       data,
+
       [
         "miniscore",
         "mini_score",
         "miniScore"
       ]
+
     );
 
-  if(!mini || typeof mini !== "object"){
+
+  if(
+    !mini ||
+    typeof mini !== "object"
+  ){
+
     return "";
+
   }
+
 
   const score =
     mini.score ??
@@ -2529,11 +3635,13 @@ function renderMiniScore(data){
     mini.currentScore ??
     "";
 
+
   const overs =
     mini.overs ??
     mini.current_overs ??
     mini.currentOvers ??
     "";
+
 
   const striker =
     mini.striker ??
@@ -2541,196 +3649,327 @@ function renderMiniScore(data){
     mini.current_batsman ??
     "";
 
+
   const bowler =
     mini.bowler ??
     mini.current_bowler ??
     "";
 
+
   return `
-    <div class="card" style="margin-top:10px;">
+
+    <div class="card"
+         style="margin-top:10px;">
 
       <h3>📺 Mini Score</h3>
+
 
       <div class="score-summary">
 
         <div class="summary-box">
-          <div class="summary-label">SCORE</div>
+
+          <div class="summary-label">
+            SCORE
+          </div>
+
           <div class="summary-value">
             ${escapeHTML(score || "-")}
           </div>
+
         </div>
 
+
         <div class="summary-box">
-          <div class="summary-label">OVERS</div>
+
+          <div class="summary-label">
+            OVERS
+          </div>
+
           <div class="summary-value">
             ${escapeHTML(overs || "-")}
           </div>
+
         </div>
 
       </div>
 
+
       ${
         striker
-        ? `<div class="match-meta">🏏 Striker: ${escapeHTML(typeof striker==="object" ? playerName(striker) : striker)}</div>`
+        ? `
+          <div class="match-meta">
+            🏏 Striker:
+            ${escapeHTML(
+              typeof striker === "object"
+              ? playerName(striker)
+              : striker
+            )}
+          </div>
+        `
         : ""
       }
 
+
       ${
         bowler
-        ? `<div class="match-meta">🎯 Bowler: ${escapeHTML(typeof bowler==="object" ? playerName(bowler) : bowler)}</div>`
+        ? `
+          <div class="match-meta">
+            🎯 Bowler:
+            ${escapeHTML(
+              typeof bowler === "object"
+              ? playerName(bowler)
+              : bowler
+            )}
+          </div>
+        `
         : ""
       }
 
     </div>
+
   `;
+
 }
+
 
 async function loadBallByBall(){
 
   const id =
-    safeString($("ballMatchId").value).trim();
+    safeString(
+      $("ballMatchId").value
+    ).trim();
+
 
   const output =
     $("ballOutput");
 
+
   if(!id){
 
     output.innerHTML = `
+
       <div class="error">
         ❌ पहले Match ID डालें।
       </div>
+
     `;
 
     return;
+
   }
+
 
   showLoading(
     output,
     "Ball-by-ball commentary loading..."
   );
 
+
   try{
 
     const data =
       await getJSON(
+
         API_BASE +
         "/api/ball-by-ball?id=" +
         encodeURIComponent(id)
+
       );
 
-    renderBallByBall(data,id);
+
+    renderBallByBall(
+      data,
+      id
+    );
+
 
   }catch(error){
 
-    showError(output,error);
+    showError(
+      output,
+      error
+    );
+
   }
+
 }
 
-function renderBallByBall(data,id){
+
+function renderBallByBall(
+  data,
+  id
+){
 
   const output =
     $("ballOutput");
 
+
   let html = `
+
     <div class="success">
+
       Ball-by-ball data received successfully.
+
       <br>
+
       <span style="font-size:10px;">
         Match ID: ${escapeHTML(id)}
       </span>
+
     </div>
+
   `;
 
-  html += renderMiniScore(data);
+
+  html +=
+    renderMiniScore(data);
+
 
   const commentary =
     findCommentary(data);
 
-  if(Array.isArray(commentary) && commentary.length){
+
+  if(
+    Array.isArray(commentary) &&
+    commentary.length
+  ){
 
     html += `
-      <div class="card" style="margin-top:10px;">
-        <h3>🏏 Commentary</h3>
+
+      <div class="card"
+           style="margin-top:10px;">
+
+        <h3>
+          🏏 Commentary
+        </h3>
+
       </div>
+
     `;
+
 
     const items =
       commentary
         .slice(-50)
         .reverse();
 
-    items.forEach((ball,index)=>{
 
-      const text =
-        getBallText(ball);
+    items.forEach(
+      (ball,index)=>{
 
-      const over =
-        getBallOver(ball);
+        const text =
+          getBallText(ball);
 
-      if(!text){
 
-        /*
-          अगर object में text नहीं मिला,
-          तो compact JSON दिखाएँ।
-        */
+        const over =
+          getBallOver(ball);
 
-        if(typeof ball === "object"){
 
-          html += `
-            <div class="ball-item">
+        if(!text){
 
-              <div class="ball-over">
-                ${escapeHTML(over || ("Ball " + (index+1)))}
+          if(
+            typeof ball === "object"
+          ){
+
+            html += `
+
+              <div class="ball-item">
+
+                <div class="ball-over">
+
+                  ${escapeHTML(
+                    over ||
+                    ("Ball " + (index+1))
+                  )}
+
+                </div>
+
+                <div class="ball-text">
+
+                  ${escapeHTML(
+                    JSON.stringify(ball)
+                  )}
+
+                </div>
+
               </div>
 
-              <div class="ball-text">
-                ${escapeHTML(
-                  JSON.stringify(ball)
-                )}
-              </div>
+            `;
 
-            </div>
-          `;
+          }
+
+          return;
 
         }
 
-        return;
+
+        html += `
+
+          <div class="ball-item">
+
+            <div class="ball-over">
+
+              ${escapeHTML(
+                over ||
+                ("Ball " + (index+1))
+              )}
+
+            </div>
+
+            <div class="ball-text">
+
+              ${escapeHTML(text)}
+
+            </div>
+
+          </div>
+
+        `;
+
       }
+    );
 
-      html += `
-        <div class="ball-item">
-
-          <div class="ball-over">
-            ${escapeHTML(over || ("Ball " + (index+1)))}
-          </div>
-
-          <div class="ball-text">
-            ${escapeHTML(text)}
-          </div>
-
-        </div>
-      `;
-
-    });
 
   }else{
 
     html += `
-      <div class="info" style="margin-top:10px;">
-        ℹ️ API response मिला है, लेकिन commentary array
-        अलग structure में है। Full response नीचे देखें।
+
+      <div class="info"
+           style="margin-top:10px;">
+
+        ℹ️ API response मिला है,
+        लेकिन commentary array अलग structure में है।
+        Full response नीचे देखें।
+
       </div>
+
     `;
+
   }
 
+
   html += `
+
     <details class="raw">
-      <summary>🔎 Full API Response</summary>
-      <pre>${escapeHTML(JSON.stringify(data,null,2))}</pre>
+
+      <summary>
+        🔎 Full API Response
+      </summary>
+
+      <pre>
+${escapeHTML(
+  JSON.stringify(data,null,2)
+)}
+      </pre>
+
     </details>
+
   `;
 
-  output.innerHTML = html;
+
+  output.innerHTML =
+    html;
+
 }
 
 
@@ -2740,86 +3979,134 @@ function renderBallByBall(data,id){
 
 function clearPoints(){
 
-  $("pointsMatchId").value = "";
-  $("pointsOutput").innerHTML = "";
+  $("pointsMatchId").value =
+    "";
+
+
+  $("pointsOutput").innerHTML =
+    "";
+
 }
+
 
 async function loadPoints(){
 
   const id =
-    safeString($("pointsMatchId").value).trim();
+    safeString(
+      $("pointsMatchId").value
+    ).trim();
+
 
   const output =
     $("pointsOutput");
 
+
   if(!id){
 
     output.innerHTML = `
+
       <div class="error">
         ❌ पहले Match ID डालें।
       </div>
+
     `;
 
     return;
+
   }
+
 
   showLoading(
     output,
     "Points information checking..."
   );
 
+
   try{
 
     const data =
       await getJSON(
+
         API_BASE +
         "/api/match-points?id=" +
         encodeURIComponent(id)
+
       );
+
 
     if(data?.available === false){
 
       output.innerHTML = `
+
         <div class="info">
+
           ℹ️ ${escapeHTML(
             data.error ||
             "Points endpoint available नहीं है।"
           )}
+
         </div>
+
       `;
 
       return;
+
     }
+
 
     if(data?.success === false){
 
       output.innerHTML = `
+
         <div class="info">
+
           ℹ️ ${escapeHTML(
             data.error ||
             "Points data available नहीं है।"
           )}
+
         </div>
+
       `;
 
       return;
+
     }
 
+
     output.innerHTML = `
+
       <div class="success">
         🎯 Points data received.
       </div>
 
+
       <details class="raw">
-        <summary>🔎 Points API Response</summary>
-        <pre>${escapeHTML(JSON.stringify(data,null,2))}</pre>
+
+        <summary>
+          🔎 Points API Response
+        </summary>
+
+        <pre>
+${escapeHTML(
+  JSON.stringify(data,null,2)
+)}
+        </pre>
+
       </details>
+
     `;
+
 
   }catch(error){
 
-    showError(output,error);
+    showError(
+      output,
+      error
+    );
+
   }
+
 }
 
 
@@ -2827,63 +4114,91 @@ async function loadPoints(){
    AI IMAGE
 ============================================================ */
 
-function showGeneratedImage(container,image,mimeType,prompt){
+function showGeneratedImage(
+  container,
+  image,
+  mimeType,
+  prompt
+){
 
   if(!image){
 
     container.innerHTML = `
+
       <div class="error">
         ❌ Image data नहीं मिला।
       </div>
+
     `;
 
     return;
+
   }
 
+
   let src = "";
+
 
   if(
     typeof image === "string" &&
     image.startsWith("data:")
   ){
+
     src = image;
-  }
-  else if(
+
+  }else if(
+
     typeof image === "string" &&
+
     (
       image.startsWith("http://") ||
       image.startsWith("https://") ||
       image.startsWith("blob:")
     )
+
   ){
+
     src = image;
-  }
-  else if(typeof image === "string"){
+
+  }else if(
+    typeof image === "string"
+  ){
 
     src =
       "data:" +
-      (mimeType || "image/jpeg") +
+      (
+        mimeType ||
+        "image/jpeg"
+      ) +
       ";base64," +
       image;
-  }
-  else{
+
+  }else{
 
     container.innerHTML = `
+
       <div class="error">
         ❌ Unsupported image response.
       </div>
+
     `;
 
     return;
+
   }
+
 
   container.innerHTML = `
 
     <img
       src="${escapeHTML(src)}"
       alt="Generated Cricket Image"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
+      onerror="
+        this.style.display='none';
+        this.nextElementSibling.style.display='block';
+      "
     >
+
 
     <div
       class="error"
@@ -2892,107 +4207,155 @@ function showGeneratedImage(container,image,mimeType,prompt){
       ❌ Image display नहीं हो सकी।
     </div>
 
+
     ${
       prompt
       ? `
+
         <details class="prompt-box">
-          <summary>📝 Generated Prompt</summary>
+
+          <summary>
+            📝 Generated Prompt
+          </summary>
+
           <div style="margin-top:7px;">
             ${escapeHTML(prompt)}
           </div>
+
         </details>
+
       `
       : ""
     }
 
   `;
+
 }
 
-async function generateImageFromPrompt(prompt,output){
+
+async function generateImageFromPrompt(
+  prompt,
+  output
+){
 
   output.innerHTML = `
+
     <div class="loading">
+
       🤖 AI image generate हो रही है...
+
       <br>
+
       <span style="font-size:10px;">
         इसमें थोड़ा समय लग सकता है।
       </span>
+
     </div>
+
   `;
+
 
   try{
 
-    /*
-      IMPORTANT:
-      Worker /api/generate-image को prompt POST किया जाता है।
-      यही working AI flow है।
-    */
-
     const response =
       await fetch(
-        API_BASE + "/api/generate-image",
+
+        API_BASE +
+        "/api/generate-image",
+
         {
+
           method:"POST",
+
           headers:{
-            "Content-Type":"application/json"
+            "Content-Type":
+              "application/json"
           },
-          body:JSON.stringify({
-            prompt:prompt
-          })
+
+          body:
+            JSON.stringify({
+              prompt:prompt
+            })
+
         }
+
       );
 
+
     const contentType =
-      response.headers.get("content-type") || "";
+      response.headers
+        .get("content-type") || "";
+
 
     if(!response.ok){
 
       let message =
-        "HTTP " + response.status;
+        "HTTP " +
+        response.status;
+
 
       try{
 
-        if(contentType.includes("application/json")){
+        if(
+          contentType.includes(
+            "application/json"
+          )
+        ){
 
           const err =
             await response.json();
+
 
           message =
             err?.error ||
             err?.message ||
             message;
+
         }else{
 
           const text =
             await response.text();
 
+
           if(text){
-            message = text;
+
+            message =
+              text;
+
           }
+
         }
 
       }catch(e){}
 
+
       throw new Error(message);
+
     }
 
-    /*
-      JSON image response
-    */
 
-    if(contentType.includes("application/json")){
+    if(
+      contentType.includes(
+        "application/json"
+      )
+    ){
 
       const data =
         await response.json();
 
+
       if(data?.success === false){
 
         throw new Error(
+
           data.error ||
           data.message ||
           "Image generation failed"
+
         );
+
       }
+
 
       const image =
         data?.image ??
@@ -3000,66 +4363,98 @@ async function generateImageFromPrompt(prompt,output){
         data?.base64 ??
         data?.data;
 
+
       if(!image){
 
         throw new Error(
           "Worker response में image नहीं मिली।"
         );
+
       }
 
+
       showGeneratedImage(
+
         output,
+
         image,
+
         data?.mimeType ||
         data?.contentType ||
         "image/jpeg",
-        data?.prompt || prompt
+
+        data?.prompt ||
+        prompt
+
       );
 
+
       return;
+
     }
 
-    /*
-      Binary image response
-    */
 
-    if(contentType.startsWith("image/")){
+    if(
+      contentType.startsWith("image/")
+    ){
 
       const blob =
         await response.blob();
 
+
       const url =
         URL.createObjectURL(blob);
 
+
       output.innerHTML = `
+
         <img
           src="${url}"
           alt="Generated Cricket Image"
         >
 
+
         <details class="prompt-box">
-          <summary>📝 Generated Prompt</summary>
+
+          <summary>
+            📝 Generated Prompt
+          </summary>
+
           <div style="margin-top:7px;">
             ${escapeHTML(prompt)}
           </div>
+
         </details>
+
       `;
 
+
       return;
+
     }
+
 
     throw new Error(
       "Worker ने image/JSON response नहीं दिया।"
     );
 
+
   }catch(error){
 
     output.innerHTML = `
+
       <div class="error">
-        ❌ ${escapeHTML(error.message || error)}
+
+        ❌ ${escapeHTML(
+          error.message || error
+        )}
+
       </div>
+
     `;
+
   }
+
 }
 
 
@@ -3070,45 +4465,85 @@ async function generateImageFromPrompt(prompt,output){
 async function generatePlayerImage(){
 
   const name =
-    safeString($("playerName").value).trim();
+    safeString(
+      $("playerName").value
+    ).trim();
+
 
   const team =
-    safeString($("playerTeam").value).trim();
+    safeString(
+      $("playerTeam").value
+    ).trim();
+
 
   const pose =
-    safeString($("playerPose").value).trim();
+    safeString(
+      $("playerPose").value
+    ).trim();
+
 
   const type =
-    safeString($("playerType").value).trim();
+    safeString(
+      $("playerType").value
+    ).trim();
+
 
   const hand =
-    safeString($("playerHand").value).trim();
+    safeString(
+      $("playerHand").value
+    ).trim();
+
 
   const style =
-    safeString($("playerStyle").value).trim();
+    safeString(
+      $("playerStyle").value
+    ).trim();
+
 
   const jersey =
-    safeString($("playerJersey").value).trim();
+    safeString(
+      $("playerJersey").value
+    ).trim();
+
 
   const number =
-    safeString($("playerNumber").value).trim();
+    safeString(
+      $("playerNumber").value
+    ).trim();
+
 
   const stadium =
-    safeString($("playerStadium").value).trim();
+    safeString(
+      $("playerStadium").value
+    ).trim();
+
 
   const weather =
-    safeString($("playerWeather").value).trim();
+    safeString(
+      $("playerWeather").value
+    ).trim();
+
 
   const time =
-    safeString($("playerTime").value).trim();
+    safeString(
+      $("playerTime").value
+    ).trim();
+
 
   const camera =
-    safeString($("playerCamera").value).trim();
+    safeString(
+      $("playerCamera").value
+    ).trim();
+
 
   const tournament =
-    safeString($("playerTournament").value).trim();
+    safeString(
+      $("playerTournament").value
+    ).trim();
+
 
   const prompt = `
+
 Photorealistic cinematic cricket sports photography of ${name},
 representing ${team}, playing as a ${type},
 ${hand}, performing ${pose}.
@@ -3132,12 +4567,18 @@ powerful sports atmosphere.
 
 No text, no logo, no watermark,
 no unnecessary graphics.
+
   `.trim();
 
+
   await generateImageFromPrompt(
+
     prompt,
+
     $("playerOutput")
+
   );
+
 }
 
 
@@ -3148,21 +4589,37 @@ no unnecessary graphics.
 async function generatePoster(){
 
   const player =
-    safeString($("posterPlayer").value).trim();
+    safeString(
+      $("posterPlayer").value
+    ).trim();
+
 
   const team =
-    safeString($("posterTeam").value).trim();
+    safeString(
+      $("posterTeam").value
+    ).trim();
+
 
   const match =
-    safeString($("posterMatch").value).trim();
+    safeString(
+      $("posterMatch").value
+    ).trim();
+
 
   const type =
-    safeString($("posterType").value).trim();
+    safeString(
+      $("posterType").value
+    ).trim();
+
 
   const stadium =
-    safeString($("posterStadium").value).trim();
+    safeString(
+      $("posterStadium").value
+    ).trim();
+
 
   const prompt = `
+
 Epic photorealistic cinematic cricket poster.
 
 Main cricket player: ${player}.
@@ -3184,12 +4641,18 @@ Vertical 9:16 composition.
 Keep the main player and stadium visually centered.
 No text, no logo, no watermark,
 no unnecessary graphics.
+
   `.trim();
 
+
   await generateImageFromPrompt(
+
     prompt,
+
     $("posterOutput")
+
   );
+
 }
 
 
@@ -3200,18 +4663,31 @@ no unnecessary graphics.
 async function generatePlayerCard(){
 
   const player =
-    safeString($("cardPlayer").value).trim();
+    safeString(
+      $("cardPlayer").value
+    ).trim();
+
 
   const team =
-    safeString($("cardTeam").value).trim();
+    safeString(
+      $("cardTeam").value
+    ).trim();
+
 
   const number =
-    safeString($("cardNumber").value).trim();
+    safeString(
+      $("cardNumber").value
+    ).trim();
+
 
   const rating =
-    safeString($("cardRating").value).trim();
+    safeString(
+      $("cardRating").value
+    ).trim();
+
 
   const prompt = `
+
 Premium photorealistic cricket player card artwork.
 
 Cricket player: ${player}.
@@ -3232,12 +4708,18 @@ premium collectible sports card visual style.
 Vertical composition.
 No written text, no logos, no watermark,
 no fake typography, no unnecessary graphics.
+
   `.trim();
 
+
   await generateImageFromPrompt(
+
     prompt,
+
     $("cardOutput")
+
   );
+
 }
 
 
@@ -3248,15 +4730,21 @@ no fake typography, no unnecessary graphics.
 function openNews(url){
 
   window.open(
+
     url,
+
     "_blank",
+
     "noopener,noreferrer"
+
   );
+
 }
 
 
 /* ============================================================
    LIVE MODE
+   AUTO REFRESH = 2 MINUTES
 ============================================================ */
 
 function openLiveMode(){
@@ -3264,26 +4752,44 @@ function openLiveMode(){
   const overlay =
     $("liveMode");
 
+
   overlay.classList.add("show");
 
-  liveModeCountdown = 15;
+
+  liveModeCountdown =
+    120;
+
+
+  $("liveTimer").textContent =
+    "Auto refresh: 120 seconds";
+
 
   loadLiveMode();
 
-  clearInterval(liveModeTimer);
+
+  clearInterval(
+    liveModeTimer
+  );
+
 
   liveModeTimer =
     setInterval(()=>{
 
       liveModeCountdown--;
 
-      if(liveModeCountdown <= 0){
 
-        liveModeCountdown = 15;
+      if(
+        liveModeCountdown <= 0
+      ){
+
+        liveModeCountdown =
+          120;
+
 
         loadLiveMode();
 
       }
+
 
       $("liveTimer").textContent =
         "Auto refresh: " +
@@ -3291,35 +4797,54 @@ function openLiveMode(){
         " seconds";
 
     },1000);
+
 }
+
 
 function closeLiveMode(){
 
-  $("liveMode").classList.remove("show");
+  $("liveMode")
+    .classList
+    .remove("show");
 
-  clearInterval(liveModeTimer);
 
-  liveModeTimer = null;
+  clearInterval(
+    liveModeTimer
+  );
+
+
+  liveModeTimer =
+    null;
+
 }
+
 
 async function loadLiveMode(){
 
   const container =
     $("liveModeContent");
 
+
   container.innerHTML =
-    `<div class="loading">⏳ Live score loading...</div>`;
+    `<div class="loading">
+      ⏳ Live score loading...
+    </div>`;
+
 
   try{
 
     const data =
       await getJSON(
-        API_BASE + "/api/live-score"
+        API_BASE +
+        "/api/live-score"
       );
+
 
     let matches =
       findArrayByKeys(
+
         data,
+
         [
           "matches",
           "data",
@@ -3327,32 +4852,56 @@ async function loadLiveMode(){
           "live",
           "live_matches"
         ]
+
       ) || [];
 
-    if(!matches.length && Array.isArray(data?.data)){
-      matches = data.data;
+
+    if(
+      !matches.length &&
+      Array.isArray(data?.data)
+    ){
+
+      matches =
+        data.data;
+
     }
+
 
     if(!matches.length){
 
       container.innerHTML = `
+
         <div class="empty">
           🔴 अभी कोई live match नहीं है।
         </div>
+
       `;
 
       return;
+
     }
+
 
     container.innerHTML =
       matches
-        .map(match=>renderMatchCard(match,true))
+        .map(match=>
+          renderMatchCard(
+            match,
+            true
+          )
+        )
         .join("");
+
 
   }catch(error){
 
-    showError(container,error);
+    showError(
+      container,
+      error
+    );
+
   }
+
 }
 
 
@@ -3360,11 +4909,45 @@ async function loadLiveMode(){
    STARTUP
 ============================================================ */
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener(
+  "DOMContentLoaded",
+  ()=>{
 
-  loadScores();
+    /* First load immediately */
+    loadScores();
 
-});
+
+    /*
+      LIVE SCORE AUTO REFRESH
+      120000 milliseconds = 2 minutes
+    */
+
+    clearInterval(
+      liveAutoRefreshTimer
+    );
+
+
+    liveAutoRefreshTimer =
+      setInterval(
+
+        ()=>{
+
+          /*
+            Only refresh Live Score section.
+            Scorecard, Ball-by-Ball, AI etc.
+            are NOT automatically called.
+          */
+
+          loadScores();
+
+        },
+
+        LIVE_REFRESH_MS
+
+      );
+
+  }
+);
 
 </script>
 
