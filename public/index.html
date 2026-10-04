@@ -7,6 +7,7 @@
 <title>Cricket Short</title>
 
 <style>
+
 *{
   box-sizing:border-box;
   margin:0;
@@ -467,8 +468,172 @@ footer{
   color:#a9bddb;
 }
 
-details{
+.score-table td{
+  color:#e4edff;
+}
+
+.innings-header{
+  padding:12px;
+  background:#10294f;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.innings-score{
+  font-size:20px;
+  font-weight:bold;
+  margin-top:3px;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+.batting-table,
+.bowling-table{
+  width:100%;
+  min-width:520px;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+.batting-table th,
+.batting-table td,
+.bowling-table th,
+.bowling-table td{
+  padding:8px 7px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  text-align:left;
+}
+
+.batting-table th,
+.bowling-table th{
+  color:#9fb5d7;
+  background:#0b203f;
+}
+
+.player-name{
+  font-weight:bold;
+}
+
+.dismissal{
+  display:block;
+  color:#8fa7ca;
+  font-size:10px;
+  margin-top:2px;
+}
+
+.commentary-card{
+  background:#091b38;
+  border:1px solid #203d67;
+  border-radius:12px;
+  padding:11px;
+  margin-top:8px;
+}
+
+.commentary-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  margin-bottom:5px;
+}
+
+.ball-number{
+  font-weight:bold;
+  color:#7fb2ff;
+}
+
+.commentary-text{
+  font-size:13px;
+  color:#edf4ff;
+}
+
+.commentary-detail{
+  color:#91a8ca;
+  font-size:11px;
+  margin-top:4px;
+}
+
+.mini-score{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:10px 0;
+}
+
+.mini-score-box{
+  background:#10284d;
+  border-radius:10px;
+  padding:10px;
+  text-align:center;
+}
+
+.mini-score-label{
+  color:#9eb4d5;
+  font-size:11px;
+}
+
+.mini-score-value{
+  font-size:19px;
+  font-weight:bold;
+  margin-top:3px;
+}
+
+.last-balls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+
+.ball-chip{
+  min-width:30px;
+  padding:6px 7px;
+  border-radius:8px;
+  background:#16335b;
+  text-align:center;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
   margin-top:10px;
+}
+
+.info-box{
+  background:#0a1d3a;
+  border:1px solid #1d3961;
+  border-radius:10px;
+  padding:9px;
+}
+
+.info-label{
+  color:#8fa7ca;
+  font-size:10px;
+}
+
+.info-value{
+  color:#e8f0ff;
+  font-size:13px;
+  margin-top:2px;
+  overflow-wrap:anywhere;
+}
+
+.points-note{
+  background:#182f50;
+  border:1px solid #2c4c76;
+  color:#bfd0e9;
+  border-radius:11px;
+  padding:12px;
+  margin-top:10px;
+  font-size:12px;
+}
+
+details{
+  margin-top:12px;
 }
 
 summary{
@@ -506,6 +671,11 @@ summary{
   .generated-actions{
     grid-template-columns:1fr;
   }
+
+  .info-grid{
+    grid-template-columns:1fr;
+  }
+
 }
 
 </style>
@@ -522,48 +692,39 @@ summary{
 
 <nav class="nav">
 
-  <button class="active"
-    onclick="showSection('live',this)">
+  <button class="active" onclick="showSection('live',this)">
     🔴 Live
   </button>
 
-  <button
-    onclick="showSection('fixtures',this)">
+  <button onclick="showSection('fixtures',this)">
     📅 Fixtures
   </button>
 
-  <button
-    onclick="showSection('scorecard',this)">
+  <button onclick="showSection('scorecard',this)">
     📊 Scorecard
   </button>
 
-  <button
-    onclick="showSection('ball',this)">
+  <button onclick="showSection('ball',this)">
     🏏 Ball-by-Ball
   </button>
 
-  <button
-    onclick="showSection('points',this)">
+  <button onclick="showSection('points',this)">
     🎯 Points
   </button>
 
-  <button
-    onclick="showSection('ai',this)">
+  <button onclick="showSection('ai',this)">
     🤖 AI Player
   </button>
 
-  <button
-    onclick="showSection('poster',this)">
+  <button onclick="showSection('poster',this)">
     🎨 Poster
   </button>
 
-  <button
-    onclick="showSection('playercard',this)">
+  <button onclick="showSection('playercard',this)">
     🪪 Player Card
   </button>
 
-  <button
-    onclick="showSection('news',this)">
+  <button onclick="showSection('news',this)">
     📰 News
   </button>
 
@@ -585,9 +746,7 @@ summary{
 
         <h2>🔴 Live Cricket</h2>
 
-        <p
-          class="muted"
-          id="liveInfo">
+        <p class="muted" id="liveInfo">
           Loading live matches...
         </p>
 
@@ -631,8 +790,7 @@ summary{
 
     <div class="filter-row">
 
-      <button
-        class="active"
+      <button class="active"
         onclick="setFixtureFilter('all',this)">
         All
       </button>
@@ -693,7 +851,8 @@ summary{
         inputmode="text"
         autocomplete="off"
         spellcheck="false"
-        placeholder="Example: 151554">
+        placeholder="Example: 174340"
+        value="">
 
     </div>
 
@@ -738,6 +897,7 @@ summary{
         type="text"
         inputmode="text"
         autocomplete="off"
+        spellcheck="false"
         placeholder="Enter Match ID">
 
     </div>
@@ -783,6 +943,7 @@ summary{
         type="text"
         inputmode="text"
         autocomplete="off"
+        spellcheck="false"
         placeholder="Enter Match ID">
 
     </div>
@@ -1401,8 +1562,7 @@ function getMatchId(match){
 
 
 /* ============================================================
-   TEAM NAME - FIXED
-   Prevents [object Object]
+   TEAM NAME
 ============================================================ */
 
 function extractTeamName(team){
@@ -1416,8 +1576,6 @@ function extractTeamName(team){
 
   }
 
-  /* Team अगर पहले से string है */
-
   if(
     typeof team === "string"
   ){
@@ -1425,8 +1583,6 @@ function extractTeamName(team){
     return team.trim();
 
   }
-
-  /* Team अगर object है */
 
   if(
     typeof team === "object"
@@ -1530,9 +1686,7 @@ function getScores(match){
 
       {
         team:
-          extractTeamName(
-            match.team1
-          ) ||
+          extractTeamName(match.team1) ||
           getTeam1(match),
 
         score:
@@ -1544,9 +1698,7 @@ function getScores(match){
 
       {
         team:
-          extractTeamName(
-            match.team2
-          ) ||
+          extractTeamName(match.team2) ||
           getTeam2(match),
 
         score:
@@ -1562,9 +1714,7 @@ function getScores(match){
 
 
   if(
-    Array.isArray(
-      match?.score
-    )
+    Array.isArray(match?.score)
   ){
 
     return match.score;
@@ -1573,9 +1723,7 @@ function getScores(match){
 
 
   if(
-    Array.isArray(
-      match?.scores
-    )
+    Array.isArray(match?.scores)
   ){
 
     return match.scores;
@@ -1584,20 +1732,13 @@ function getScores(match){
 
 
   if(
-    Array.isArray(
-      match?.teams
-    )
+    Array.isArray(match?.teams)
   ){
 
     return match.teams;
 
   }
 
-
-  /*
-    CricketLiveAPI का direct structure:
-    first_team + second_team
-  */
 
   if(
     match?.first_team ||
@@ -1607,7 +1748,6 @@ function getScores(match){
     return [
 
       match.first_team || {},
-
       match.second_team || {}
 
     ];
@@ -1616,27 +1756,6 @@ function getScores(match){
 
 
   return [];
-
-}
-
-
-/* ============================================================
-   SCORE TEAM - FIXED
-============================================================ */
-
-function scoreTeam(score,index){
-
-  const name =
-    extractTeamName(score);
-
-  if(name){
-
-    return name;
-
-  }
-
-  return "Team " +
-    (index + 1);
 
 }
 
@@ -1789,20 +1908,16 @@ function cleanOvers(overs){
     String(overs).trim();
 
   value =
-    value
-      .replace(
-        /\s*\(\s*[^)]*ov\s*\)\s*$/i,
-        ""
-      )
-      .trim();
+    value.replace(
+      /\s*\(\s*[^)]*ov\s*\)\s*$/i,
+      ""
+    ).trim();
 
   value =
-    value
-      .replace(
-        /\s*ov\s*$/i,
-        ""
-      )
-      .trim();
+    value.replace(
+      /\s*ov\s*$/i,
+      ""
+    ).trim();
 
   return value;
 
@@ -1810,7 +1925,7 @@ function cleanOvers(overs){
 
 
 /* ============================================================
-   FORMAT SCORE + OVERS
+   FORMAT SCORE
 ============================================================ */
 
 function formatScore(score){
@@ -1823,17 +1938,11 @@ function formatScore(score){
       scoreOvers(score)
     );
 
-  /*
-    Direct CricketLiveAPI:
-    score = "192/4 (19.6 ov)"
-  */
-
   if(runs){
 
-    const hasOversInside =
-      /\(\s*[\d.]+\s*ov\s*\)/i.test(runs);
-
-    if(hasOversInside){
+    if(
+      /\(\s*[\d.]+\s*ov\s*\)/i.test(runs)
+    ){
 
       return runs;
 
@@ -1856,10 +1965,7 @@ function formatScore(score){
 
   if(overs){
 
-    return (
-      overs +
-      " ov"
-    );
+    return overs + " ov";
 
   }
 
@@ -1910,7 +2016,7 @@ async function loadScores(){
         "0 live matches";
 
       result.innerHTML =
-        '<div class="empty">कोई live match नहीं मिला।</div>';
+        '<div class="empty">अभी कोई लाइव मैच नहीं है।</div>';
 
       return;
 
@@ -1999,13 +2105,9 @@ function renderMatchCard(
       <div class="status-row">
 
         <div class="match-title">
-
           ${escapeHTML(team1)}
-
           vs
-
           ${escapeHTML(team2)}
-
         </div>
 
         <span class="${
@@ -2096,25 +2198,31 @@ function renderMatchCard(
         : ""
       }
 
-      <div class="actions">
+      ${
+        id
+        ? `
+          <div class="actions">
 
-        <button
-          type="button"
-          onclick="openScorecard('${escapeHTML(id)}')">
+            <button
+              type="button"
+              onclick="openScorecard('${escapeHTML(id)}')">
 
-          📊 Scorecard
+              📊 Scorecard
 
-        </button>
+            </button>
 
-        <button
-          type="button"
-          onclick="openBallByBall('${escapeHTML(id)}')">
+            <button
+              type="button"
+              onclick="openBallByBall('${escapeHTML(id)}')">
 
-          🏏 Ball-by-Ball
+              🏏 Ball-by-Ball
 
-        </button>
+            </button>
 
-      </div>
+          </div>
+        `
+        : ""
+      }
 
     </div>
 
@@ -2153,6 +2261,47 @@ function setFixtureFilter(
 
 
 /* ============================================================
+   FIXTURE STATUS
+============================================================ */
+
+function fixtureStatus(match){
+
+  const text =
+    String(
+      match?.status ??
+      match?.status_detail ??
+      match?.state ??
+      match?.short_status ??
+      ""
+    ).toLowerCase();
+
+  if(
+    text.includes("live") ||
+    text.includes("progress") ||
+    text.includes("playing")
+  ){
+
+    return "live";
+
+  }
+
+  if(
+    text.includes("won") ||
+    text.includes("result") ||
+    text.includes("complete") ||
+    text.includes("finished")
+  ){
+
+    return "results";
+
+  }
+
+  return "upcoming";
+
+}
+
+
+/* ============================================================
    FIXTURES LOAD
 ============================================================ */
 
@@ -2172,24 +2321,34 @@ async function loadFixtures(
 
     const data =
       await getJSON(
-        "/api/fixtures?filter=" +
-        encodeURIComponent(filter)
+        "/api/fixtures"
       );
 
-    const matches =
+    let matches =
       Array.isArray(data)
         ? data
         : (
+          data?.fixtures ??
           data?.matches ??
           data?.data ??
           data?.results ??
           []
         );
 
+    if(filter !== "all"){
+
+      matches =
+        matches.filter(
+          match =>
+            fixtureStatus(match) === filter
+        );
+
+    }
+
     if(!matches.length){
 
       result.innerHTML =
-        '<div class="empty">कोई fixture नहीं मिला।</div>';
+        '<div class="empty">इस category में कोई match नहीं मिला।</div>';
 
       return;
 
@@ -2243,6 +2402,7 @@ function renderFixtureCard(match){
     match?.date ??
     match?.startDate ??
     match?.start_date ??
+    match?.dateTimeGMT ??
     "";
 
   return `
@@ -2252,19 +2412,13 @@ function renderFixtureCard(match){
       <div class="status-row">
 
         <div class="match-title">
-
           ${escapeHTML(team1)}
           vs
           ${escapeHTML(team2)}
-
         </div>
 
         <span class="result-badge">
-
-          ${escapeHTML(
-            status || "MATCH"
-          )}
-
+          ${escapeHTML(status || "MATCH")}
         </span>
 
       </div>
@@ -2299,29 +2453,800 @@ function renderFixtureCard(match){
         : ""
       }
 
-      <div class="actions">
+      ${
+        id
+        ? `
+          <div class="actions">
 
-        <button
-          type="button"
-          onclick="openScorecard('${escapeHTML(id)}')">
+            <button
+              type="button"
+              onclick="openScorecard('${escapeHTML(id)}')">
 
-          📊 Scorecard
+              📊 Scorecard
 
-        </button>
+            </button>
 
-        <button
-          type="button"
-          onclick="openBallByBall('${escapeHTML(id)}')">
+            <button
+              type="button"
+              onclick="openBallByBall('${escapeHTML(id)}')">
 
-          🏏 Ball-by-Ball
+              🏏 Ball-by-Ball
 
-        </button>
+            </button>
 
-      </div>
+          </div>
+        `
+        : ""
+      }
 
     </div>
 
   `;
+
+}
+
+
+/* ============================================================
+   GENERIC VALUE HELPER
+============================================================ */
+
+function firstValue(obj,keys){
+
+  if(!obj || typeof obj !== "object"){
+
+    return "";
+
+  }
+
+  for(
+    const key of keys
+  ){
+
+    const value =
+      obj[key];
+
+    if(
+      value !== undefined &&
+      value !== null &&
+      value !== ""
+    ){
+
+      if(
+        typeof value === "object"
+      ){
+
+        if(
+          Array.isArray(value)
+        ){
+
+          return value.length
+            ? value
+            : "";
+
+        }
+
+        continue;
+
+      }
+
+      return value;
+
+    }
+
+  }
+
+  return "";
+
+}
+
+
+/* ============================================================
+   ARRAY FINDER
+   Finds useful arrays inside API response
+============================================================ */
+
+function findArrayByKeys(
+  root,
+  keys,
+  maxDepth=7
+){
+
+  const wanted =
+    keys.map(
+      key =>
+        key.toLowerCase()
+    );
+
+  const visited =
+    new Set();
+
+  function walk(
+    value,
+    depth
+  ){
+
+    if(
+      depth > maxDepth ||
+      value === null ||
+      value === undefined
+    ){
+
+      return null;
+
+    }
+
+    if(
+      typeof value !== "object"
+    ){
+
+      return null;
+
+    }
+
+    if(
+      visited.has(value)
+    ){
+
+      return null;
+
+    }
+
+    visited.add(value);
+
+
+    if(Array.isArray(value)){
+
+      if(value.length){
+
+        return value;
+
+      }
+
+      return null;
+
+    }
+
+
+    for(
+      const key of Object.keys(value)
+    ){
+
+      if(
+        wanted.includes(
+          key.toLowerCase()
+        ) &&
+        Array.isArray(value[key])
+      ){
+
+        return value[key];
+
+      }
+
+    }
+
+
+    for(
+      const key of Object.keys(value)
+    ){
+
+      const found =
+        walk(
+          value[key],
+          depth + 1
+        );
+
+      if(found){
+
+        return found;
+
+      }
+
+    }
+
+    return null;
+
+  }
+
+  return walk(root,0);
+
+}
+
+
+/* ============================================================
+   SCORECARD INNINGS FINDER
+============================================================ */
+
+function findInnings(
+  payload
+){
+
+  const keys = [
+
+    "scorecard",
+
+    "innings",
+
+    "score",
+
+    "batting",
+
+    "batting_scorecard"
+
+  ];
+
+  const result =
+    findArrayByKeys(
+      payload,
+      keys
+    );
+
+  return Array.isArray(result)
+    ? result
+    : [];
+
+}
+
+
+/* ============================================================
+   PLAYER ARRAY
+============================================================ */
+
+function getPlayerArray(
+  innings,
+  keys
+){
+
+  for(
+    const key of keys
+  ){
+
+    if(
+      Array.isArray(
+        innings?.[key]
+      )
+    ){
+
+      return innings[key];
+
+    }
+
+  }
+
+  return [];
+
+}
+
+
+/* ============================================================
+   BATTER NAME
+============================================================ */
+
+function batterName(player){
+
+  return String(
+    firstValue(
+      player,
+      [
+        "name",
+        "player",
+        "player_name",
+        "batter",
+        "batsman",
+        "full_name"
+      ]
+    ) || ""
+  );
+
+}
+
+
+/* ============================================================
+   BATTER VALUE
+============================================================ */
+
+function playerNumber(
+  player,
+  keys
+){
+
+  const value =
+    firstValue(
+      player,
+      keys
+    );
+
+  if(
+    value === "" ||
+    value === null ||
+    value === undefined
+  ){
+
+    return "-";
+
+  }
+
+  return String(value);
+
+}
+
+
+/* ============================================================
+   DISMISSAL
+============================================================ */
+
+function dismissalText(
+  player
+){
+
+  return String(
+    firstValue(
+      player,
+      [
+        "dismissal",
+        "dismissal_text",
+        "out_desc",
+        "how_out",
+        "status"
+      ]
+    ) || ""
+  );
+
+}
+
+
+/* ============================================================
+   SCORECARD INNINGS RENDER
+============================================================ */
+
+function renderInnings(
+  innings,
+  index
+){
+
+  if(
+    !innings ||
+    typeof innings !== "object"
+  ){
+
+    return "";
+
+  }
+
+
+  const teamName =
+    extractTeamName(
+      innings.team ||
+      innings.team_name ||
+      innings.batting_team ||
+      innings.name
+    ) ||
+    "Innings " +
+    (index + 1);
+
+
+  const score =
+    firstValue(
+      innings,
+      [
+        "score",
+        "summary",
+        "total",
+        "score_text"
+      ]
+    );
+
+
+  const runs =
+    firstValue(
+      innings,
+      [
+        "runs",
+        "r"
+      ]
+    );
+
+
+  const wickets =
+    firstValue(
+      innings,
+      [
+        "wickets",
+        "w"
+      ]
+    );
+
+
+  const overs =
+    firstValue(
+      innings,
+      [
+        "overs",
+        "o"
+      ]
+    );
+
+
+  let scoreText = "";
+
+  if(score){
+
+    scoreText =
+      typeof score === "object"
+        ? formatScore(score)
+        : String(score);
+
+  }else if(
+    runs !== "" ||
+    wickets !== ""
+  ){
+
+    scoreText =
+      String(
+        runs === ""
+          ? "-"
+          : runs
+      ) +
+      "/" +
+      String(
+        wickets === ""
+          ? "0"
+          : wickets
+      );
+
+    if(overs !== ""){
+
+      scoreText +=
+        " (" +
+        String(overs) +
+        " ov)";
+
+    }
+
+  }
+
+
+  const batting =
+    getPlayerArray(
+      innings,
+      [
+        "batting",
+        "batsmen",
+        "batters",
+        "players"
+      ]
+    );
+
+
+  const bowling =
+    getPlayerArray(
+      innings,
+      [
+        "bowling",
+        "bowlers"
+      ]
+    );
+
+
+  let html = `
+
+    <div class="scorecard-team">
+
+      <div class="innings-header">
+
+        <div>
+          🏏 ${escapeHTML(teamName)}
+        </div>
+
+        ${
+          scoreText
+          ? `
+            <div class="innings-score">
+              ${escapeHTML(scoreText)}
+            </div>
+          `
+          : ""
+        }
+
+      </div>
+
+  `;
+
+
+  if(batting.length){
+
+    html += `
+
+      <div class="table-wrap">
+
+        <table class="batting-table">
+
+          <thead>
+
+            <tr>
+
+              <th>Batter</th>
+              <th>R</th>
+              <th>B</th>
+              <th>4s</th>
+              <th>6s</th>
+              <th>SR</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+    `;
+
+
+    batting.forEach(
+      player => {
+
+        const name =
+          batterName(player) ||
+          "Batter";
+
+
+        const dismissal =
+          dismissalText(player);
+
+
+        const runsValue =
+          playerNumber(
+            player,
+            [
+              "runs",
+              "r"
+            ]
+          );
+
+
+        const ballsValue =
+          playerNumber(
+            player,
+            [
+              "balls",
+              "b"
+            ]
+          );
+
+
+        const fours =
+          playerNumber(
+            player,
+            [
+              "fours",
+              "4s",
+              "four"
+            ]
+          );
+
+
+        const sixes =
+          playerNumber(
+            player,
+            [
+              "sixes",
+              "6s",
+              "six"
+            ]
+          );
+
+
+        const strikeRate =
+          playerNumber(
+            player,
+            [
+              "strike_rate",
+              "strikeRate",
+              "sr"
+            ]
+          );
+
+
+        html += `
+
+          <tr>
+
+            <td>
+
+              <span class="player-name">
+                ${escapeHTML(name)}
+              </span>
+
+              ${
+                dismissal
+                ? `
+                  <span class="dismissal">
+                    ${escapeHTML(dismissal)}
+                  </span>
+                `
+                : ""
+              }
+
+            </td>
+
+            <td>
+              ${escapeHTML(runsValue)}
+            </td>
+
+            <td>
+              ${escapeHTML(ballsValue)}
+            </td>
+
+            <td>
+              ${escapeHTML(fours)}
+            </td>
+
+            <td>
+              ${escapeHTML(sixes)}
+            </td>
+
+            <td>
+              ${escapeHTML(strikeRate)}
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    );
+
+
+    html += `
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    `;
+
+  }
+
+
+  if(bowling.length){
+
+    html += `
+
+      <div class="table-wrap">
+
+        <table class="bowling-table">
+
+          <thead>
+
+            <tr>
+
+              <th>Bowler</th>
+              <th>O</th>
+              <th>M</th>
+              <th>R</th>
+              <th>W</th>
+              <th>Econ</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+    `;
+
+
+    bowling.forEach(
+      player => {
+
+        const name =
+          batterName(player) ||
+          "Bowler";
+
+
+        const oversValue =
+          playerNumber(
+            player,
+            [
+              "overs",
+              "o"
+            ]
+          );
+
+
+        const maidens =
+          playerNumber(
+            player,
+            [
+              "maidens",
+              "m"
+            ]
+          );
+
+
+        const runsValue =
+          playerNumber(
+            player,
+            [
+              "runs",
+              "r"
+            ]
+          );
+
+
+        const wickets =
+          playerNumber(
+            player,
+            [
+              "wickets",
+              "w"
+            ]
+          );
+
+
+        const economy =
+          playerNumber(
+            player,
+            [
+              "economy",
+              "economy_rate",
+              "econ"
+            ]
+          );
+
+
+        html += `
+
+          <tr>
+
+            <td class="player-name">
+              ${escapeHTML(name)}
+            </td>
+
+            <td>
+              ${escapeHTML(oversValue)}
+            </td>
+
+            <td>
+              ${escapeHTML(maidens)}
+            </td>
+
+            <td>
+              ${escapeHTML(runsValue)}
+            </td>
+
+            <td>
+              ${escapeHTML(wickets)}
+            </td>
+
+            <td>
+              ${escapeHTML(economy)}
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    );
+
+
+    html += `
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    `;
+
+  }
+
+
+  html += `</div>`;
+
+  return html;
 
 }
 
@@ -2342,15 +3267,9 @@ async function loadScorecard(){
       "scorecardResult"
     );
 
-  if(!input){
-
-    return;
-
-  }
-
   const id =
     String(
-      input.value || ""
+      input?.value || ""
     ).trim();
 
   if(!id){
@@ -2358,19 +3277,20 @@ async function loadScorecard(){
     result.innerHTML =
       `
       <div class="error">
-        ❌ Match ID डालें।<br>
-        Example: 151554
+        ❌ Match ID डालें।
       </div>
       `;
 
-    input.focus();
+    input?.focus();
 
     return;
 
   }
 
+
   selectedMatchId =
     id;
+
 
   result.innerHTML =
     `
@@ -2379,6 +3299,7 @@ async function loadScorecard(){
     </div>
     `;
 
+
   try{
 
     const data =
@@ -2386,6 +3307,7 @@ async function loadScorecard(){
         "/api/scorecard?id=" +
         encodeURIComponent(id)
       );
+
 
     if(data?.success === false){
 
@@ -2396,10 +3318,12 @@ async function loadScorecard(){
 
     }
 
+
     renderScorecard(
       result,
       data
     );
+
 
   }catch(error){
 
@@ -2423,55 +3347,88 @@ async function loadScorecard(){
 
 function openScorecard(id){
 
-  selectedMatchId =
+  const value =
     String(
       id || ""
     ).trim();
+
+
+  if(!value){
+
+    return;
+
+  }
+
+
+  selectedMatchId =
+    value;
+
 
   const input =
     document.getElementById(
       "scorecardId"
     );
 
+
   if(input){
 
     input.value =
-      selectedMatchId;
+      value;
 
   }
 
-  const buttons =
-    document.querySelectorAll(
-      ".nav button"
+
+  const button =
+    findNavButton(
+      "Scorecard"
     );
 
-  let scorecardButton =
-    null;
-
-  buttons.forEach(button=>{
-
-    if(
-      button.textContent
-        .includes("Scorecard")
-    ){
-
-      scorecardButton =
-        button;
-
-    }
-
-  });
 
   showSection(
     "scorecard",
-    scorecardButton
+    button
   );
 
-  if(selectedMatchId){
 
-    loadScorecard();
+  loadScorecard();
 
-  }
+}
+
+
+/* ============================================================
+   FIND NAV BUTTON
+============================================================ */
+
+function findNavButton(
+  text
+){
+
+  let found =
+    null;
+
+
+  document
+    .querySelectorAll(
+      ".nav button"
+    )
+    .forEach(
+      button => {
+
+        if(
+          button.textContent
+            .includes(text)
+        ){
+
+          found =
+            button;
+
+        }
+
+      }
+    );
+
+
+  return found;
 
 }
 
@@ -2489,6 +3446,12 @@ function renderScorecard(
     data?.data ??
     data;
 
+
+  const matchData =
+    payload?.data ??
+    payload;
+
+
   let html = `
 
     <div class="card">
@@ -2501,82 +3464,229 @@ function renderScorecard(
 
   `;
 
-  const teams =
-    payload?.teams ??
-    payload?.scorecard ??
-    null;
 
-  if(Array.isArray(teams)){
+  /* ----------------------------------------------------------
+     MATCH INFORMATION
+  ---------------------------------------------------------- */
 
-    teams.forEach(
-      (team,index)=>{
+  const matchInfo = {
 
-        const name =
-          extractTeamName(team) ||
-          team?.team ||
-          team?.teamName ||
-          "Team " +
-          (index + 1);
+    match:
+      firstValue(
+        matchData,
+        [
+          "name",
+          "title",
+          "match_name",
+          "match"
+        ]
+      ),
 
-        const score =
-          team?.score ??
-          team?.summary ??
-          team?.runs ??
-          "-";
+    venue:
+      firstValue(
+        matchData,
+        [
+          "venue",
+          "venue_name"
+        ]
+      ),
 
-        const overs =
-          team?.overs ??
-          team?.over ??
-          "";
+    series:
+      firstValue(
+        matchData,
+        [
+          "series",
+          "series_name"
+        ]
+      ),
 
-        html += `
+    status:
+      firstValue(
+        matchData,
+        [
+          "status",
+          "status_detail",
+          "short_status",
+          "state"
+        ]
+      )
 
-          <div class="scorecard-team">
+  };
 
-            <h3>
-              🏏 ${escapeHTML(name)}
-            </h3>
 
-            <table class="score-table">
+  if(
+    matchInfo.match ||
+    matchInfo.venue ||
+    matchInfo.series ||
+    matchInfo.status
+  ){
 
-              <tbody>
+    html += `
+      <div class="info-grid">
+    `;
 
-                <tr>
 
-                  <th>
-                    Score
-                  </th>
+    if(matchInfo.match){
 
-                  <td>
-                    ${escapeHTML(score)}
-                  </td>
+      html += `
+        <div class="info-box">
 
-                </tr>
-
-                <tr>
-
-                  <th>
-                    Overs
-                  </th>
-
-                  <td>
-                    ${escapeHTML(overs)}
-                  </td>
-
-                </tr>
-
-              </tbody>
-
-            </table>
-
+          <div class="info-label">
+            MATCH
           </div>
 
-        `;
+          <div class="info-value">
+            ${escapeHTML(
+              typeof matchInfo.match === "object"
+                ? JSON.stringify(matchInfo.match)
+                : matchInfo.match
+            )}
+          </div>
+
+        </div>
+      `;
+
+    }
+
+
+    if(matchInfo.series){
+
+      html += `
+        <div class="info-box">
+
+          <div class="info-label">
+            SERIES
+          </div>
+
+          <div class="info-value">
+            ${escapeHTML(
+              typeof matchInfo.series === "object"
+                ? JSON.stringify(matchInfo.series)
+                : matchInfo.series
+            )}
+          </div>
+
+        </div>
+      `;
+
+    }
+
+
+    if(matchInfo.venue){
+
+      html += `
+        <div class="info-box">
+
+          <div class="info-label">
+            VENUE
+          </div>
+
+          <div class="info-value">
+            ${escapeHTML(
+              typeof matchInfo.venue === "object"
+                ? JSON.stringify(matchInfo.venue)
+                : matchInfo.venue
+            )}
+          </div>
+
+        </div>
+      `;
+
+    }
+
+
+    if(matchInfo.status){
+
+      html += `
+        <div class="info-box">
+
+          <div class="info-label">
+            STATUS
+          </div>
+
+          <div class="info-value">
+            ${escapeHTML(
+              typeof matchInfo.status === "object"
+                ? JSON.stringify(matchInfo.status)
+                : matchInfo.status
+            )}
+          </div>
+
+        </div>
+      `;
+
+    }
+
+
+    html += `
+      </div>
+    `;
+
+  }
+
+
+  /* ----------------------------------------------------------
+     MINISCORE
+  ---------------------------------------------------------- */
+
+  const miniscore =
+    matchData?.miniscore ??
+    payload?.miniscore ??
+    null;
+
+
+  if(
+    miniscore &&
+    typeof miniscore === "object"
+  ){
+
+    html +=
+      renderMiniScore(
+        miniscore
+      );
+
+  }
+
+
+  /* ----------------------------------------------------------
+     SCORECARD ARRAYS
+  ---------------------------------------------------------- */
+
+  const innings =
+    findInnings(
+      matchData
+    );
+
+
+  if(innings.length){
+
+    innings.forEach(
+      (inning,index)=>{
+
+        html +=
+          renderInnings(
+            inning,
+            index
+          );
 
       }
     );
 
+  }else{
+
+    html += `
+      <div class="empty">
+        Scorecard data received है।
+        नीचे Full API Response में पूरा data देखें।
+      </div>
+    `;
+
   }
+
+
+  /* ----------------------------------------------------------
+     RAW API
+  ---------------------------------------------------------- */
 
   html += `
 
@@ -2602,6 +3712,7 @@ ${escapeHTML(
 
   `;
 
+
   container.innerHTML =
     html;
 
@@ -2609,7 +3720,201 @@ ${escapeHTML(
 
 
 /* ============================================================
-   BALL BY BALL
+   MINI SCORE
+============================================================ */
+
+function renderMiniScore(
+  miniscore
+){
+
+  const team1 =
+    firstValue(
+      miniscore,
+      [
+        "team1",
+        "first_team"
+      ]
+    );
+
+
+  const team2 =
+    firstValue(
+      miniscore,
+      [
+        "team2",
+        "second_team"
+      ]
+    );
+
+
+  const currentScore =
+    firstValue(
+      miniscore,
+      [
+        "score",
+        "score_text",
+        "current_score"
+      ]
+    );
+
+
+  const currentOver =
+    firstValue(
+      miniscore,
+      [
+        "overs",
+        "over",
+        "current_over"
+      ]
+    );
+
+
+  const striker =
+    firstValue(
+      miniscore,
+      [
+        "striker",
+        "batsman",
+        "batter"
+      ]
+    );
+
+
+  const bowler =
+    firstValue(
+      miniscore,
+      [
+        "bowler",
+        "current_bowler"
+      ]
+    );
+
+
+  if(
+    !team1 &&
+    !team2 &&
+    !currentScore &&
+    !currentOver &&
+    !striker &&
+    !bowler
+  ){
+
+    return "";
+
+  }
+
+
+  return `
+
+    <div class="mini-score">
+
+      ${
+        currentScore
+        ? `
+          <div class="mini-score-box">
+
+            <div class="mini-score-label">
+              SCORE
+            </div>
+
+            <div class="mini-score-value">
+              ${escapeHTML(
+                typeof currentScore === "object"
+                  ? JSON.stringify(currentScore)
+                  : currentScore
+              )}
+            </div>
+
+          </div>
+        `
+        : ""
+      }
+
+      ${
+        currentOver
+        ? `
+          <div class="mini-score-box">
+
+            <div class="mini-score-label">
+              OVERS
+            </div>
+
+            <div class="mini-score-value">
+              ${escapeHTML(
+                typeof currentOver === "object"
+                  ? JSON.stringify(currentOver)
+                  : currentOver
+              )}
+            </div>
+
+          </div>
+        `
+        : ""
+      }
+
+    </div>
+
+    ${
+      striker || bowler
+      ? `
+        <div class="info-grid">
+
+          ${
+            striker
+            ? `
+              <div class="info-box">
+
+                <div class="info-label">
+                  STRIKER
+                </div>
+
+                <div class="info-value">
+                  ${escapeHTML(
+                    typeof striker === "object"
+                      ? JSON.stringify(striker)
+                      : striker
+                  )}
+                </div>
+
+              </div>
+            `
+            : ""
+          }
+
+          ${
+            bowler
+            ? `
+              <div class="info-box">
+
+                <div class="info-label">
+                  BOWLER
+                </div>
+
+                <div class="info-value">
+                  ${escapeHTML(
+                    typeof bowler === "object"
+                      ? JSON.stringify(bowler)
+                      : bowler
+                  )}
+                </div>
+
+              </div>
+            `
+            : ""
+          }
+
+        </div>
+      `
+      : ""
+    }
+
+  `;
+
+}
+
+
+/* ============================================================
+   BALL-BY-BALL LOAD
 ============================================================ */
 
 async function loadBallByBall(){
@@ -2629,6 +3934,7 @@ async function loadBallByBall(){
       input?.value || ""
     ).trim();
 
+
   if(!id){
 
     result.innerHTML =
@@ -2638,9 +3944,12 @@ async function loadBallByBall(){
       </div>
       `;
 
+    input?.focus();
+
     return;
 
   }
+
 
   result.innerHTML =
     `
@@ -2648,6 +3957,7 @@ async function loadBallByBall(){
       🔄 Ball-by-ball loading...
     </div>
     `;
+
 
   try{
 
@@ -2657,10 +3967,22 @@ async function loadBallByBall(){
         encodeURIComponent(id)
       );
 
-    renderAPIResult(
+
+    if(data?.success === false){
+
+      throw new Error(
+        data.error ||
+        "Ball-by-ball data नहीं मिला।"
+      );
+
+    }
+
+
+    renderBallByBall(
       result,
       data
     );
+
 
   }catch(error){
 
@@ -2689,10 +4011,19 @@ function openBallByBall(id){
       id || ""
     ).trim();
 
+
+  if(!value){
+
+    return;
+
+  }
+
+
   const input =
     document.getElementById(
       "ballMatchId"
     );
+
 
   if(input){
 
@@ -2701,38 +4032,534 @@ function openBallByBall(id){
 
   }
 
-  const buttons =
-    document.querySelectorAll(
-      ".nav button"
+
+  const button =
+    findNavButton(
+      "Ball-by-Ball"
     );
 
-  let ballButton =
-    null;
-
-  buttons.forEach(button=>{
-
-    if(
-      button.textContent
-        .includes("Ball-by-Ball")
-    ){
-
-      ballButton =
-        button;
-
-    }
-
-  });
 
   showSection(
     "ball",
-    ballButton
+    button
   );
 
-  if(value){
 
-    loadBallByBall();
+  loadBallByBall();
+
+}
+
+
+/* ============================================================
+   FIND COMMENTARY ARRAY
+============================================================ */
+
+function findCommentary(
+  payload
+){
+
+  const keys = [
+
+    "commentary",
+
+    "commentaries",
+
+    "comments",
+
+    "balls",
+
+    "ball_by_ball",
+
+    "ballByBall",
+
+    "deliveries",
+
+    "events"
+
+  ];
+
+
+  const result =
+    findArrayByKeys(
+      payload,
+      keys,
+      9
+    );
+
+
+  return Array.isArray(result)
+    ? result
+    : [];
+
+}
+
+
+/* ============================================================
+   COMMENTARY TEXT
+============================================================ */
+
+function commentaryText(
+  item
+){
+
+  if(
+    typeof item === "string"
+  ){
+
+    return item;
 
   }
+
+
+  return String(
+    firstValue(
+      item,
+      [
+        "commentary",
+        "comment",
+        "text",
+        "description",
+        "event",
+        "message",
+        "result"
+      ]
+    ) || ""
+  );
+
+}
+
+
+/* ============================================================
+   BALL LABEL
+============================================================ */
+
+function ballLabel(
+  item,
+  index
+){
+
+  const value =
+    firstValue(
+      item,
+      [
+        "ball",
+        "ball_no",
+        "ball_number",
+        "delivery",
+        "over_ball",
+        "overBall",
+        "over"
+      ]
+    );
+
+
+  if(
+    value !== "" &&
+    value !== null &&
+    value !== undefined
+  ){
+
+    if(
+      typeof value === "object"
+    ){
+
+      return (
+        value.over ??
+        value.ball ??
+        value.number ??
+        String(index + 1)
+      );
+
+    }
+
+    return String(value);
+
+  }
+
+
+  return String(
+    index + 1
+  );
+
+}
+
+
+/* ============================================================
+   RUNS / RESULT
+============================================================ */
+
+function ballResult(
+  item
+){
+
+  if(
+    typeof item === "string"
+  ){
+
+    return "";
+
+  }
+
+
+  const runs =
+    firstValue(
+      item,
+      [
+        "runs",
+        "total_runs",
+        "run",
+        "score"
+      ]
+    );
+
+
+  const wickets =
+    firstValue(
+      item,
+      [
+        "wickets",
+        "wicket"
+      ]
+    );
+
+
+  const extras =
+    firstValue(
+      item,
+      [
+        "extras",
+        "extra"
+      ]
+    );
+
+
+  const parts = [];
+
+
+  if(
+    runs !== "" &&
+    runs !== null &&
+    runs !== undefined
+  ){
+
+    parts.push(
+      "Runs: " +
+      (
+        typeof runs === "object"
+          ? JSON.stringify(runs)
+          : runs
+      )
+    );
+
+  }
+
+
+  if(
+    wickets !== "" &&
+    wickets !== null &&
+    wickets !== undefined
+  ){
+
+    parts.push(
+      "Wicket: " +
+      (
+        typeof wickets === "object"
+          ? JSON.stringify(wickets)
+          : wickets
+      )
+    );
+
+  }
+
+
+  if(
+    extras !== "" &&
+    extras !== null &&
+    extras !== undefined
+  ){
+
+    parts.push(
+      "Extra: " +
+      (
+        typeof extras === "object"
+          ? JSON.stringify(extras)
+          : extras
+      )
+    );
+
+  }
+
+
+  return parts.join(" • ");
+
+}
+
+
+/* ============================================================
+   BALL-BY-BALL RENDER
+============================================================ */
+
+function renderBallByBall(
+  container,
+  data
+){
+
+  const payload =
+    data?.data ??
+    data;
+
+
+  const actualData =
+    payload?.data ??
+    payload;
+
+
+  let html = `
+
+    <div class="card">
+
+      <h2>🏏 Ball-by-Ball</h2>
+
+      <div class="success">
+        ✅ Ball-by-ball data received successfully.
+      </div>
+
+  `;
+
+
+  /* Miniscore */
+
+  const miniscore =
+    actualData?.miniscore ??
+    payload?.miniscore ??
+    null;
+
+
+  if(
+    miniscore &&
+    typeof miniscore === "object"
+  ){
+
+    html +=
+      renderMiniScore(
+        miniscore
+      );
+
+  }
+
+
+  /* Last balls */
+
+  const lastBalls =
+    firstValue(
+      miniscore,
+      [
+        "last_6_balls",
+        "last6balls",
+        "last_balls",
+        "recent_balls"
+      ]
+    );
+
+
+  if(
+    Array.isArray(lastBalls) &&
+    lastBalls.length
+  ){
+
+    html += `
+
+      <div class="card"
+        style="padding:12px;margin-top:10px;">
+
+        <h3>
+          🏏 Last Balls
+        </h3>
+
+        <div class="last-balls">
+
+    `;
+
+
+    lastBalls.forEach(
+      ball => {
+
+        html += `
+
+          <div class="ball-chip">
+
+            ${escapeHTML(
+              typeof ball === "object"
+                ? (
+                    ball.result ??
+                    ball.runs ??
+                    ball.value ??
+                    JSON.stringify(ball)
+                  )
+                : ball
+            )}
+
+          </div>
+
+        `;
+
+      }
+    );
+
+
+    html += `
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  const commentary =
+    findCommentary(
+      actualData
+    );
+
+
+  if(commentary.length){
+
+    html += `
+
+      <div class="card"
+        style="padding:12px;margin-top:10px;">
+
+        <h3>
+          🏏 Commentary
+        </h3>
+
+    `;
+
+
+    const reversed =
+      commentary
+        .slice()
+        .reverse();
+
+
+    reversed.forEach(
+      (item,index)=>{
+
+        const text =
+          commentaryText(
+            item
+          );
+
+
+        const label =
+          ballLabel(
+            item,
+            index
+          );
+
+
+        const result =
+          ballResult(
+            item
+          );
+
+
+        html += `
+
+          <div class="commentary-card">
+
+            <div class="commentary-top">
+
+              <span class="ball-number">
+                ${escapeHTML(label)}
+              </span>
+
+            </div>
+
+            ${
+              text
+              ? `
+                <div class="commentary-text">
+                  ${escapeHTML(text)}
+                </div>
+              `
+              : `
+                <div class="commentary-text">
+                  Ball data available
+                </div>
+              `
+            }
+
+            ${
+              result
+              ? `
+                <div class="commentary-detail">
+                  ${escapeHTML(result)}
+                </div>
+              `
+              : ""
+            }
+
+          </div>
+
+        `;
+
+      }
+    );
+
+
+    html += `
+      </div>
+    `;
+
+  }else{
+
+    html += `
+
+      <div class="empty">
+
+        Commentary array इस response में अलग field में नहीं मिला।
+
+        <br><br>
+
+        नीचे Full API Response में पूरा ball-by-ball data उपलब्ध है।
+
+      </div>
+
+    `;
+
+  }
+
+
+  html += `
+
+      <details>
+
+        <summary>
+          🔎 Full API Response
+        </summary>
+
+        <pre>
+${escapeHTML(
+  JSON.stringify(
+    data,
+    null,
+    2
+  )
+)}
+        </pre>
+
+      </details>
+
+    </div>
+
+  `;
+
+
+  container.innerHTML =
+    html;
 
 }
 
@@ -2758,6 +4585,7 @@ async function loadPoints(){
       input?.value || ""
     ).trim();
 
+
   if(!id){
 
     result.innerHTML =
@@ -2767,9 +4595,12 @@ async function loadPoints(){
       </div>
       `;
 
+    input?.focus();
+
     return;
 
   }
+
 
   result.innerHTML =
     `
@@ -2777,6 +4608,7 @@ async function loadPoints(){
       🔄 Points loading...
     </div>
     `;
+
 
   try{
 
@@ -2786,10 +4618,66 @@ async function loadPoints(){
         encodeURIComponent(id)
       );
 
+
+    if(
+      data?.available === false ||
+      (
+        data?.success === false &&
+        data?.error
+      )
+    ){
+
+      result.innerHTML = `
+
+        <div class="card">
+
+          <h2>🎯 Match Points</h2>
+
+          <div class="points-note">
+
+            ℹ️ ${escapeHTML(
+              data?.error ||
+              "Points endpoint अभी उपलब्ध नहीं है।"
+            )}
+
+            <br><br>
+
+            Scorecard और Ball-by-Ball अभी working हैं।
+
+          </div>
+
+          <details>
+
+            <summary>
+              🔎 API Response
+            </summary>
+
+            <pre>
+${escapeHTML(
+  JSON.stringify(
+    data,
+    null,
+    2
+  )
+)}
+            </pre>
+
+          </details>
+
+        </div>
+
+      `;
+
+      return;
+
+    }
+
+
     renderAPIResult(
       result,
       data
     );
+
 
   }catch(error){
 
@@ -2849,10 +4737,12 @@ function showGeneratedImage(
   let imageSrc =
     imageSource;
 
+
   if(
     typeof imageSrc === "string" &&
     !imageSrc.startsWith("data:") &&
-    !imageSrc.startsWith("http")
+    !imageSrc.startsWith("http") &&
+    !imageSrc.startsWith("blob:")
   ){
 
     imageSrc =
@@ -2860,6 +4750,7 @@ function showGeneratedImage(
       imageSrc;
 
   }
+
 
   result.innerHTML = `
 
@@ -2878,7 +4769,7 @@ function showGeneratedImage(
 
         <button
           type="button"
-          onclick="openGeneratedImage('${escapeHTML(imageSrc)}')">
+          onclick="openGeneratedImage(${JSON.stringify(imageSrc)})">
 
           🔍 Open Image
 
@@ -2886,7 +4777,7 @@ function showGeneratedImage(
 
         <button
           type="button"
-          onclick="copyPrompt(${JSON.stringify(prompt).replace(/</g,"\\u003c")})">
+          onclick="copyPrompt(${JSON.stringify(prompt)})">
 
           📋 Copy Prompt
 
@@ -2900,7 +4791,9 @@ function showGeneratedImage(
           📝 Prompt
         </summary>
 
-        <pre style="margin-top:10px;">${escapeHTML(prompt)}</pre>
+        <pre style="margin-top:10px;">
+${escapeHTML(prompt)}
+        </pre>
 
       </details>
 
@@ -2925,6 +4818,7 @@ function openGeneratedImage(src){
         "_blank"
       );
 
+
     if(!win){
 
       throw new Error(
@@ -2933,13 +4827,29 @@ function openGeneratedImage(src){
 
     }
 
+
+    const safeSrc =
+      String(src)
+        .replace(/"/g,"&quot;");
+
+
     win.document.write(`
       <!DOCTYPE html>
+
       <html>
+
       <head>
-        <title>Cricket Short AI Image</title>
-        <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <title>
+          Cricket Short AI Image
+        </title>
+
+        <meta
+          name="viewport"
+          content="width=device-width,initial-scale=1">
+
         <style>
+
           body{
             margin:0;
             background:#07152f;
@@ -2948,20 +4858,31 @@ function openGeneratedImage(src){
             align-items:center;
             min-height:100vh;
           }
+
           img{
             max-width:100%;
             max-height:100vh;
             object-fit:contain;
           }
+
         </style>
+
       </head>
+
       <body>
-        <img src="${src}" alt="Cricket Short AI Image">
+
+        <img
+          src="${safeSrc}"
+          alt="Cricket Short AI Image">
+
       </body>
+
       </html>
     `);
 
+
     win.document.close();
+
 
   }catch(error){
 
@@ -3012,70 +4933,84 @@ async function generatePlayerImage(){
       "aiResult"
     );
 
+
   const player =
     document.getElementById(
       "playerName"
     ).value.trim();
+
 
   const team =
     document.getElementById(
       "playerTeam"
     ).value.trim();
 
+
   const pose =
     document.getElementById(
       "playerPose"
     ).value;
+
 
   const type =
     document.getElementById(
       "playerType"
     ).value;
 
+
   const hand =
     document.getElementById(
       "playerHand"
     ).value;
+
 
   const style =
     document.getElementById(
       "playerStyle"
     ).value;
 
+
   const jersey =
     document.getElementById(
       "playerJersey"
     ).value;
+
 
   const number =
     document.getElementById(
       "playerNumber"
     ).value;
 
+
   const stadium =
     document.getElementById(
       "playerStadium"
     ).value;
+
 
   const weather =
     document.getElementById(
       "playerWeather"
     ).value;
 
+
   const time =
     document.getElementById(
       "playerTime"
     ).value;
+
 
   const camera =
     document.getElementById(
       "playerCamera"
     ).value;
 
+
   const tournament =
     document.getElementById(
       "playerTournament"
     ).value;
+
 
   if(!player){
 
@@ -3090,6 +5025,7 @@ async function generatePlayerImage(){
 
   }
 
+
   result.innerHTML =
     `
     <div class="card loading">
@@ -3097,6 +5033,7 @@ async function generatePlayerImage(){
       Please wait...
     </div>
     `;
+
 
   const prompt =
 `Photorealistic cinematic cricket sports photography of ${player}, representing ${team}, ${pose} pose, ${type}, ${hand}, wearing a realistic ${team} ${jersey} cricket jersey with number ${number}, playing at a ${stadium}, ${weather} weather, ${time} match atmosphere, ${camera} camera angle, ${style} style, ${tournament} tournament atmosphere, packed cricket stadium, dramatic floodlights, realistic face, realistic body proportions, detailed cricket equipment, ultra realistic, high detail, professional sports photography, vertical 9:16, no text, no watermark.`;
@@ -3122,15 +5059,18 @@ async function generatePlayerImage(){
         }
       );
 
+
     const contentType =
       response.headers.get(
         "content-type"
       ) || "";
 
+
     if(!response.ok){
 
       let message =
         "AI image generation failed.";
+
 
       if(
         contentType.includes(
@@ -3140,6 +5080,7 @@ async function generatePlayerImage(){
 
         const errorData =
           await response.json();
+
 
         message =
           errorData?.error ||
@@ -3151,6 +5092,7 @@ async function generatePlayerImage(){
         const errorText =
           await response.text();
 
+
         if(errorText){
 
           message =
@@ -3160,11 +5102,13 @@ async function generatePlayerImage(){
 
       }
 
+
       throw new Error(
         message
       );
 
     }
+
 
     if(
       contentType.includes(
@@ -3174,6 +5118,7 @@ async function generatePlayerImage(){
 
       const data =
         await response.json();
+
 
       if(data?.image){
 
@@ -3197,13 +5142,16 @@ async function generatePlayerImage(){
 
     }
 
+
     const blob =
       await response.blob();
+
 
     const imageURL =
       URL.createObjectURL(
         blob
       );
+
 
     showGeneratedImage(
       result,
@@ -3211,6 +5159,7 @@ async function generatePlayerImage(){
       imageURL,
       prompt
     );
+
 
   }catch(error){
 
@@ -3229,7 +5178,7 @@ async function generatePlayerImage(){
 
 
 /* ============================================================
-   POSTER - REAL AI IMAGE
+   POSTER
 ============================================================ */
 
 async function generatePoster(){
@@ -3239,30 +5188,36 @@ async function generatePoster(){
       "posterPlayer"
     ).value.trim();
 
+
   const team =
     document.getElementById(
       "posterTeam"
     ).value.trim();
+
 
   const match =
     document.getElementById(
       "posterMatch"
     ).value.trim();
 
+
   const type =
     document.getElementById(
       "posterType"
     ).value.trim();
+
 
   const stadium =
     document.getElementById(
       "posterStadium"
     ).value.trim();
 
+
   const result =
     document.getElementById(
       "posterResult"
     );
+
 
   if(
     !player ||
@@ -3280,12 +5235,14 @@ async function generatePoster(){
 
   }
 
+
   result.innerHTML = `
     <div class="card loading">
       🎨 AI Cricket Poster बन रहा है...<br>
       Please wait...
     </div>
   `;
+
 
   const prompt =
 `Photorealistic cinematic cricket sports news poster featuring ${player} representing ${team}, ${match}, ${type}, at ${stadium}, dramatic stadium floodlights, packed cheering cricket crowd, powerful sports-news atmosphere, realistic face, realistic body proportions, professional cricket photography, ultra detailed, cinematic lighting, premium sports poster, vertical 9:16 composition, subject fully visible, clean composition, no text, no watermark, no logo.`;
@@ -3311,15 +5268,18 @@ async function generatePoster(){
         }
       );
 
+
     const contentType =
       response.headers.get(
         "content-type"
       ) || "";
 
+
     if(!response.ok){
 
       let message =
         "Poster image generation failed.";
+
 
       if(
         contentType.includes(
@@ -3329,6 +5289,7 @@ async function generatePoster(){
 
         const errorData =
           await response.json();
+
 
         message =
           errorData?.error ||
@@ -3340,6 +5301,7 @@ async function generatePoster(){
         const errorText =
           await response.text();
 
+
         if(errorText){
 
           message =
@@ -3349,11 +5311,13 @@ async function generatePoster(){
 
       }
 
+
       throw new Error(
         message
       );
 
     }
+
 
     if(
       contentType.includes(
@@ -3363,6 +5327,7 @@ async function generatePoster(){
 
       const data =
         await response.json();
+
 
       if(data?.image){
 
@@ -3386,13 +5351,16 @@ async function generatePoster(){
 
     }
 
+
     const blob =
       await response.blob();
+
 
     const imageURL =
       URL.createObjectURL(
         blob
       );
+
 
     showGeneratedImage(
       result,
@@ -3400,6 +5368,7 @@ async function generatePoster(){
       imageURL,
       prompt
     );
+
 
   }catch(error){
 
@@ -3417,7 +5386,7 @@ async function generatePoster(){
 
 
 /* ============================================================
-   PLAYER CARD - REAL AI IMAGE
+   PLAYER CARD
 ============================================================ */
 
 async function generatePlayerCard(){
@@ -3427,25 +5396,30 @@ async function generatePlayerCard(){
       "cardPlayer"
     ).value.trim();
 
+
   const team =
     document.getElementById(
       "cardTeam"
     ).value.trim();
+
 
   const number =
     document.getElementById(
       "cardNumber"
     ).value.trim();
 
+
   const rating =
     document.getElementById(
       "cardRating"
     ).value.trim();
 
+
   const result =
     document.getElementById(
       "playerCardResult"
     );
+
 
   if(
     !player ||
@@ -3462,12 +5436,14 @@ async function generatePlayerCard(){
 
   }
 
+
   result.innerHTML = `
     <div class="card loading">
       🪪 AI Player Card बन रहा है...<br>
       Please wait...
     </div>
   `;
+
 
   const prompt =
 `Professional premium cricket player card design for ${player}, representing ${team}, jersey number ${number}, player rating ${rating}, realistic cricket portrait, realistic face, realistic body proportions, premium sports trading card design, professional cricket uniform, dramatic international cricket stadium background, blue cricket theme, powerful stadium lighting, ultra detailed, high quality sports photography, modern premium composition, portrait orientation, vertical 9:16, player prominently visible, clean professional design, no unnecessary text, no watermark, no logo.`;
@@ -3493,15 +5469,18 @@ async function generatePlayerCard(){
         }
       );
 
+
     const contentType =
       response.headers.get(
         "content-type"
       ) || "";
 
+
     if(!response.ok){
 
       let message =
         "Player Card image generation failed.";
+
 
       if(
         contentType.includes(
@@ -3511,6 +5490,7 @@ async function generatePlayerCard(){
 
         const errorData =
           await response.json();
+
 
         message =
           errorData?.error ||
@@ -3522,6 +5502,7 @@ async function generatePlayerCard(){
         const errorText =
           await response.text();
 
+
         if(errorText){
 
           message =
@@ -3531,11 +5512,13 @@ async function generatePlayerCard(){
 
       }
 
+
       throw new Error(
         message
       );
 
     }
+
 
     if(
       contentType.includes(
@@ -3545,6 +5528,7 @@ async function generatePlayerCard(){
 
       const data =
         await response.json();
+
 
       if(data?.image){
 
@@ -3568,13 +5552,16 @@ async function generatePlayerCard(){
 
     }
 
+
     const blob =
       await response.blob();
+
 
     const imageURL =
       URL.createObjectURL(
         blob
       );
+
 
     showGeneratedImage(
       result,
@@ -3582,6 +5569,7 @@ async function generatePlayerCard(){
       imageURL,
       prompt
     );
+
 
   }catch(error){
 
@@ -3624,11 +5612,14 @@ async function openLiveMode(){
       "liveOverlay"
     );
 
+
   overlay.classList.add(
     "show"
   );
 
+
   await loadLiveMode();
+
 
   if(liveTimer){
 
@@ -3637,6 +5628,7 @@ async function openLiveMode(){
     );
 
   }
+
 
   liveTimer =
     setInterval(
@@ -3658,6 +5650,7 @@ async function loadLiveMode(){
       "liveModeResult"
     );
 
+
   result.innerHTML =
     `
     <div class="loading">
@@ -3665,12 +5658,14 @@ async function loadLiveMode(){
     </div>
     `;
 
+
   try{
 
     const data =
       await getJSON(
         "/api/live-score"
       );
+
 
     const matches =
       Array.isArray(data)
@@ -3681,6 +5676,7 @@ async function loadLiveMode(){
           data?.results ??
           []
         );
+
 
     if(!matches.length){
 
@@ -3695,6 +5691,7 @@ async function loadLiveMode(){
 
     }
 
+
     result.innerHTML =
       matches
         .map(
@@ -3705,6 +5702,7 @@ async function loadLiveMode(){
             )
         )
         .join("");
+
 
   }catch(error){
 
@@ -3733,9 +5731,11 @@ function closeLiveMode(){
       "liveOverlay"
     );
 
+
   overlay.classList.remove(
     "show"
   );
+
 
   if(liveTimer){
 
@@ -3760,12 +5760,32 @@ document.addEventListener(
   function(event){
 
     if(
-      event.key === "Enter" &&
-      document.activeElement?.id ===
-      "scorecardId"
+      event.key === "Enter"
     ){
 
-      loadScorecard();
+      const id =
+        document.activeElement?.id;
+
+
+      if(id === "scorecardId"){
+
+        loadScorecard();
+
+      }
+
+
+      if(id === "ballMatchId"){
+
+        loadBallByBall();
+
+      }
+
+
+      if(id === "pointsMatchId"){
+
+        loadPoints();
+
+      }
 
     }
 
