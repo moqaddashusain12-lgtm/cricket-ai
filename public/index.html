@@ -25,9 +25,7 @@ body{
   overflow-x:hidden;
 }
 
-button,
-input,
-select{
+button,input,select{
   font:inherit;
 }
 
@@ -156,8 +154,7 @@ header p{
   width:100%;
 }
 
-input,
-select{
+input,select{
   width:100%;
   background:#08182b;
   color:#fff;
@@ -167,8 +164,7 @@ select{
   outline:none;
 }
 
-input:focus,
-select:focus{
+input:focus,select:focus{
   border-color:#48a8ed;
 }
 
@@ -248,12 +244,20 @@ select:focus{
   color:#fff;
 }
 
+.team-score-box{
+  margin-top:4px;
+  background:#08182b;
+  border-radius:10px;
+  padding:4px 10px;
+  border:1px solid #1e3d59;
+}
+
 .team-row{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:10px;
-  padding:9px 0;
+  padding:10px 0;
   border-bottom:1px solid #1c3853;
 }
 
@@ -267,10 +271,19 @@ select:focus{
   flex:1;
 }
 
+.team-full-name{
+  display:block;
+  color:#7996b0;
+  font-size:10px;
+  margin-top:3px;
+  font-weight:normal;
+}
+
 .team-score{
   font-size:17px;
   font-weight:bold;
   text-align:right;
+  white-space:nowrap;
 }
 
 .match-meta{
@@ -524,6 +537,7 @@ td{
 .broadcast-title{
   font-size:18px;
   font-weight:bold;
+  line-height:1.3;
 }
 
 .broadcast-series{
@@ -552,19 +566,29 @@ td{
   align-items:center;
   justify-content:space-between;
   gap:15px;
-  padding:14px 8px;
+  padding:16px 8px;
   border-top:1px solid #1d3b58;
 }
 
 .broadcast-team-name{
   font-size:20px;
   font-weight:bold;
+  flex:1;
+}
+
+.broadcast-team-full{
+  display:block;
+  color:#7995ae;
+  font-size:11px;
+  font-weight:normal;
+  margin-top:3px;
 }
 
 .broadcast-score{
   font-size:28px;
   font-weight:900;
   text-align:right;
+  white-space:nowrap;
 }
 
 .broadcast-meta{
@@ -594,9 +618,8 @@ td{
   padding:10px;
 }
 
-/* ================= RESPONSIVE ================= */
-
 @media(max-width:800px){
+
   .nav{
     grid-template-columns:repeat(3,1fr);
   }
@@ -611,6 +634,7 @@ td{
 }
 
 @media(max-width:600px){
+
   .app{
     padding:8px;
   }
@@ -684,7 +708,6 @@ td{
   <button onclick="showSection('news',this)">📰 News</button>
 </div>
 
-
 <!-- ================= LIVE ================= -->
 
 <section id="live" class="section active">
@@ -692,14 +715,25 @@ td{
   <div class="panel">
 
     <h2>🔴 Live Cricket</h2>
+
     <div class="panel-subtitle">
       केवल अभी चल रहे लाइव मैच दिखाए जाएंगे • Auto Refresh: 2 मिनट
     </div>
 
     <div class="toolbar">
-      <button class="btn" onclick="loadScores()">↻ Refresh Live</button>
-      <button class="btn success" onclick="openLiveMode()">📺 Live Mode</button>
-      <button class="btn share-btn" onclick="shareLiveScores()">📤 Share Live Score</button>
+
+      <button class="btn" onclick="loadScores()">
+        ↻ Refresh Live
+      </button>
+
+      <button class="btn success" onclick="openLiveMode()">
+        📺 Live Mode
+      </button>
+
+      <button class="btn share-btn" onclick="shareLiveScores()">
+        📤 Share Live Score
+      </button>
+
     </div>
 
     <div id="liveStatus" class="status info">
@@ -711,7 +745,6 @@ td{
   </div>
 
 </section>
-
 
 <!-- ================= FIXTURES ================= -->
 
@@ -726,7 +759,11 @@ td{
     </div>
 
     <div class="toolbar">
-      <button class="btn" onclick="loadFixtures()">↻ Refresh Fixtures</button>
+
+      <button class="btn" onclick="loadFixtures()">
+        ↻ Refresh Fixtures
+      </button>
+
     </div>
 
     <div id="fixtureStatus" class="status info">
@@ -738,7 +775,6 @@ td{
   </div>
 
 </section>
-
 
 <!-- ================= SCORECARD ================= -->
 
@@ -753,9 +789,17 @@ td{
     </div>
 
     <div class="toolbar">
+
       <input id="scorecardId" placeholder="Match ID">
-      <button class="btn" onclick="loadScorecard()">Load Scorecard</button>
-      <button class="btn secondary" onclick="clearScorecard()">Clear</button>
+
+      <button class="btn" onclick="loadScorecard()">
+        Load Scorecard
+      </button>
+
+      <button class="btn secondary" onclick="clearScorecard()">
+        Clear
+      </button>
+
     </div>
 
     <div id="scorecardStatus" class="status info">
@@ -767,7 +811,6 @@ td{
   </div>
 
 </section>
-
 
 <!-- ================= BALL BY BALL ================= -->
 
@@ -782,9 +825,17 @@ td{
     </div>
 
     <div class="toolbar">
+
       <input id="ballId" placeholder="Match ID">
-      <button class="btn" onclick="loadBallByBall()">Load Ball-by-Ball</button>
-      <button class="btn secondary" onclick="clearBall()">Clear</button>
+
+      <button class="btn" onclick="loadBallByBall()">
+        Load Ball-by-Ball
+      </button>
+
+      <button class="btn secondary" onclick="clearBall()">
+        Clear
+      </button>
+
     </div>
 
     <div id="ballStatus" class="status info">
@@ -796,7 +847,6 @@ td{
   </div>
 
 </section>
-
 
 <!-- ================= POINTS ================= -->
 
@@ -811,9 +861,17 @@ td{
     </div>
 
     <div class="toolbar">
+
       <input id="pointsId" placeholder="Match ID">
-      <button class="btn" onclick="loadPoints()">Load Points</button>
-      <button class="btn secondary" onclick="clearPoints()">Clear</button>
+
+      <button class="btn" onclick="loadPoints()">
+        Load Points
+      </button>
+
+      <button class="btn secondary" onclick="clearPoints()">
+        Clear
+      </button>
+
     </div>
 
     <div id="pointsStatus" class="status info">
@@ -825,7 +883,6 @@ td{
   </div>
 
 </section>
-
 
 <!-- ================= AI PLAYER ================= -->
 
@@ -942,9 +999,12 @@ td{
     </div>
 
     <div class="toolbar" style="margin-top:12px">
-      <button class="btn success full" onclick="generatePlayerImage()">
+
+      <button class="btn success full"
+              onclick="generatePlayerImage()">
         ✨ Generate AI Player Image
       </button>
+
     </div>
 
     <div id="aiStatus" class="status info">
@@ -956,7 +1016,6 @@ td{
   </div>
 
 </section>
-
 
 <!-- ================= POSTER ================= -->
 
@@ -1000,9 +1059,12 @@ td{
     </div>
 
     <div class="toolbar" style="margin-top:12px">
-      <button class="btn success full" onclick="generatePoster()">
+
+      <button class="btn success full"
+              onclick="generatePoster()">
         🎨 Generate Poster
       </button>
+
     </div>
 
     <div id="posterStatus" class="status info">
@@ -1014,7 +1076,6 @@ td{
   </div>
 
 </section>
-
 
 <!-- ================= PLAYER CARD ================= -->
 
@@ -1053,9 +1114,12 @@ td{
     </div>
 
     <div class="toolbar" style="margin-top:12px">
-      <button class="btn success full" onclick="generatePlayerCard()">
+
+      <button class="btn success full"
+              onclick="generatePlayerCard()">
         🪪 Generate Player Card
       </button>
+
     </div>
 
     <div id="cardStatus" class="status info">
@@ -1067,7 +1131,6 @@ td{
   </div>
 
 </section>
-
 
 <!-- ================= NEWS ================= -->
 
@@ -1099,7 +1162,6 @@ td{
 
 </div>
 
-
 <!-- ================= LIVE MODE ================= -->
 
 <div id="liveMode">
@@ -1109,12 +1171,15 @@ td{
     <div class="live-mode-header">
 
       <div>
-        <div class="live-mode-title">🏏 Cricket Short • LIVE SCORE</div>
+        <div class="live-mode-title">
+          🏏 Cricket Short • LIVE SCORE
+        </div>
       </div>
 
       <div class="live-mode-controls">
 
-        <button class="share-live" onclick="shareLiveScores()">
+        <button class="share-live"
+                onclick="shareLiveScores()">
           📤 Share
         </button>
 
@@ -1122,7 +1187,8 @@ td{
           ⛶ Fullscreen
         </button>
 
-        <button class="close-live" onclick="closeLiveMode()">
+        <button class="close-live"
+                onclick="closeLiveMode()">
           ✕ Close
         </button>
 
@@ -1130,20 +1196,27 @@ td{
 
     </div>
 
-    <div id="liveCountdown" class="live-countdown">
+    <div id="liveCountdown"
+         class="live-countdown">
       Next refresh: 120s
     </div>
 
     <div id="liveModeMatches"></div>
 
     <div class="stream-help">
+
       📺 <b>Prism Live / Facebook / YouTube Live:</b><br>
+
       इस Live Mode को Fullscreen करें और Prism Live में
-      <b>Screen Capture / Display Capture</b> चुनकर अपने Live Stream में दिखाएं।
+      <b>Screen Capture / Display Capture</b> चुनकर
+      अपने Live Stream में दिखाएं।
+
       <br>
+
       <span style="color:#8fb6d6">
         Score अपने आप लगभग हर 2 मिनट में refresh होगा।
       </span>
+
     </div>
 
     <div class="live-mode-footer">
@@ -1153,7 +1226,6 @@ td{
   </div>
 
 </div>
-
 
 <script>
 
@@ -1186,11 +1258,13 @@ function $(id){
 }
 
 function safeString(value){
+
   if(value === null || value === undefined){
     return "";
   }
 
   if(typeof value === "object"){
+
     try{
       return JSON.stringify(value);
     }catch(e){
@@ -1215,8 +1289,7 @@ function safeJSONArg(value){
 
   return JSON.stringify(value)
     .replace(/\\/g,"\\\\")
-    .replace(/'/g,"\\'")
-    .replace(/"/g,"&quot;");
+    .replace(/'/g,"\\'");
 }
 
 
@@ -1226,9 +1299,12 @@ function safeJSONArg(value){
 
 function showSection(id,button){
 
-  document.querySelectorAll(".section").forEach(function(section){
-    section.classList.remove("active");
-  });
+  document.querySelectorAll(".section")
+    .forEach(function(section){
+
+      section.classList.remove("active");
+
+    });
 
   const target = $(id);
 
@@ -1236,9 +1312,12 @@ function showSection(id,button){
     target.classList.add("active");
   }
 
-  document.querySelectorAll(".nav button").forEach(function(btn){
-    btn.classList.remove("active");
-  });
+  document.querySelectorAll(".nav button")
+    .forEach(function(btn){
+
+      btn.classList.remove("active");
+
+    });
 
   if(button){
     button.classList.add("active");
@@ -1267,7 +1346,10 @@ function setStatus(id,message,type){
     return;
   }
 
-  el.className = "status " + (type || "info");
+  el.className =
+    "status " +
+    (type || "info");
+
   el.textContent = message;
 }
 
@@ -1278,7 +1360,11 @@ function setStatus(id,message,type){
 
 async function getJSON(url,options){
 
-  const response = await fetch(API_BASE + url,options);
+  const response =
+    await fetch(
+      API_BASE + url,
+      options
+    );
 
   const contentType =
     response.headers.get("content-type") || "";
@@ -1292,22 +1378,35 @@ async function getJSON(url,options){
     }catch(e){}
 
     throw new Error(
-      "HTTP " + response.status +
-      (errorText ? ": " + errorText.slice(0,250) : "")
+      "HTTP " +
+      response.status +
+      (
+        errorText
+          ? ": " + errorText.slice(0,250)
+          : ""
+      )
     );
   }
 
-  if(contentType.includes("application/json")){
+  if(
+    contentType.includes(
+      "application/json"
+    )
+  ){
 
     return await response.json();
 
   }
 
-  const text = await response.text();
+  const text =
+    await response.text();
 
   try{
+
     return JSON.parse(text);
+
   }catch(e){
+
     return {
       success:true,
       data:text
@@ -1368,7 +1467,10 @@ function findArrayByKeys(value,keys){
 
     for(const key of keys){
 
-      if(data && Array.isArray(data[key])){
+      if(
+        data &&
+        Array.isArray(data[key])
+      ){
         return data[key];
       }
     }
@@ -1389,6 +1491,7 @@ function findValue(obj,keys){
       obj[key] !== undefined &&
       obj[key] !== null
     ){
+
       return obj[key];
     }
   }
@@ -1398,7 +1501,7 @@ function findValue(obj,keys){
 
 
 /* ============================================================
-   MATCH HELPERS
+   MATCH ID
 ============================================================ */
 
 function getMatchId(match){
@@ -1413,73 +1516,367 @@ function getMatchId(match){
   ]);
 }
 
-function getTeamName(team){
 
-  if(typeof team === "string"){
-    return team;
-  }
+/* ============================================================
+   ⭐ NEW TEAM PARSER
+   YOUR API USES:
+   first_team
+   second_team
+============================================================ */
+
+function getTeamName(team){
 
   if(!team){
     return "";
   }
 
-  return findValue(team,[
-    "name",
-    "teamName",
-    "shortname",
-    "shortName",
-    "title",
-    "team"
-  ]) || "Team";
+  if(typeof team === "string"){
+    return team.trim();
+  }
+
+  return (
+    findValue(team,[
+      "name",
+      "shortname",
+      "shortName",
+      "teamName",
+      "full_name",
+      "fullName",
+      "title",
+      "team"
+    ]) || ""
+  ).toString().trim();
 }
+
+function getTeamFullName(team){
+
+  if(!team || typeof team !== "object"){
+    return "";
+  }
+
+  return (
+    findValue(team,[
+      "full_name",
+      "fullName",
+      "name"
+    ]) || ""
+  ).toString().trim();
+}
+
+
+/* ============================================================
+   ⭐ NEW TEAM LIST
+============================================================ */
 
 function getTeams(match){
 
-  let teams = findValue(match,[
-    "teams",
-    "team",
-    "participants"
-  ]);
+  const result = [];
 
-  if(Array.isArray(teams)){
-    return teams;
+  /* YOUR CURRENT API FORMAT */
+
+  if(match && match.first_team){
+
+    result.push(
+      match.first_team
+    );
   }
 
-  if(teams && typeof teams === "object"){
+  if(match && match.second_team){
 
-    return Object.values(teams);
+    result.push(
+      match.second_team
+    );
   }
 
-  const team1 = findValue(match,[
-    "team1",
-    "homeTeam",
-    "home_team",
-    "teamA"
-  ]);
+  /* Standard teams[] */
 
-  const team2 = findValue(match,[
-    "team2",
-    "awayTeam",
-    "away_team",
-    "teamB"
-  ]);
+  if(!result.length){
 
-  return [team1,team2].filter(Boolean);
+    const teams =
+      findValue(match,[
+        "teams",
+        "team",
+        "participants"
+      ]);
+
+    if(Array.isArray(teams)){
+
+      result.push(...teams);
+
+    }else if(
+      teams &&
+      typeof teams === "object"
+    ){
+
+      result.push(
+        ...Object.values(teams)
+      );
+    }
+  }
+
+  /* teamInfo[] */
+
+  if(!result.length){
+
+    const teamInfo =
+      findValue(match,[
+        "teamInfo",
+        "team_info"
+      ]);
+
+    if(Array.isArray(teamInfo)){
+
+      result.push(...teamInfo);
+    }
+  }
+
+  /* Other formats */
+
+  if(!result.length){
+
+    const team1 =
+      findValue(match,[
+        "team1",
+        "homeTeam",
+        "home_team",
+        "teamA",
+        "t1"
+      ]);
+
+    const team2 =
+      findValue(match,[
+        "team2",
+        "awayTeam",
+        "away_team",
+        "teamB",
+        "t2"
+      ]);
+
+    if(team1){
+      result.push(team1);
+    }
+
+    if(team2){
+      result.push(team2);
+    }
+  }
+
+  return result.slice(0,2);
 }
+
+
+/* ============================================================
+   ⭐ SCORE FROM TEAM
+============================================================ */
+
+function getTeamScore(team){
+
+  if(!team){
+    return "";
+  }
+
+  /* YOUR API:
+     first_team.score
+     second_team.score
+  */
+
+  if(
+    typeof team.score === "string" &&
+    team.score.trim()
+  ){
+
+    return team.score.trim();
+  }
+
+  if(
+    typeof team.score === "number"
+  ){
+
+    return String(team.score);
+  }
+
+  /* score object */
+
+  if(
+    team.score &&
+    typeof team.score === "object"
+  ){
+
+    const score =
+      team.score;
+
+    const runs =
+      findValue(score,[
+        "runs",
+        "r",
+        "score",
+        "total"
+      ]);
+
+    const wickets =
+      findValue(score,[
+        "w",
+        "wickets",
+        "wkts"
+      ]);
+
+    const overs =
+      findValue(score,[
+        "o",
+        "overs"
+      ]);
+
+    if(runs !== ""){
+
+      let output =
+        String(runs);
+
+      if(
+        wickets !== "" &&
+        wickets !== null &&
+        wickets !== undefined
+      ){
+
+        output +=
+          "/" + wickets;
+      }
+
+      if(
+        overs !== "" &&
+        overs !== null &&
+        overs !== undefined
+      ){
+
+        output +=
+          " (" + overs + " ov)";
+      }
+
+      return output;
+    }
+  }
+
+  /* innings[] */
+
+  if(
+    Array.isArray(team.innings) &&
+    team.innings.length
+  ){
+
+    const inning =
+      team.innings[
+        team.innings.length - 1
+      ];
+
+    const runs =
+      findValue(inning,[
+        "runs",
+        "r",
+        "score"
+      ]);
+
+    const wickets =
+      findValue(inning,[
+        "wickets",
+        "w",
+        "wkts"
+      ]);
+
+    const overs =
+      findValue(inning,[
+        "overs",
+        "o"
+      ]);
+
+    if(runs !== ""){
+
+      let output =
+        String(runs);
+
+      if(
+        wickets !== "" &&
+        wickets !== null &&
+        wickets !== undefined
+      ){
+
+        output +=
+          "/" + wickets;
+      }
+
+      if(
+        overs !== "" &&
+        overs !== null &&
+        overs !== undefined
+      ){
+
+        output +=
+          " (" + overs + " ov)";
+      }
+
+      return output;
+    }
+  }
+
+  return "";
+}
+
+
+/* ============================================================
+   TEAM + SCORE ROWS
+============================================================ */
+
+function getTeamScoreRows(match){
+
+  const teams =
+    getTeams(match);
+
+  return teams.map(
+    function(team,index){
+
+      return {
+
+        name:
+          getTeamName(team) ||
+          (
+            index === 0
+              ? "Team 1"
+              : "Team 2"
+          ),
+
+        fullName:
+          getTeamFullName(team),
+
+        score:
+          getTeamScore(team)
+
+      };
+
+    }
+  );
+}
+
+
+/* ============================================================
+   SCORE FORMAT
+============================================================ */
 
 function getScoreArray(match){
 
-  let score = findValue(match,[
-    "score",
-    "scores",
-    "innings"
-  ]);
+  const score =
+    findValue(match,[
+      "score",
+      "scores",
+      "innings"
+    ]);
 
   if(Array.isArray(score)){
     return score;
   }
 
-  if(score && typeof score === "object"){
+  if(
+    score &&
+    typeof score === "object"
+  ){
+
     return Object.values(score);
   }
 
@@ -1488,33 +1885,43 @@ function getScoreArray(match){
 
 function scoreText(score){
 
-  if(score === null || score === undefined){
+  if(
+    score === null ||
+    score === undefined
+  ){
     return "";
   }
 
-  if(typeof score === "string" || typeof score === "number"){
+  if(
+    typeof score === "string" ||
+    typeof score === "number"
+  ){
+
     return String(score);
   }
 
   if(typeof score === "object"){
 
-    const runs = findValue(score,[
-      "r",
-      "runs",
-      "score",
-      "total"
-    ]);
+    const runs =
+      findValue(score,[
+        "r",
+        "runs",
+        "score",
+        "total"
+      ]);
 
-    const wickets = findValue(score,[
-      "w",
-      "wickets",
-      "wkts"
-    ]);
+    const wickets =
+      findValue(score,[
+        "w",
+        "wickets",
+        "wkts"
+      ]);
 
-    const overs = findValue(score,[
-      "o",
-      "overs"
-    ]);
+    const overs =
+      findValue(score,[
+        "o",
+        "overs"
+      ]);
 
     let result = "";
 
@@ -1527,7 +1934,8 @@ function scoreText(score){
     }
 
     if(overs !== ""){
-      result += " (" + overs + " ov)";
+      result +=
+        " (" + overs + " ov)";
     }
 
     return result;
@@ -1538,53 +1946,109 @@ function scoreText(score){
 
 function formatScore(match,index){
 
-  const scores = getScoreArray(match);
+  /* ⭐ FIRST: read score directly from
+     first_team / second_team */
+
+  const teams =
+    getTeams(match);
+
+  if(teams[index]){
+
+    const teamScore =
+      getTeamScore(
+        teams[index]
+      );
+
+    if(teamScore){
+      return teamScore;
+    }
+  }
+
+  /* Fallback score[] */
+
+  const scores =
+    getScoreArray(match);
 
   if(scores[index] !== undefined){
 
-    return scoreText(scores[index]);
+    return scoreText(
+      scores[index]
+    );
   }
 
+  /* Direct score fields */
+
   const directScores = [
-    findValue(match,["score1","team1_score","home_score"]),
-    findValue(match,["score2","team2_score","away_score"])
+
+    findValue(match,[
+      "score1",
+      "team1_score",
+      "home_score"
+    ]),
+
+    findValue(match,[
+      "score2",
+      "team2_score",
+      "away_score"
+    ])
+
   ];
 
   return directScores[index] || "";
 }
 
+
+/* ============================================================
+   STATUS
+============================================================ */
+
 function getStatus(match){
 
-  const status = safeString(
-    findValue(match,[
-      "status",
-      "matchStatus",
-      "state",
-      "match_status"
-    ])
-  ).toLowerCase();
+  const status =
+    safeString(
+      findValue(match,[
+        "status",
+        "matchStatus",
+        "match_status",
+        "state"
+      ])
+    ).toLowerCase();
 
-  const liveValues = [
-    "live",
-    "in progress",
-    "in_progress",
-    "playing",
-    "started",
-    "innings break",
-    "drinks"
-  ];
+  const statusDetail =
+    safeString(
+      findValue(match,[
+        "status_detail",
+        "statusDetail",
+        "short_status",
+        "shortStatus"
+      ])
+    ).toLowerCase();
 
-  for(const value of liveValues){
+  if(
+    status === "live" ||
+    status.includes("live") ||
+    status.includes("in progress") ||
+    status.includes("in_progress") ||
+    status.includes("playing") ||
+    status.includes("started")
+  ){
 
-    if(status.includes(value)){
-      return "LIVE";
-    }
+    return "LIVE";
+  }
+
+  if(
+    statusDetail.includes("live") ||
+    statusDetail.includes("in progress")
+  ){
+
+    return "LIVE";
   }
 
   if(
     status.includes("delay") ||
     status.includes("rain")
   ){
+
     return "DELAYED";
   }
 
@@ -1592,6 +2056,7 @@ function getStatus(match){
     status.includes("stump") ||
     status.includes("break")
   ){
+
     return "STUMPS";
   }
 
@@ -1602,6 +2067,7 @@ function getStatus(match){
     status.includes("finished") ||
     status.includes("complete")
   ){
+
     return "RESULT";
   }
 
@@ -1610,59 +2076,99 @@ function getStatus(match){
     : "UPCOMING";
 }
 
+
+/* ============================================================
+   STATUS DETAIL
+============================================================ */
+
+function getStatusDetail(match){
+
+  return findValue(match,[
+    "status_detail",
+    "statusDetail",
+    "short_status",
+    "shortStatus"
+  ]) || "";
+}
+
+
+/* ============================================================
+   VENUE
+============================================================ */
+
 function getVenue(match){
 
-  const venue = findValue(match,[
-    "venue",
-    "ground",
-    "stadium",
-    "location"
-  ]);
-
-  if(typeof venue === "object"){
-
-    return findValue(venue,[
-      "name",
+  const venue =
+    findValue(match,[
       "venue",
-      "ground"
+      "ground",
+      "stadium",
+      "location"
     ]);
+
+  if(
+    venue &&
+    typeof venue === "object"
+  ){
+
+    return findValue(
+      venue,
+      [
+        "name",
+        "venue",
+        "ground"
+      ]
+    );
   }
 
   return venue;
 }
 
+
+/* ============================================================
+   SERIES
+============================================================ */
+
 function getSeries(match){
 
   return findValue(match,[
-    "series",
+    "series_name",
     "seriesName",
+    "series",
     "tournament",
     "competition",
     "league"
   ]);
 }
 
+
+/* ============================================================
+   MATCH TITLE
+============================================================ */
+
 function getMatchTitle(match){
 
-  const title = findValue(match,[
-    "name",
-    "match",
-    "matchName",
-    "title"
-  ]);
+  const title =
+    findValue(match,[
+      "title",
+      "name",
+      "matchName",
+      "match"
+    ]);
 
   if(title){
     return title;
   }
 
-  const teams = getTeams(match);
+  const teams =
+    getTeamScoreRows(match);
 
   if(teams.length >= 2){
 
     return (
-      getTeamName(teams[0]) +
+      teams[0].name +
       " vs " +
-      getTeamName(teams[1])
+      teams[1].name
     );
   }
 
@@ -1676,58 +2182,80 @@ function getMatchTitle(match){
 
 function registerShareMatch(match){
 
-  const id = getMatchId(match);
+  const id =
+    getMatchId(match);
 
-  let key = id
-    ? "match-" + String(id)
-    : "local-" + (++shareCounter);
+  const key =
+    id
+      ? "match-" + String(id)
+      : "local-" + (++shareCounter);
 
-  shareRegistry[key] = match;
+  shareRegistry[key] =
+    match;
 
   return key;
 }
 
 function buildMatchShareText(match){
 
-  const title = getMatchTitle(match);
-  const status = getStatus(match);
-  const teams = getTeams(match);
+  const title =
+    getMatchTitle(match);
 
-  let text = "🏏 Cricket Short\n";
-  text += title + "\n";
-  text += "Status: " + status + "\n";
+  const rows =
+    getTeamScoreRows(match);
 
-  if(teams.length >= 1){
+  const status =
+    getStatus(match);
+
+  const detail =
+    getStatusDetail(match);
+
+  let text =
+    "🏏 Cricket Short\n\n";
+
+  text +=
+    title + "\n\n";
+
+  rows.forEach(function(row){
 
     text +=
-      getTeamName(teams[0]) +
+      "🏏 " +
+      row.name +
       ": " +
-      (formatScore(match,0) || "—") +
+      (row.score || "—") +
       "\n";
-  }
+  });
 
-  if(teams.length >= 2){
+  text +=
+    "\n🔴 " +
+    status;
+
+  if(detail){
 
     text +=
-      getTeamName(teams[1]) +
-      ": " +
-      (formatScore(match,1) || "—") +
-      "\n";
+      "\n" + detail;
   }
 
-  const venue = getVenue(match);
+  const venue =
+    getVenue(match);
 
   if(venue){
-    text += "📍 " + venue + "\n";
+
+    text +=
+      "\n📍 " + venue;
   }
 
-  const series = getSeries(match);
+  const series =
+    getSeries(match);
 
   if(series){
-    text += "🏆 " + series + "\n";
+
+    text +=
+      "\n🏆 " + series;
   }
 
-  text += "\n📱 Cricket Short";
+  text +=
+    "\n\n📱 Cricket Short";
 
   return text;
 }
@@ -1738,16 +2266,25 @@ async function shareMatch(match){
     return;
   }
 
-  const title = getMatchTitle(match);
+  const title =
+    getMatchTitle(match);
 
-  const text = buildMatchShareText(match);
+  const text =
+    buildMatchShareText(match);
 
-  const url = window.location.href;
+  const url =
+    window.location.href;
 
   const shareData = {
-    title:"🏏 Cricket Short - " + title,
+
+    title:
+      "🏏 Cricket Short - " +
+      title,
+
     text:text,
+
     url:url
+
   };
 
   if(
@@ -1757,16 +2294,21 @@ async function shareMatch(match){
 
     try{
 
-      await navigator.share(shareData);
+      await navigator.share(
+        shareData
+      );
 
       return;
 
     }catch(error){
 
-      if(error && error.name === "AbortError"){
+      if(
+        error &&
+        error.name === "AbortError"
+      ){
+
         return;
       }
-
     }
   }
 
@@ -1782,7 +2324,9 @@ async function shareMatch(match){
       navigator.clipboard.writeText
     ){
 
-      await navigator.clipboard.writeText(fullText);
+      await navigator.clipboard.writeText(
+        fullText
+      );
 
       alert(
         "📋 Score text और link copy हो गया।\n" +
@@ -1802,7 +2346,8 @@ async function shareMatch(match){
 
 async function shareMatchByKey(key){
 
-  const match = shareRegistry[key];
+  const match =
+    shareRegistry[key];
 
   if(!match){
 
@@ -1814,16 +2359,18 @@ async function shareMatchByKey(key){
   await shareMatch(match);
 }
 
+
+/* ============================================================
+   SHARE ALL LIVE SCORES
+============================================================ */
+
 async function shareLiveScores(){
 
   if(!currentLiveMatches.length){
 
     try{
-
       await loadScores();
-
     }catch(error){}
-
   }
 
   if(!currentLiveMatches.length){
@@ -1838,9 +2385,15 @@ async function shareLiveScores(){
       if(navigator.share){
 
         await navigator.share({
-          title:"🏏 Cricket Short Live Score",
+
+          title:
+            "🏏 Cricket Short Live Score",
+
           text:text,
-          url:window.location.href
+
+          url:
+            window.location.href
+
         });
 
         return;
@@ -1848,16 +2401,23 @@ async function shareLiveScores(){
 
     }catch(error){
 
-      if(error && error.name === "AbortError"){
+      if(
+        error &&
+        error.name === "AbortError"
+      ){
         return;
       }
     }
 
     try{
 
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(
+        text
+      );
 
-      alert("📋 Live Score message copy हो गया।");
+      alert(
+        "📋 Live Score message copy हो गया।"
+      );
 
     }catch(error){
 
@@ -1873,28 +2433,57 @@ async function shareLiveScores(){
   let text =
     "🏏 Cricket Short - LIVE SCORE\n\n";
 
-  currentLiveMatches.forEach(function(match){
+  currentLiveMatches.forEach(
+    function(match){
 
-    text +=
-      getMatchTitle(match) +
-      "\n";
+      text +=
+        getMatchTitle(match) +
+        "\n\n";
 
-    text +=
-      getTeams(match).map(function(team,index){
+      const rows =
+        getTeamScoreRows(match);
 
-        return (
-          getTeamName(team) +
-          ": " +
-          (formatScore(match,index) || "—")
-        );
+      rows.forEach(
+        function(row){
 
-      }).join("\n");
+          text +=
+            "🏏 " +
+            row.name +
+            ": " +
+            (row.score || "—") +
+            "\n";
+        }
+      );
 
-    text +=
-      "\nStatus: " +
-      getStatus(match) +
-      "\n\n";
-  });
+      text +=
+        "🔴 " +
+        getStatus(match) +
+        "\n";
+
+      const detail =
+        getStatusDetail(match);
+
+      if(detail){
+
+        text +=
+          detail +
+          "\n";
+      }
+
+      const venue =
+        getVenue(match);
+
+      if(venue){
+
+        text +=
+          "📍 " +
+          venue +
+          "\n";
+      }
+
+      text += "\n";
+    }
+  );
 
   text +=
     "🔗 " +
@@ -1905,9 +2494,15 @@ async function shareLiveScores(){
     if(navigator.share){
 
       await navigator.share({
-        title:"🏏 Cricket Short - Live Score",
+
+        title:
+          "🏏 Cricket Short - Live Score",
+
         text:text,
-        url:window.location.href
+
+        url:
+          window.location.href
+
       });
 
       return;
@@ -1915,14 +2510,19 @@ async function shareLiveScores(){
 
   }catch(error){
 
-    if(error && error.name === "AbortError"){
+    if(
+      error &&
+      error.name === "AbortError"
+    ){
       return;
     }
   }
 
   try{
 
-    await navigator.clipboard.writeText(text);
+    await navigator.clipboard.writeText(
+      text
+    );
 
     alert(
       "📋 Live Score copy हो गया।\n" +
@@ -1940,22 +2540,36 @@ async function shareLiveScores(){
 
 
 /* ============================================================
-   MATCH CARD
+   NORMAL MATCH CARD
 ============================================================ */
 
 function renderMatchCard(match){
 
-  const title = getMatchTitle(match);
-  const status = getStatus(match);
-  const teams = getTeams(match);
-  const venue = getVenue(match);
-  const series = getSeries(match);
+  const title =
+    getMatchTitle(match);
 
-  const shareKey = registerShareMatch(match);
+  const status =
+    getStatus(match);
+
+  const rows =
+    getTeamScoreRows(match);
+
+  const venue =
+    getVenue(match);
+
+  const series =
+    getSeries(match);
+
+  const detail =
+    getStatusDetail(match);
+
+  const shareKey =
+    registerShareMatch(match);
 
   let html = "";
 
-  html += '<div class="match-card">';
+  html +=
+    '<div class="match-card">';
 
   html +=
     '<div class="match-title">' +
@@ -1972,29 +2586,69 @@ function renderMatchCard(match){
 
   html +=
     '<span class="match-status ' +
-    (status === "LIVE" ? "live" : "") +
+    (
+      status === "LIVE"
+        ? "live"
+        : ""
+    ) +
     '">' +
     escapeHTML(status) +
     '</span>';
 
-  teams.forEach(function(team,index){
+  html +=
+    '<div class="team-score-box">';
+
+  rows.forEach(
+    function(row){
+
+      html +=
+        '<div class="team-row">' +
+
+          '<div class="team-name">' +
+
+            escapeHTML(row.name);
+
+      if(
+        row.fullName &&
+        row.fullName !== row.name
+      ){
+
+        html +=
+          '<span class="team-full-name">' +
+          escapeHTML(row.fullName) +
+          '</span>';
+      }
+
+      html +=
+          '</div>' +
+
+          '<div class="team-score">' +
+          escapeHTML(
+            row.score || "—"
+          ) +
+          '</div>' +
+
+        '</div>';
+    }
+  );
+
+  html +=
+    '</div>';
+
+  if(detail){
 
     html +=
-      '<div class="team-row">' +
-        '<div class="team-name">' +
-          escapeHTML(getTeamName(team)) +
-        '</div>' +
-        '<div class="team-score">' +
-          escapeHTML(formatScore(match,index) || "—") +
-        '</div>' +
+      '<div class="match-meta">' +
+      'ℹ️ ' +
+      escapeHTML(detail) +
       '</div>';
-
-  });
+  }
 
   if(venue){
 
     html +=
-      '<div class="match-meta">📍 ' +
+      '<div class="match-meta">' +
+      '📍 ' +
       escapeHTML(venue) +
       '</div>';
   }
@@ -2002,7 +2656,8 @@ function renderMatchCard(match){
   html +=
     '<div class="match-actions">';
 
-  const matchId = getMatchId(match);
+  const matchId =
+    getMatchId(match);
 
   if(matchId){
 
@@ -2019,10 +2674,14 @@ function renderMatchCard(match){
   }else{
 
     html +=
-      '<button disabled style="opacity:.45">📊 Scorecard</button>';
+      '<button disabled style="opacity:.45">' +
+      '📊 Scorecard' +
+      '</button>';
 
     html +=
-      '<button class="ball-btn" disabled style="opacity:.45">🏏 Ball-by-Ball</button>';
+      '<button class="ball-btn" disabled style="opacity:.45">' +
+      '🏏 Ball-by-Ball' +
+      '</button>';
   }
 
   html +=
@@ -2030,8 +2689,11 @@ function renderMatchCard(match){
     safeJSONArg(shareKey) +
     ')\'>📤 Share Score</button>';
 
-  html += '</div>';
-  html += '</div>';
+  html +=
+    '</div>';
+
+  html +=
+    '</div>';
 
   return html;
 }
@@ -2051,24 +2713,28 @@ async function loadScores(){
 
   try{
 
-    const data = await getJSON(
-      "/api/live-score"
-    );
+    const data =
+      await getJSON(
+        "/api/live-score"
+      );
 
-    const matches = findArrayByKeys(
-      data,
-      [
-        "matches",
-        "data",
-        "results",
-        "live",
-        "live_matches"
-      ]
-    );
+    const matches =
+      findArrayByKeys(
+        data,
+        [
+          "matches",
+          "data",
+          "results",
+          "live",
+          "live_matches"
+        ]
+      );
 
-    currentLiveMatches = matches || [];
+    currentLiveMatches =
+      matches || [];
 
-    const container = $("liveMatches");
+    const container =
+      $("liveMatches");
 
     if(!container){
       return;
@@ -2089,11 +2755,21 @@ async function loadScores(){
         "info"
       );
 
+      if(
+        $("liveMode") &&
+        $("liveMode").classList.contains("open")
+      ){
+
+        renderLiveModeMatches([]);
+      }
+
       return;
     }
 
     container.innerHTML =
-      matches.map(renderMatchCard).join("");
+      matches
+        .map(renderMatchCard)
+        .join("");
 
     setStatus(
       "liveStatus",
@@ -2105,9 +2781,14 @@ async function loadScores(){
       "success"
     );
 
-    if($("liveMode").classList.contains("open")){
+    if(
+      $("liveMode") &&
+      $("liveMode").classList.contains("open")
+    ){
 
-      renderLiveModeMatches(matches);
+      renderLiveModeMatches(
+        matches
+      );
     }
 
   }catch(error){
@@ -2149,20 +2830,22 @@ async function loadFixtures(){
 
   try{
 
-    const data = await getJSON(
-      "/api/fixtures"
-    );
+    const data =
+      await getJSON(
+        "/api/fixtures"
+      );
 
-    const matches = findArrayByKeys(
-      data,
-      [
-        "matches",
-        "fixtures",
-        "upcoming",
-        "results",
-        "data"
-      ]
-    );
+    const matches =
+      findArrayByKeys(
+        data,
+        [
+          "matches",
+          "fixtures",
+          "upcoming",
+          "results",
+          "data"
+        ]
+      );
 
     if(!matches.length){
 
@@ -2181,7 +2864,9 @@ async function loadFixtures(){
     }
 
     $("fixturesList").innerHTML =
-      matches.map(renderFixtureCard).join("");
+      matches
+        .map(renderFixtureCard)
+        .join("");
 
     setStatus(
       "fixtureStatus",
@@ -2218,9 +2903,14 @@ function setToolMatchId(id){
     return;
   }
 
-  $("scorecardId").value = id;
-  $("ballId").value = id;
-  $("pointsId").value = id;
+  $("scorecardId").value =
+    id;
+
+  $("ballId").value =
+    id;
+
+  $("pointsId").value =
+    id;
 }
 
 function openScorecard(id){
@@ -2229,7 +2919,9 @@ function openScorecard(id){
 
   showSection(
     "scorecard",
-    document.querySelector('.nav button:nth-child(3)')
+    document.querySelector(
+      ".nav button:nth-child(3)"
+    )
   );
 
   loadScorecard();
@@ -2241,7 +2933,9 @@ function openBallByBall(id){
 
   showSection(
     "ball",
-    document.querySelector('.nav button:nth-child(4)')
+    document.querySelector(
+      ".nav button:nth-child(4)"
+    )
   );
 
   loadBallByBall();
@@ -2255,6 +2949,7 @@ function openBallByBall(id){
 function clearScorecard(){
 
   $("scorecardId").value = "";
+
   $("scorecardResult").innerHTML = "";
 
   setStatus(
@@ -2300,52 +2995,71 @@ function renderBattingTable(batting){
 
   batting.forEach(function(player){
 
-    const name = findValue(player,[
-      "batsman",
-      "batter",
-      "name",
-      "player"
-    ]);
+    const name =
+      findValue(player,[
+        "batsman",
+        "batter",
+        "name",
+        "player"
+      ]);
 
-    const runs = findValue(player,[
-      "r",
-      "runs",
-      "score"
-    ]);
+    const runs =
+      findValue(player,[
+        "r",
+        "runs",
+        "score"
+      ]);
 
-    const balls = findValue(player,[
-      "b",
-      "balls"
-    ]);
+    const balls =
+      findValue(player,[
+        "b",
+        "balls"
+      ]);
 
-    const fours = findValue(player,[
-      "4s",
-      "fours"
-    ]);
+    const fours =
+      findValue(player,[
+        "4s",
+        "fours"
+      ]);
 
-    const sixes = findValue(player,[
-      "6s",
-      "sixes"
-    ]);
+    const sixes =
+      findValue(player,[
+        "6s",
+        "sixes"
+      ]);
 
-    const sr = findValue(player,[
-      "sr",
-      "strikeRate",
-      "strike_rate"
-    ]);
+    const sr =
+      findValue(player,[
+        "sr",
+        "strikeRate",
+        "strike_rate"
+      ]);
 
     html +=
       "<tr>" +
-      "<td>" + escapeHTML(name) + "</td>" +
-      "<td>" + escapeHTML(runs) + "</td>" +
-      "<td>" + escapeHTML(balls) + "</td>" +
-      "<td>" + escapeHTML(fours) + "</td>" +
-      "<td>" + escapeHTML(sixes) + "</td>" +
-      "<td>" + escapeHTML(sr) + "</td>" +
+      "<td>" +
+      escapeHTML(name) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(runs) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(balls) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(fours) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(sixes) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(sr) +
+      "</td>" +
       "</tr>";
   });
 
-  html += "</tbody></table></div>";
+  html +=
+    "</tbody></table></div>";
 
   return html;
 }
@@ -2371,56 +3085,76 @@ function renderBowlingTable(bowling){
 
   bowling.forEach(function(player){
 
-    const name = findValue(player,[
-      "bowler",
-      "name",
-      "player"
-    ]);
+    const name =
+      findValue(player,[
+        "bowler",
+        "name",
+        "player"
+      ]);
 
-    const overs = findValue(player,[
-      "o",
-      "overs"
-    ]);
+    const overs =
+      findValue(player,[
+        "o",
+        "overs"
+      ]);
 
-    const maidens = findValue(player,[
-      "m",
-      "maidens"
-    ]);
+    const maidens =
+      findValue(player,[
+        "m",
+        "maidens"
+      ]);
 
-    const runs = findValue(player,[
-      "r",
-      "runs"
-    ]);
+    const runs =
+      findValue(player,[
+        "r",
+        "runs"
+      ]);
 
-    const wickets = findValue(player,[
-      "w",
-      "wickets"
-    ]);
+    const wickets =
+      findValue(player,[
+        "w",
+        "wickets"
+      ]);
 
-    const economy = findValue(player,[
-      "econ",
-      "economy"
-    ]);
+    const economy =
+      findValue(player,[
+        "econ",
+        "economy"
+      ]);
 
     html +=
       "<tr>" +
-      "<td>" + escapeHTML(name) + "</td>" +
-      "<td>" + escapeHTML(overs) + "</td>" +
-      "<td>" + escapeHTML(maidens) + "</td>" +
-      "<td>" + escapeHTML(runs) + "</td>" +
-      "<td>" + escapeHTML(wickets) + "</td>" +
-      "<td>" + escapeHTML(economy) + "</td>" +
+      "<td>" +
+      escapeHTML(name) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(overs) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(maidens) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(runs) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(wickets) +
+      "</td>" +
+      "<td>" +
+      escapeHTML(economy) +
+      "</td>" +
       "</tr>";
   });
 
-  html += "</tbody></table></div>";
+  html +=
+    "</tbody></table></div>";
 
   return html;
 }
 
 function renderScorecard(data){
 
-  const innings = getInningsArray(data);
+  const innings =
+    getInningsArray(data);
 
   if(!innings.length){
 
@@ -2439,63 +3173,82 @@ function renderScorecard(data){
 
   let html = "";
 
-  innings.forEach(function(inning,index){
+  innings.forEach(
+    function(inning,index){
 
-    const name = findValue(inning,[
-      "team",
-      "teamName",
-      "name",
-      "title"
-    ]) || ("Innings " + (index + 1));
+      const name =
+        findValue(inning,[
+          "team",
+          "teamName",
+          "name",
+          "title"
+        ]) ||
+        (
+          "Innings " +
+          (index + 1)
+        );
 
-    const batting = findValue(inning,[
-      "batting",
-      "batters",
-      "batsmen"
-    ]);
+      const batting =
+        findValue(inning,[
+          "batting",
+          "batters",
+          "batsmen"
+        ]);
 
-    const bowling = findValue(inning,[
-      "bowling",
-      "bowlers"
-    ]);
-
-    html +=
-      '<div class="innings">';
-
-    html +=
-      '<h3>🏏 ' +
-      escapeHTML(name) +
-      '</h3>';
-
-    if(batting){
+      const bowling =
+        findValue(inning,[
+          "bowling",
+          "bowlers"
+        ]);
 
       html +=
-        '<div style="padding:10px 10px 0">' +
-        '<b>Batting</b>' +
-        '</div>';
-
-      html += renderBattingTable(batting);
-    }
-
-    if(bowling){
+        '<div class="innings">';
 
       html +=
-        '<div style="padding:10px 10px 0">' +
-        '<b>Bowling</b>' +
+        '<h3>🏏 ' +
+        escapeHTML(name) +
+        '</h3>';
+
+      if(batting){
+
+        html +=
+          '<div style="padding:10px 10px 0">' +
+          '<b>Batting</b>' +
+          '</div>';
+
+        html +=
+          renderBattingTable(
+            batting
+          );
+      }
+
+      if(bowling){
+
+        html +=
+          '<div style="padding:10px 10px 0">' +
+          '<b>Bowling</b>' +
+          '</div>';
+
+        html +=
+          renderBowlingTable(
+            bowling
+          );
+      }
+
+      html +=
         '</div>';
-
-      html += renderBowlingTable(bowling);
     }
-
-    html += '</div>';
-  });
+  );
 
   return html;
 }
 
 async function loadScorecard(){
 
-  const id = $("scorecardId").value.trim();
+  const id =
+    $("scorecardId")
+      .value
+      .trim();
 
   if(!id){
 
@@ -2514,16 +3267,19 @@ async function loadScorecard(){
     "loading"
   );
 
-  $("scorecardResult").innerHTML = "";
+  $("scorecardResult")
+    .innerHTML = "";
 
   try{
 
-    const data = await getJSON(
-      "/api/scorecard?id=" +
-      encodeURIComponent(id)
-    );
+    const data =
+      await getJSON(
+        "/api/scorecard?id=" +
+        encodeURIComponent(id)
+      );
 
-    $("scorecardResult").innerHTML =
+    $("scorecardResult")
+      .innerHTML =
       renderScorecard(data);
 
     setStatus(
@@ -2551,6 +3307,7 @@ async function loadScorecard(){
 function clearBall(){
 
   $("ballId").value = "";
+
   $("ballResult").innerHTML = "";
 
   setStatus(
@@ -2562,19 +3319,20 @@ function clearBall(){
 
 function renderBallByBall(data){
 
-  const balls = findArrayByKeys(
-    data,
-    [
-      "commentary",
-      "commentaries",
-      "comments",
-      "ball_by_ball",
-      "ballByBall",
-      "deliveries",
-      "balls",
-      "events"
-    ]
-  );
+  const balls =
+    findArrayByKeys(
+      data,
+      [
+        "commentary",
+        "commentaries",
+        "comments",
+        "ball_by_ball",
+        "ballByBall",
+        "deliveries",
+        "balls",
+        "events"
+      ]
+    );
 
   if(!balls.length){
 
@@ -2595,74 +3353,86 @@ function renderBallByBall(data){
     '<div class="match-card">';
 
   html +=
-    '<div class="match-title">🏏 Ball-by-Ball Commentary</div>';
+    '<div class="match-title">' +
+    '🏏 Ball-by-Ball Commentary' +
+    '</div>';
 
-  balls.forEach(function(ball,index){
+  balls.forEach(
+    function(ball,index){
 
-    let text = "";
+      let text = "";
 
-    if(typeof ball === "string"){
+      if(typeof ball === "string"){
 
-      text = ball;
+        text = ball;
 
-    }else{
-
-      text = findValue(ball,[
-        "commentary",
-        "comment",
-        "text",
-        "description",
-        "event"
-      ]);
-
-      if(!text){
-
-        const over = findValue(ball,[
-          "over",
-          "overNumber"
-        ]);
-
-        const runs = findValue(ball,[
-          "runs",
-          "score"
-        ]);
-
-        const batsman = findValue(ball,[
-          "batsman",
-          "batter"
-        ]);
+      }else{
 
         text =
-          "Over " +
-          safeString(over) +
-          " • " +
-          safeString(batsman) +
-          " • " +
-          safeString(runs);
+          findValue(ball,[
+            "commentary",
+            "comment",
+            "text",
+            "description",
+            "event"
+          ]);
+
+        if(!text){
+
+          const over =
+            findValue(ball,[
+              "over",
+              "overNumber"
+            ]);
+
+          const runs =
+            findValue(ball,[
+              "runs",
+              "score"
+            ]);
+
+          const batsman =
+            findValue(ball,[
+              "batsman",
+              "batter"
+            ]);
+
+          text =
+            "Over " +
+            safeString(over) +
+            " • " +
+            safeString(batsman) +
+            " • " +
+            safeString(runs);
+        }
       }
+
+      html +=
+        '<div style="' +
+        'padding:10px 0;' +
+        'border-bottom:1px solid #1e3a54;' +
+        'font-size:13px;' +
+        'line-height:1.5">' +
+        '<b>' +
+        (index + 1) +
+        '.</b> ' +
+        escapeHTML(text) +
+        '</div>';
     }
+  );
 
-    html +=
-      '<div style="' +
-      'padding:10px 0;' +
-      'border-bottom:1px solid #1e3a54;' +
-      'font-size:13px;' +
-      'line-height:1.5">' +
-      '<b>' +
-      (index + 1) +
-      '.</b> ' +
-      escapeHTML(text) +
-      '</div>';
-  });
-
-  html += "</div>";
+  html +=
+    "</div>";
 
   return html;
 }
 
 async function loadBallByBall(){
 
-  const id = $("ballId").value.trim();
+  const id =
+    $("ballId")
+      .value
+      .trim();
 
   if(!id){
 
@@ -2681,16 +3451,19 @@ async function loadBallByBall(){
     "loading"
   );
 
-  $("ballResult").innerHTML = "";
+  $("ballResult")
+    .innerHTML = "";
 
   try{
 
-    const data = await getJSON(
-      "/api/ball-by-ball?id=" +
-      encodeURIComponent(id)
-    );
+    const data =
+      await getJSON(
+        "/api/ball-by-ball?id=" +
+        encodeURIComponent(id)
+      );
 
-    $("ballResult").innerHTML =
+    $("ballResult")
+      .innerHTML =
       renderBallByBall(data);
 
     setStatus(
@@ -2718,6 +3491,7 @@ async function loadBallByBall(){
 function clearPoints(){
 
   $("pointsId").value = "";
+
   $("pointsResult").innerHTML = "";
 
   setStatus(
@@ -2729,7 +3503,10 @@ function clearPoints(){
 
 async function loadPoints(){
 
-  const id = $("pointsId").value.trim();
+  const id =
+    $("pointsId")
+      .value
+      .trim();
 
   if(!id){
 
@@ -2748,16 +3525,19 @@ async function loadPoints(){
     "loading"
   );
 
-  $("pointsResult").innerHTML = "";
+  $("pointsResult")
+    .innerHTML = "";
 
   try{
 
-    const data = await getJSON(
-      "/api/match-points?id=" +
-      encodeURIComponent(id)
-    );
+    const data =
+      await getJSON(
+        "/api/match-points?id=" +
+        encodeURIComponent(id)
+      );
 
-    $("pointsResult").innerHTML =
+    $("pointsResult")
+      .innerHTML =
       '<div class="result-box"><pre>' +
       escapeHTML(
         JSON.stringify(
@@ -2810,18 +3590,23 @@ async function generateImageFromPrompt(
 
   try{
 
-    const response = await fetch(
-      API_BASE + "/api/generate-image",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-          prompt:prompt
-        })
-      }
-    );
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/generate-image",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:JSON.stringify({
+            prompt:prompt
+          })
+        }
+      );
 
     if(!response.ok){
 
@@ -2837,19 +3622,28 @@ async function generateImageFromPrompt(
     }
 
     const contentType =
-      response.headers.get("content-type") || "";
+      response.headers.get(
+        "content-type"
+      ) || "";
 
     let result;
 
-    if(contentType.includes("application/json")){
+    if(
+      contentType.includes(
+        "application/json"
+      )
+    ){
 
-      result = await response.json();
+      result =
+        await response.json();
 
     }else{
 
-      const blob = await response.blob();
+      const blob =
+        await response.blob();
 
-      const url = URL.createObjectURL(blob);
+      const url =
+        URL.createObjectURL(blob);
 
       showGeneratedImage(
         url,
@@ -2928,9 +3722,13 @@ async function generateImageFromPrompt(
   }
 }
 
-function showGeneratedImage(value,containerId){
+function showGeneratedImage(
+  value,
+  containerId
+){
 
-  const container = $(containerId);
+  const container =
+    $(containerId);
 
   if(!container){
     return;
@@ -2944,7 +3742,8 @@ function showGeneratedImage(value,containerId){
 
   }else if(value instanceof Blob){
 
-    src = URL.createObjectURL(value);
+    src =
+      URL.createObjectURL(value);
   }
 
   if(!src){
@@ -2960,8 +3759,7 @@ function showGeneratedImage(value,containerId){
   container.innerHTML =
     '<img src="' +
     escapeHTML(src) +
-    '" alt="Generated Cricket Image" ' +
-    'loading="lazy">';
+    '" alt="Generated Cricket Image" loading="lazy">';
 }
 
 
@@ -2971,19 +3769,44 @@ function showGeneratedImage(value,containerId){
 
 async function generatePlayerImage(){
 
-  const player = $("aiPlayer").value.trim();
-  const team = $("aiTeam").value.trim();
-  const pose = $("aiPose").value;
-  const type = $("aiType").value;
-  const hand = $("aiHand").value;
-  const style = $("aiStyle").value;
-  const jersey = $("aiJersey").value.trim();
-  const number = $("aiNumber").value.trim();
-  const stadium = $("aiStadium").value.trim();
-  const weather = $("aiWeather").value;
-  const time = $("aiTime").value;
-  const camera = $("aiCamera").value;
-  const tournament = $("aiTournament").value.trim();
+  const player =
+    $("aiPlayer").value.trim();
+
+  const team =
+    $("aiTeam").value.trim();
+
+  const pose =
+    $("aiPose").value;
+
+  const type =
+    $("aiType").value;
+
+  const hand =
+    $("aiHand").value;
+
+  const style =
+    $("aiStyle").value;
+
+  const jersey =
+    $("aiJersey").value.trim();
+
+  const number =
+    $("aiNumber").value.trim();
+
+  const stadium =
+    $("aiStadium").value.trim();
+
+  const weather =
+    $("aiWeather").value;
+
+  const time =
+    $("aiTime").value;
+
+  const camera =
+    $("aiCamera").value;
+
+  const tournament =
+    $("aiTournament").value.trim();
 
   const prompt =
     style +
@@ -3031,11 +3854,20 @@ async function generatePlayerImage(){
 
 async function generatePoster(){
 
-  const player = $("posterPlayer").value.trim();
-  const team = $("posterTeam").value.trim();
-  const match = $("posterMatch").value.trim();
-  const type = $("posterType").value.trim();
-  const stadium = $("posterStadium").value.trim();
+  const player =
+    $("posterPlayer").value.trim();
+
+  const team =
+    $("posterTeam").value.trim();
+
+  const match =
+    $("posterMatch").value.trim();
+
+  const type =
+    $("posterType").value.trim();
+
+  const stadium =
+    $("posterStadium").value.trim();
 
   const prompt =
     "Epic photorealistic cinematic cricket poster featuring " +
@@ -3068,10 +3900,17 @@ async function generatePoster(){
 
 async function generatePlayerCard(){
 
-  const player = $("cardPlayer").value.trim();
-  const team = $("cardTeam").value.trim();
-  const number = $("cardNumber").value.trim();
-  const rating = $("cardRating").value.trim();
+  const player =
+    $("cardPlayer").value.trim();
+
+  const team =
+    $("cardTeam").value.trim();
+
+  const number =
+    $("cardNumber").value.trim();
+
+  const rating =
+    $("cardRating").value.trim();
 
   const prompt =
     "Premium professional cricket player card artwork featuring " +
@@ -3112,16 +3951,28 @@ function openNews(url){
 
 
 /* ============================================================
-   LIVE BROADCAST MODE
+   ⭐ LIVE BROADCAST MODE
 ============================================================ */
 
 function renderLiveBroadcastCard(match){
 
-  const title = getMatchTitle(match);
-  const status = getStatus(match);
-  const teams = getTeams(match);
-  const venue = getVenue(match);
-  const series = getSeries(match);
+  const title =
+    getMatchTitle(match);
+
+  const status =
+    getStatus(match);
+
+  const rows =
+    getTeamScoreRows(match);
+
+  const venue =
+    getVenue(match);
+
+  const series =
+    getSeries(match);
+
+  const detail =
+    getStatusDetail(match);
 
   let html =
     '<div class="broadcast-card">';
@@ -3132,6 +3983,7 @@ function renderLiveBroadcastCard(match){
       '<div>' +
 
         '<div class="broadcast-title">' +
+        '🏏 ' +
         escapeHTML(title) +
         '</div>';
 
@@ -3147,41 +3999,74 @@ function renderLiveBroadcastCard(match){
       '</div>' +
 
       '<div class="broadcast-status ' +
-      (status === "LIVE" ? "live" : "") +
+      (
+        status === "LIVE"
+          ? "live"
+          : ""
+      ) +
       '">' +
       escapeHTML(status) +
       '</div>' +
 
     '</div>';
 
-  teams.forEach(function(team,index){
+  /* ⭐ TEAM + SCORE */
 
-    html +=
-      '<div class="broadcast-team">' +
+  rows.forEach(
+    function(row){
 
-        '<div class="broadcast-team-name">' +
-        escapeHTML(getTeamName(team)) +
-        '</div>' +
+      html +=
+        '<div class="broadcast-team">' +
 
-        '<div class="broadcast-score">' +
-        escapeHTML(formatScore(match,index) || "—") +
-        '</div>' +
+          '<div class="broadcast-team-name">' +
 
-      '</div>';
-  });
+            escapeHTML(row.name);
+
+      if(
+        row.fullName &&
+        row.fullName !== row.name
+      ){
+
+        html +=
+          '<span class="broadcast-team-full">' +
+          escapeHTML(row.fullName) +
+          '</span>';
+      }
+
+      html +=
+          '</div>' +
+
+          '<div class="broadcast-score">' +
+          escapeHTML(
+            row.score || "—"
+          ) +
+          '</div>' +
+
+        '</div>';
+    }
+  );
 
   html +=
     '<div class="broadcast-meta">';
+
+  if(detail){
+
+    html +=
+      "ℹ️ " +
+      escapeHTML(detail) +
+      "<br>";
+  }
 
   if(venue){
 
     html +=
       "📍 " +
-      escapeHTML(venue);
+      escapeHTML(venue) +
+      "<br>";
   }
 
   html +=
-    "<br>🔴 " +
+    "🔴 " +
     escapeHTML(status);
 
   html +=
@@ -3195,13 +4080,17 @@ function renderLiveBroadcastCard(match){
 
 function renderLiveModeMatches(matches){
 
-  const container = $("liveModeMatches");
+  const container =
+    $("liveModeMatches");
 
   if(!container){
     return;
   }
 
-  if(!matches || !matches.length){
+  if(
+    !matches ||
+    !matches.length
+  ){
 
     container.innerHTML =
       '<div class="empty">' +
@@ -3213,15 +4102,25 @@ function renderLiveModeMatches(matches){
 
   container.innerHTML =
     matches
-      .map(renderLiveBroadcastCard)
+      .map(
+        renderLiveBroadcastCard
+      )
       .join("");
 }
 
+
+/* ============================================================
+   OPEN LIVE MODE
+============================================================ */
+
 async function openLiveMode(){
 
-  $("liveMode").classList.add("open");
+  $("liveMode")
+    .classList
+    .add("open");
 
-  document.body.style.overflow = "hidden";
+  document.body.style.overflow =
+    "hidden";
 
   liveSeconds = 120;
 
@@ -3238,21 +4137,31 @@ async function openLiveMode(){
   try{
 
     if(
-      document.documentElement.requestFullscreen &&
+      document.documentElement
+        .requestFullscreen &&
       !document.fullscreenElement
     ){
 
-      await document.documentElement.requestFullscreen();
+      await document.documentElement
+        .requestFullscreen();
     }
 
   }catch(error){}
 }
 
+
+/* ============================================================
+   CLOSE LIVE MODE
+============================================================ */
+
 function closeLiveMode(){
 
-  $("liveMode").classList.remove("open");
+  $("liveMode")
+    .classList
+    .remove("open");
 
-  document.body.style.overflow = "";
+  document.body.style.overflow =
+    "";
 
   if(liveCountdownTimer){
 
@@ -3273,15 +4182,24 @@ function closeLiveMode(){
   }catch(error){}
 }
 
+
+/* ============================================================
+   FULLSCREEN
+============================================================ */
+
 function toggleFullscreen(){
 
   try{
 
     if(!document.fullscreenElement){
 
-      if(document.documentElement.requestFullscreen){
+      if(
+        document.documentElement
+          .requestFullscreen
+      ){
 
-        document.documentElement.requestFullscreen();
+        document.documentElement
+          .requestFullscreen();
       }
 
     }else{
@@ -3295,9 +4213,15 @@ function toggleFullscreen(){
   }catch(error){}
 }
 
+
+/* ============================================================
+   COUNTDOWN
+============================================================ */
+
 function updateLiveCountdown(){
 
-  const el = $("liveCountdown");
+  const el =
+    $("liveCountdown");
 
   if(el){
 
@@ -3322,29 +4246,32 @@ function startLiveCountdown(){
   updateLiveCountdown();
 
   liveCountdownTimer =
-    setInterval(async function(){
+    setInterval(
+      async function(){
 
-      liveSeconds--;
+        liveSeconds--;
 
-      if(liveSeconds <= 0){
+        if(liveSeconds <= 0){
 
-        liveSeconds = 120;
+          liveSeconds = 120;
 
-        await loadScores();
+          await loadScores();
 
-        renderLiveModeMatches(
-          currentLiveMatches
-        );
-      }
+          renderLiveModeMatches(
+            currentLiveMatches
+          );
+        }
 
-      updateLiveCountdown();
+        updateLiveCountdown();
 
-    },1000);
+      },
+      1000
+    );
 }
 
 
 /* ============================================================
-   AUTO LIVE REFRESH
+   AUTO REFRESH
 ============================================================ */
 
 function startAutoRefresh(){
@@ -3357,11 +4284,14 @@ function startAutoRefresh(){
   }
 
   liveRefreshTimer =
-    setInterval(function(){
+    setInterval(
+      function(){
 
-      loadScores();
+        loadScores();
 
-    },LIVE_REFRESH_MS);
+      },
+      LIVE_REFRESH_MS
+    );
 }
 
 
@@ -3383,4 +4313,4 @@ document.addEventListener(
 </script>
 
 </body>
-          </html>
+  </html>
