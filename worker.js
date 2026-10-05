@@ -1,8 +1,8 @@
 // ============================================================
 // 🏏 CRICKET SHORT - FINAL WORKER.JS
 // ============================================================
-// Live Score      -> ONLY REAL LIVE MATCHES
-// Fixtures        -> ONLY UPCOMING MATCHES
+// Live Score      -> Real Live Matches + Safe CricAPI Fallback
+// Fixtures        -> ONLY Upcoming Matches
 // Scorecard       -> Match Scorecard
 // Ball-by-Ball    -> Match Commentary
 // Match Points    -> Safe fallback
@@ -208,7 +208,7 @@ function isActuallyLive(match = {}) {
 
 
   // ----------------------------------------------------------
-  // Clear LIVE words
+  // CLEAR LIVE STATES
   // ----------------------------------------------------------
 
   if (
@@ -229,7 +229,7 @@ function isActuallyLive(match = {}) {
 
 
   // ----------------------------------------------------------
-  // Explicit non-live states
+  // EXPLICIT NON-LIVE STATES
   // ----------------------------------------------------------
 
   if (
@@ -257,7 +257,7 @@ function isActuallyLive(match = {}) {
 
 
   // ----------------------------------------------------------
-  // More live indicators
+  // OTHER LIVE INDICATORS
   // ----------------------------------------------------------
 
   if (
@@ -271,10 +271,6 @@ function isActuallyLive(match = {}) {
 
   }
 
-
-  // ----------------------------------------------------------
-  // Default: NOT LIVE
-  // ----------------------------------------------------------
 
   return false;
 
@@ -323,7 +319,6 @@ function isUpcoming(match = {}) {
   }
 
 
-  // If API gives a future date/time, treat as upcoming.
   const dateValue =
     match.date ??
     match.startDate ??
@@ -338,6 +333,7 @@ function isUpcoming(match = {}) {
 
     const parsed =
       Date.parse(dateValue);
+
 
     if (
       Number.isFinite(parsed) &&
@@ -505,9 +501,11 @@ async function fetchCricketLiveAPI(env) {
       CRICKET_LIVE_API_URL,
       {
         method: "GET",
+
         headers: {
           "Accept":
             "application/json",
+
           "Authorization":
             `Bearer ${
               env.CRICKET_LIVE_API_TOKEN
@@ -555,28 +553,221 @@ async function fetchCricketLiveAPI(env) {
 
 // ============================================================
 // ONLY LIVE MATCHES
+// WITH SAFE FALLBACK
 // ============================================================
 
 async function getLiveScores(env) {
 
-  const matches =
-    await fetchCricketLiveAPI(
-      env
+  // ==========================================================
+  // 1. PRIMARY SOURCE
+  // CricketLiveAPI
+  // ==========================================================
+
+  try {
+
+    const matches =
+      await fetchCricketLiveAPI(
+        env
+      );
+
+
+    const liveMatches =
+      matches.filter(
+        isActuallyLive
+      );
+
+
+    if (
+      liveMatches.length > 0
+    ) {
+
+      console.log(
+        "Live matches from CricketLiveAPI:",
+        liveMatches.length
+      );
+
+
+      return liveMatches.map(
+        match => ({
+          ...match,
+          status: "LIVE"
+        })
+      );
+
+    }
+
+
+    console.log(
+      "CricketLiveAPI returned 0 live matches. Trying CricAPI fallback..."
     );
 
+  } catch (error) {
 
-  const liveMatches =
-    matches.filter(
-      isActuallyLive
+    console.log(
+      "CricketLiveAPI live error:",
+      error?.message
     );
 
+  }
 
-  return liveMatches.map(
-    match => ({
-      ...match,
-      status: "LIVE"
-    })
+
+  // ==========================================================
+  // 2. FALLBACK SOURCE
+  // CricAPI
+  // ==========================================================
+
+  try {
+
+    const cricketMatches =
+      await getCricketScores(
+        env
+      );
+
+
+    if (
+      Array.isArray(
+        cricketMatches
+      ) &&
+      cricketMatches.length > 0
+    ) {
+
+      // ------------------------------------------------------
+      // First: strict LIVE detection
+      // ------------------------------------------------------
+
+      const liveMatches =
+        cricketMatches.filter(
+          isActuallyLive
+        );
+
+
+      if (
+        liveMatches.length > 0
+      ) {
+
+        console.log(
+          "Live matches from CricAPI:",
+          liveMatches.length
+        );
+
+
+        return liveMatches.map(
+          match => ({
+            ...match,
+            status: "LIVE"
+          })
+        );
+
+      }
+
+
+      // ------------------------------------------------------
+      // Second: score-based fallback
+      // ------------------------------------------------------
+
+      const scoreMatches =
+        cricketMatches.filter(
+          match => {
+
+            const raw =
+              getRawStatus(
+                match
+              );
+
+
+            // Never show obvious completed/upcoming matches.
+            if (
+              raw.includes("result") ||
+              raw.includes("won") ||
+              raw.includes("loss") ||
+              raw.includes("draw") ||
+              raw.includes("complete") ||
+              raw.includes("completed") ||
+              raw.includes("finished") ||
+              raw.includes("abandoned") ||
+              raw.includes("cancelled") ||
+              raw.includes("canceled") ||
+              raw.includes("upcoming") ||
+              raw.includes("scheduled") ||
+              raw.includes("preview") ||
+              raw.includes("not started") ||
+              raw.includes("yet to start") ||
+              raw.includes("stumps")
+            ) {
+
+              return false;
+
+            }
+
+
+            const firstScore =
+              match?.first_team?.score ??
+              match?.team1?.score ??
+              match?.score1 ??
+              "";
+
+
+            const secondScore =
+              match?.second_team?.score ??
+              match?.team2?.score ??
+              match?.score2 ??
+              "";
+
+
+            return Boolean(
+              String(
+                firstScore
+              ).trim() ||
+              String(
+                secondScore
+              ).trim()
+            );
+
+          }
+        );
+
+
+      if (
+        scoreMatches.length > 0
+      ) {
+
+        console.log(
+          "Current score matches from CricAPI fallback:",
+          scoreMatches.length
+        );
+
+
+        return scoreMatches.map(
+          match => ({
+            ...match,
+            status: "LIVE"
+          })
+        );
+
+      }
+
+    }
+
+  } catch (error) {
+
+    console.log(
+      "CricAPI live fallback error:",
+      error?.message
+    );
+
+  }
+
+
+  // ==========================================================
+  // 3. NOTHING FOUND
+  // ==========================================================
+
+  console.log(
+    "No live cricket matches found from either API."
   );
+
+
+  return [];
 
 }
 
@@ -601,9 +792,11 @@ async function getFixtures(env) {
       CRICKET_FIXTURES_API_URL,
       {
         method: "GET",
+
         headers: {
           "Accept":
             "application/json",
+
           "Authorization":
             `Bearer ${
               env.CRICKET_LIVE_API_TOKEN
@@ -635,26 +828,40 @@ async function getFixtures(env) {
     [];
 
 
-  if (Array.isArray(list)) {
+  if (
+    Array.isArray(list)
+  ) {
 
     const fixtures =
       list
-        .map(normalizeMatch)
-        .filter(isUpcoming)
-        .map(match => ({
-          ...match,
-          status: "UPCOMING"
-        }));
+        .map(
+          normalizeMatch
+        )
+        .filter(
+          isUpcoming
+        )
+        .map(
+          match => ({
+            ...match,
+            status:
+              "UPCOMING"
+          })
+        );
 
 
     return {
+
       ...data,
+
       success:
         data?.success !== false,
+
       count:
         fixtures.length,
+
       data:
         fixtures
+
     };
 
   }
@@ -671,6 +878,10 @@ async function getFixtures(env) {
 
 async function getScore(env) {
 
+  // ----------------------------------------------------------
+  // Try CricketLiveAPI first
+  // ----------------------------------------------------------
+
   try {
 
     const live =
@@ -679,7 +890,9 @@ async function getScore(env) {
       );
 
 
-    if (live.length > 0) {
+    if (
+      live.length > 0
+    ) {
 
       return live;
 
@@ -694,6 +907,10 @@ async function getScore(env) {
 
   }
 
+
+  // ----------------------------------------------------------
+  // CricAPI fallback
+  // ----------------------------------------------------------
 
   try {
 
@@ -747,7 +964,13 @@ async function getMatchDetail(
   let fallbackURL = "";
 
 
-  if (type === "scorecard") {
+  // ----------------------------------------------------------
+  // SCORECARD
+  // ----------------------------------------------------------
+
+  if (
+    type === "scorecard"
+  ) {
 
     primaryURL =
       `https://cricketliveapi.com/api/v1/cricket/scorecard/${
@@ -766,6 +989,10 @@ async function getMatchDetail(
 
   }
 
+
+  // ----------------------------------------------------------
+  // COMMENTARY
+  // ----------------------------------------------------------
 
   else if (
     type === "commentary"
@@ -799,14 +1026,21 @@ async function getMatchDetail(
 
 
   const headers = {
+
     "Accept":
       "application/json",
+
     "Authorization":
       `Bearer ${
         env.CRICKET_LIVE_API_TOKEN
       }`
+
   };
 
+
+  // ----------------------------------------------------------
+  // PRIMARY
+  // ----------------------------------------------------------
 
   try {
 
@@ -821,10 +1055,14 @@ async function getMatchDetail(
 
 
     const data =
-      await safeJSON(response);
+      await safeJSON(
+        response
+      );
 
 
-    if (response.ok) {
+    if (
+      response.ok
+    ) {
 
       return data;
 
@@ -846,6 +1084,10 @@ async function getMatchDetail(
   }
 
 
+  // ----------------------------------------------------------
+  // FALLBACK
+  // ----------------------------------------------------------
+
   const response =
     await fetch(
       fallbackURL,
@@ -857,10 +1099,14 @@ async function getMatchDetail(
 
 
   const data =
-    await safeJSON(response);
+    await safeJSON(
+      response
+    );
 
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
 
     throw new Error(
       data?.message ||
@@ -928,14 +1174,17 @@ function bytesToBase64(
       );
 
 
-    binary += String.fromCharCode(
-      ...chunk
-    );
+    binary +=
+      String.fromCharCode(
+        ...chunk
+      );
 
   }
 
 
-  return btoa(binary);
+  return btoa(
+    binary
+  );
 
 }
 
@@ -1016,7 +1265,9 @@ async function imageValueToBase64(
         value.indexOf(",");
 
 
-      if (comma !== -1) {
+      if (
+        comma !== -1
+      ) {
 
         return value.substring(
           comma + 1
@@ -1067,15 +1318,13 @@ function cleanImagePrompt(
 ) {
 
   let safe =
-    String(prompt);
+    String(
+      prompt
+    );
 
-
-  // ----------------------------------------------------------
-  // Remove common words that can accidentally trigger
-  // the image safety filter.
-  // ----------------------------------------------------------
 
   const blockedWords = [
+
     "nsfw",
     "sexual",
     "sex",
@@ -1100,6 +1349,7 @@ function cleanImagePrompt(
     "teenage",
     "young girl",
     "young boy"
+
   ];
 
 
@@ -1126,13 +1376,12 @@ function cleanImagePrompt(
   }
 
 
-  // ----------------------------------------------------------
-  // Remove repeated spaces
-  // ----------------------------------------------------------
-
   safe =
     safe
-      .replace(/\s+/g, " ")
+      .replace(
+        /\s+/g,
+        " "
+      )
       .trim();
 
 
@@ -1219,10 +1468,6 @@ async function generateImage(
   }
 
 
-  // ----------------------------------------------------------
-  // Clean the incoming prompt.
-  // ----------------------------------------------------------
-
   const prompt =
     cleanImagePrompt(
       originalPrompt
@@ -1244,12 +1489,12 @@ async function generateImage(
   );
 
 
+  let result;
+
+
   // ----------------------------------------------------------
   // FIRST ATTEMPT
   // ----------------------------------------------------------
-
-  let result;
-
 
   try {
 
@@ -1275,15 +1520,19 @@ async function generateImage(
 
 
     // --------------------------------------------------------
-    // NSFW / SAFETY FILTER RETRY
+    // SAFETY RETRY
     // --------------------------------------------------------
 
     if (
       message.includes("8007") ||
-      message.toLowerCase().includes("nsfw") ||
-      message.toLowerCase().includes(
-        "input prompt contains"
-      )
+      message
+        .toLowerCase()
+        .includes("nsfw") ||
+      message
+        .toLowerCase()
+        .includes(
+          "input prompt contains"
+        )
     ) {
 
       const safeRetryPrompt =
@@ -1322,9 +1571,9 @@ async function generateImage(
   );
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // DIRECT ARRAYBUFFER
-  // ----------------------------------------------------------
+  // ==========================================================
 
   if (
     result instanceof ArrayBuffer
@@ -1334,10 +1583,12 @@ async function generateImage(
       result,
       {
         status: 200,
+
         headers:
           corsHeaders({
             "Content-Type":
               "image/jpeg",
+
             "Cache-Control":
               "no-store"
           })
@@ -1347,9 +1598,9 @@ async function generateImage(
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // DIRECT UINT8ARRAY
-  // ----------------------------------------------------------
+  // ==========================================================
 
   if (
     result instanceof Uint8Array ||
@@ -1370,10 +1621,12 @@ async function generateImage(
       bytes,
       {
         status: 200,
+
         headers:
           corsHeaders({
             "Content-Type":
               "image/jpeg",
+
             "Cache-Control":
               "no-store"
           })
@@ -1383,9 +1636,9 @@ async function generateImage(
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // RESPONSE
-  // ----------------------------------------------------------
+  // ==========================================================
 
   if (
     typeof Response !== "undefined" &&
@@ -1404,10 +1657,12 @@ async function generateImage(
       {
         status:
           result.status,
+
         headers:
           corsHeaders({
             "Content-Type":
               contentType,
+
             "Cache-Control":
               "no-store"
           })
@@ -1417,11 +1672,13 @@ async function generateImage(
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // result.image
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  if (result?.image) {
+  if (
+    result?.image
+  ) {
 
     const base64 =
       await imageValueToBase64(
@@ -1432,11 +1689,17 @@ async function generateImage(
     if (base64) {
 
       return jsonResponse({
+
         success: true,
-        image: base64,
+
+        image:
+          base64,
+
         mimeType:
           "image/jpeg",
+
         prompt
+
       });
 
     }
@@ -1444,11 +1707,13 @@ async function generateImage(
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // result.data
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  if (result?.data) {
+  if (
+    result?.data
+  ) {
 
     const base64 =
       await imageValueToBase64(
@@ -1459,11 +1724,17 @@ async function generateImage(
     if (base64) {
 
       return jsonResponse({
+
         success: true,
-        image: base64,
+
+        image:
+          base64,
+
         mimeType:
           "image/jpeg",
+
         prompt
+
       });
 
     }
@@ -1471,11 +1742,13 @@ async function generateImage(
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // result.output
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  if (result?.output) {
+  if (
+    result?.output
+  ) {
 
     const base64 =
       await imageValueToBase64(
@@ -1486,11 +1759,17 @@ async function generateImage(
     if (base64) {
 
       return jsonResponse({
+
         success: true,
-        image: base64,
+
+        image:
+          base64,
+
         mimeType:
           "image/jpeg",
+
         prompt
+
       });
 
     }
@@ -1498,9 +1777,9 @@ async function generateImage(
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // ARRAY RESULT
-  // ----------------------------------------------------------
+  // ==========================================================
 
   if (
     Array.isArray(result)
@@ -1519,11 +1798,17 @@ async function generateImage(
       if (base64) {
 
         return jsonResponse({
+
           success: true,
-          image: base64,
+
+          image:
+            base64,
+
           mimeType:
             "image/jpeg",
+
           prompt
+
         });
 
       }
@@ -1563,7 +1848,9 @@ function health(env) {
       "cricket-ai-app",
 
     workersAI:
-      Boolean(env.AI),
+      Boolean(
+        env.AI
+      ),
 
     cricketApiKey:
       Boolean(
@@ -1575,19 +1862,31 @@ function health(env) {
         env.CRICKET_LIVE_API_TOKEN
       ),
 
-    assets: true,
+    assets:
+      true,
 
     endpoints: [
+
       "/api/generate",
+
       "/api/generate-image",
+
       "/api/score",
+
       "/api/live-score",
+
       "/api/fixtures",
+
       "/api/scorecard",
+
       "/api/ball-by-ball",
+
       "/api/match-points",
+
       "/api/health",
+
       "/api/debug-live"
+
     ]
 
   });
@@ -1608,9 +1907,12 @@ async function debugLive(env) {
     ) {
 
       return jsonResponse({
+
         success: false,
+
         error:
           "CRICKET_LIVE_API_TOKEN secret is missing"
+
       });
 
     }
@@ -1621,14 +1923,19 @@ async function debugLive(env) {
         CRICKET_LIVE_API_URL,
         {
           method: "GET",
+
           headers: {
+
             "Accept":
               "application/json",
+
             "Authorization":
               `Bearer ${
                 env.CRICKET_LIVE_API_TOKEN
               }`
+
           }
+
         }
       );
 
@@ -1642,14 +1949,18 @@ async function debugLive(env) {
       {
         status:
           response.status,
+
         headers:
           corsHeaders({
+
             "Content-Type":
               response.headers.get(
                 "Content-Type"
               ) ||
               "application/json"
+
           })
+
       }
     );
 
@@ -1681,20 +1992,23 @@ export default {
     env
   ) {
 
-    // --------------------------------------------------------
+    // ========================================================
     // OPTIONS
-    // --------------------------------------------------------
+    // ========================================================
 
     if (
-      request.method === "OPTIONS"
+      request.method ===
+      "OPTIONS"
     ) {
 
       return new Response(
         null,
         {
           status: 204,
+
           headers:
             corsHeaders()
+
         }
       );
 
@@ -1726,7 +2040,9 @@ export default {
       "/api/health"
     ) {
 
-      return health(env);
+      return health(
+        env
+      );
 
     }
 
@@ -1740,7 +2056,9 @@ export default {
       "/api/debug-live"
     ) {
 
-      return debugLive(env);
+      return debugLive(
+        env
+      );
 
     }
 
@@ -1757,7 +2075,8 @@ export default {
     ) {
 
       if (
-        request.method !== "POST"
+        request.method !==
+        "POST"
       ) {
 
         return errorResponse(
@@ -1796,7 +2115,6 @@ export default {
 
     // ========================================================
     // LIVE SCORE
-    // ONLY REAL LIVE MATCHES
     // ========================================================
 
     if (
@@ -1887,7 +2205,6 @@ export default {
 
     // ========================================================
     // FIXTURES
-    // ONLY UPCOMING MATCHES
     // ========================================================
 
     if (
@@ -2087,11 +2404,15 @@ export default {
         "🏏 Cricket Short Worker is running.",
         {
           status: 200,
+
           headers:
             corsHeaders({
+
               "Content-Type":
                 "text/plain; charset=utf-8"
+
             })
+
         }
       );
 
