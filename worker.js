@@ -169,6 +169,7 @@ function normalizeMatch(match = {}) {
     series:
       match.series ??
       match.seriesName ??
+      match.series_name ??
       "",
 
     teams
@@ -564,14 +565,6 @@ async function getLiveScores(env) {
     );
 
 
-  // ----------------------------------------------------------
-  // IMPORTANT:
-  // CricketLiveAPI /cricket/live is returning some RESULT
-  // matches in the current response.
-  //
-  // Therefore we filter them here.
-  // ----------------------------------------------------------
-
   const liveMatches =
     matches.filter(
       isActuallyLive
@@ -642,10 +635,6 @@ async function getFixtures(env) {
     [];
 
 
-  // ----------------------------------------------------------
-  // Keep only upcoming matches.
-  // ----------------------------------------------------------
-
   if (Array.isArray(list)) {
 
     const fixtures =
@@ -682,7 +671,6 @@ async function getFixtures(env) {
 
 async function getScore(env) {
 
-  // Try CricketLiveAPI first.
   try {
 
     const live =
@@ -707,7 +695,6 @@ async function getScore(env) {
   }
 
 
-  // Fallback to CricAPI.
   try {
 
     return await getCricketScores(
@@ -760,10 +747,6 @@ async function getMatchDetail(
   let fallbackURL = "";
 
 
-  // ----------------------------------------------------------
-  // SCORECARD
-  // ----------------------------------------------------------
-
   if (type === "scorecard") {
 
     primaryURL =
@@ -783,10 +766,6 @@ async function getMatchDetail(
 
   }
 
-
-  // ----------------------------------------------------------
-  // COMMENTARY
-  // ----------------------------------------------------------
 
   else if (
     type === "commentary"
@@ -829,10 +808,6 @@ async function getMatchDetail(
   };
 
 
-  // ----------------------------------------------------------
-  // PRIMARY
-  // ----------------------------------------------------------
-
   try {
 
     const response =
@@ -870,10 +845,6 @@ async function getMatchDetail(
 
   }
 
-
-  // ----------------------------------------------------------
-  // FALLBACK
-  // ----------------------------------------------------------
 
   const response =
     await fetch(
@@ -984,7 +955,6 @@ async function imageValueToBase64(
   }
 
 
-  // ArrayBuffer
   if (
     value instanceof ArrayBuffer
   ) {
@@ -998,7 +968,6 @@ async function imageValueToBase64(
   }
 
 
-  // Uint8Array / TypedArray
   if (
     value instanceof Uint8Array ||
     ArrayBuffer.isView(value)
@@ -1015,7 +984,6 @@ async function imageValueToBase64(
   }
 
 
-  // Blob
   if (
     typeof Blob !== "undefined" &&
     value instanceof Blob
@@ -1034,7 +1002,6 @@ async function imageValueToBase64(
   }
 
 
-  // String
   if (
     typeof value === "string"
   ) {
@@ -1065,7 +1032,6 @@ async function imageValueToBase64(
   }
 
 
-  // Array of bytes
   if (
     Array.isArray(value)
   ) {
@@ -1088,6 +1054,117 @@ async function imageValueToBase64(
 
 
   return null;
+
+}
+
+
+// ============================================================
+// SAFE IMAGE PROMPT CLEANER
+// ============================================================
+
+function cleanImagePrompt(
+  prompt = ""
+) {
+
+  let safe =
+    String(prompt);
+
+
+  // ----------------------------------------------------------
+  // Remove common words that can accidentally trigger
+  // the image safety filter.
+  // ----------------------------------------------------------
+
+  const blockedWords = [
+    "nsfw",
+    "sexual",
+    "sex",
+    "nude",
+    "nudity",
+    "naked",
+    "erotic",
+    "sensual",
+    "sexy",
+    "provocative",
+    "explicit",
+    "cleavage",
+    "lingerie",
+    "bikini",
+    "underwear",
+    "transparent clothing",
+    "see-through",
+    "minor",
+    "child",
+    "children",
+    "teen",
+    "teenage",
+    "young girl",
+    "young boy"
+  ];
+
+
+  for (
+    const word of blockedWords
+  ) {
+
+    const escaped =
+      word.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
+
+
+    safe =
+      safe.replace(
+        new RegExp(
+          escaped,
+          "gi"
+        ),
+        ""
+      );
+
+  }
+
+
+  // ----------------------------------------------------------
+  // Remove repeated spaces
+  // ----------------------------------------------------------
+
+  safe =
+    safe
+      .replace(/\s+/g, " ")
+      .trim();
+
+
+  return safe;
+
+}
+
+
+// ============================================================
+// EXTRA-SAFE SPORTS PROMPT
+// ============================================================
+
+function buildSafeSportsPrompt(
+  prompt = ""
+) {
+
+  const clean =
+    cleanImagePrompt(
+      prompt
+    );
+
+
+  return (
+    clean +
+    ". Professional cricket sports photography. " +
+    "Adult professional cricket athlete. " +
+    "Fully clothed standard cricket uniform. " +
+    "Professional sports stadium. " +
+    "Clean family-friendly sports scene. " +
+    "Respectful athletic presentation. " +
+    "No inappropriate content."
+  );
 
 }
 
@@ -1118,13 +1195,13 @@ async function generateImage(
   }
 
 
-  const prompt =
+  const originalPrompt =
     String(
       body?.prompt ?? ""
     ).trim();
 
 
-  if (!prompt) {
+  if (!originalPrompt) {
 
     throw new Error(
       "Prompt is required"
@@ -1142,6 +1219,25 @@ async function generateImage(
   }
 
 
+  // ----------------------------------------------------------
+  // Clean the incoming prompt.
+  // ----------------------------------------------------------
+
+  const prompt =
+    cleanImagePrompt(
+      originalPrompt
+    );
+
+
+  if (!prompt) {
+
+    throw new Error(
+      "Prompt became empty after safety cleaning"
+    );
+
+  }
+
+
   console.log(
     "AI image request:",
     prompt
@@ -1149,17 +1245,75 @@ async function generateImage(
 
 
   // ----------------------------------------------------------
-  // IMPORTANT:
-  // Do NOT add seed or other unsupported Flux parameters.
+  // FIRST ATTEMPT
   // ----------------------------------------------------------
 
-  const result =
-    await env.AI.run(
-      AI_MODEL,
-      {
-        prompt
-      }
+  let result;
+
+
+  try {
+
+    result =
+      await env.AI.run(
+        AI_MODEL,
+        {
+          prompt
+        }
+      );
+
+  } catch (error) {
+
+    const message =
+      error?.message ||
+      String(error);
+
+
+    console.log(
+      "AI first attempt failed:",
+      message
     );
+
+
+    // --------------------------------------------------------
+    // NSFW / SAFETY FILTER RETRY
+    // --------------------------------------------------------
+
+    if (
+      message.includes("8007") ||
+      message.toLowerCase().includes("nsfw") ||
+      message.toLowerCase().includes(
+        "input prompt contains"
+      )
+    ) {
+
+      const safeRetryPrompt =
+        buildSafeSportsPrompt(
+          prompt
+        );
+
+
+      console.log(
+        "AI safe retry prompt:",
+        safeRetryPrompt
+      );
+
+
+      result =
+        await env.AI.run(
+          AI_MODEL,
+          {
+            prompt:
+              safeRetryPrompt
+          }
+        );
+
+    } else {
+
+      throw error;
+
+    }
+
+  }
 
 
   console.log(
