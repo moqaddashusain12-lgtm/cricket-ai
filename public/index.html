@@ -26,7 +26,8 @@ body{
 
 button,
 input,
-select{
+select,
+textarea{
   font:inherit;
 }
 
@@ -221,26 +222,45 @@ section.active{
 .match-card{
   background:#0a1d31;
   border:1px solid #1d405e;
-  border-radius:14px;
+  border-radius:15px;
   padding:14px;
   margin-bottom:12px;
+  box-shadow:0 5px 18px rgba(0,0,0,.12);
+}
+
+.match-card.live-card{
+  border-color:#873044;
+  box-shadow:0 0 0 1px rgba(165,25,45,.12),0 6px 22px rgba(0,0,0,.2);
+}
+
+.match-card.upcoming-card{
+  border-color:#235274;
 }
 
 .match-top{
   display:flex;
   justify-content:space-between;
+  align-items:flex-start;
   gap:10px;
-  margin-bottom:9px;
+  margin-bottom:10px;
 }
 
 .match-title{
   font-weight:bold;
   font-size:15px;
+  line-height:1.35;
+}
+
+.series-line{
+  color:#89a9c2;
+  font-size:11px;
+  margin-top:4px;
+  line-height:1.4;
 }
 
 .badge{
   display:inline-block;
-  padding:4px 8px;
+  padding:5px 9px;
   border-radius:20px;
   font-size:10px;
   font-weight:bold;
@@ -250,21 +270,41 @@ section.active{
 .badge.live{
   background:#a5192d;
   color:#fff;
+  animation:pulseLive 1.8s infinite;
 }
 
 .badge.upcoming{
   background:#165783;
+  color:#dff2ff;
 }
 
 .badge.result{
   background:#405064;
+  color:#fff;
+}
+
+@keyframes pulseLive{
+  0%,100%{
+    opacity:1;
+  }
+  50%{
+    opacity:.65;
+  }
+}
+
+.teams-box{
+  background:#071827;
+  border:1px solid #17364f;
+  border-radius:12px;
+  padding:5px 12px;
 }
 
 .team-row{
   display:flex;
   justify-content:space-between;
+  align-items:center;
   gap:10px;
-  padding:9px 0;
+  padding:10px 0;
   border-bottom:1px solid #17344d;
 }
 
@@ -274,18 +314,62 @@ section.active{
 
 .team-name{
   font-weight:bold;
+  font-size:14px;
+  line-height:1.3;
 }
 
 .team-score{
   text-align:right;
   font-weight:bold;
+  font-size:14px;
+  white-space:nowrap;
+}
+
+.live-score-big{
+  font-size:17px;
+}
+
+.vs-line{
+  text-align:center;
+  color:#6689a4;
+  font-size:10px;
+  font-weight:bold;
+  margin:-2px 0;
 }
 
 .match-meta{
   color:#88a7c0;
   font-size:11px;
-  line-height:1.6;
-  margin-top:8px;
+  line-height:1.65;
+  margin-top:9px;
+}
+
+.match-time-ist{
+  color:#d7eafa;
+  font-weight:bold;
+}
+
+.countdown{
+  display:inline-block;
+  margin-top:6px;
+  padding:5px 8px;
+  border-radius:7px;
+  background:#102e47;
+  color:#9ed7ff;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.match-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:11px;
+}
+
+.match-actions button{
+  flex:1 1 auto;
+  min-width:105px;
 }
 
 .empty{
@@ -344,7 +428,7 @@ th{
 }
 
 /* =========================================================
-   GENERATED IMAGE FIX
+   GENERATED IMAGE
 ========================================================= */
 
 .generated-image{
@@ -507,6 +591,25 @@ th{
   .button-row button{
     flex:1 1 auto;
   }
+
+  .match-actions button{
+    min-width:90px;
+    font-size:11px;
+    padding:10px 8px;
+  }
+
+  .team-name{
+    font-size:13px;
+  }
+
+  .team-score{
+    font-size:13px;
+  }
+
+  .live-score-big{
+    font-size:16px;
+  }
+
 }
 </style>
 </head>
@@ -616,20 +719,13 @@ th{
 
     <div class="field">
       <label>Match ID</label>
-      <input
-        id="scorecardId"
-        type="text"
-        placeholder="Enter match ID">
+      <input id="scorecardId" type="text" placeholder="Enter match ID">
     </div>
 
     <div class="button-row">
-
-      <button
-        class="primary-btn"
-        onclick="loadScorecard()">
+      <button class="primary-btn" onclick="loadScorecard()">
         📊 Load Scorecard
       </button>
-
     </div>
 
     <div id="scorecardStatus" class="status">
@@ -660,18 +756,13 @@ th{
 
       <label>Match ID</label>
 
-      <input
-        id="ballId"
-        type="text"
-        placeholder="Enter match ID">
+      <input id="ballId" type="text" placeholder="Enter match ID">
 
     </div>
 
     <div class="button-row">
 
-      <button
-        class="primary-btn"
-        onclick="loadBallByBall()">
+      <button class="primary-btn" onclick="loadBallByBall()">
         🏏 Load Commentary
       </button>
 
@@ -705,18 +796,13 @@ th{
 
       <label>Match ID / Series ID</label>
 
-      <input
-        id="pointsId"
-        type="text"
-        placeholder="Enter ID">
+      <input id="pointsId" type="text" placeholder="Enter ID">
 
     </div>
 
     <div class="button-row">
 
-      <button
-        class="primary-btn"
-        onclick="loadPoints()">
+      <button class="primary-btn" onclick="loadPoints()">
         🎯 Load Points
       </button>
 
@@ -829,9 +915,7 @@ th{
 
     <div class="button-row">
 
-      <button
-        class="primary-btn"
-        onclick="generatePlayerImage()">
+      <button class="primary-btn" onclick="generatePlayerImage()">
         🖼️ Generate AI Player
       </button>
 
@@ -875,32 +959,24 @@ th{
 
       <div class="field">
         <label>Match</label>
-        <input
-          id="posterMatch"
-          value="India vs West Indies">
+        <input id="posterMatch" value="India vs West Indies">
       </div>
 
       <div class="field">
         <label>Match Type</label>
-        <input
-          id="posterType"
-          value="International Match">
+        <input id="posterType" value="International Match">
       </div>
 
       <div class="field full">
         <label>Stadium</label>
-        <input
-          id="posterStadium"
-          value="Modern Cricket Stadium">
+        <input id="posterStadium" value="Modern Cricket Stadium">
       </div>
 
     </div>
 
     <div class="button-row">
 
-      <button
-        class="primary-btn"
-        onclick="generatePoster()">
+      <button class="primary-btn" onclick="generatePoster()">
         🎨 Generate Poster
       </button>
 
@@ -956,9 +1032,7 @@ th{
 
     <div class="button-row">
 
-      <button
-        class="primary-btn"
-        onclick="generatePlayerCard()">
+      <button class="primary-btn" onclick="generatePlayerCard()">
         🪪 Generate Player Card
       </button>
 
@@ -1050,9 +1124,7 @@ th{
 
   <div class="live-mode-content">
 
-    <div
-      id="liveCountdown"
-      class="live-countdown">
+    <div id="liveCountdown" class="live-countdown">
       Auto refresh: 120 seconds
     </div>
 
@@ -1082,7 +1154,7 @@ th{
         </li>
 
         <li>
-          स्कोर अपने आप लगभग 2 मिनट में refresh होगा।
+          स्कोर लगभग 2 मिनट में अपने आप refresh होगा।
         </li>
 
       </ol>
@@ -1102,6 +1174,8 @@ th{
 const API_BASE = "";
 
 let liveMatchesCache = [];
+
+let fixtureMatchesCache = [];
 
 let liveModeTimer = null;
 
@@ -1169,21 +1243,24 @@ function setStatus(id,message,type=""){
 
 async function getJSON(url,options={}){
 
-  const response = await fetch(
-    url,
-    {
-      cache:"no-store",
-      ...options
-    }
-  );
+  const response =
+    await fetch(
+      url,
+      {
+        cache:"no-store",
+        ...options
+      }
+    );
 
-  const text = await response.text();
+  const text =
+    await response.text();
 
   let data = null;
 
   try{
 
-    data = JSON.parse(text);
+    data =
+      JSON.parse(text);
 
   }catch(error){
 
@@ -1209,7 +1286,8 @@ async function getJSON(url,options={}){
     throw new Error(
       data?.error ||
       data?.message ||
-      "Request failed: " + response.status
+      "Request failed: " +
+      response.status
     );
 
   }
@@ -1289,7 +1367,7 @@ function findValue(obj,keys){
 
 
 /* ============================================================
-   MATCH NORMALIZATION
+   MATCH ID
 ============================================================ */
 
 function getMatchId(match){
@@ -1302,7 +1380,6 @@ function getMatchId(match){
         "matchId",
         "match_id",
         "matchID",
-        "match_id",
         "_id"
       ]
     )
@@ -1312,139 +1389,336 @@ function getMatchId(match){
 
 
 /* ============================================================
-   FIXED TEAM NAME FUNCTION
-   API FORMAT:
-   first_team.full_name
-   second_team.full_name
+   ROBUST TEAM NAME
 ============================================================ */
 
 function getTeamName(team){
 
   if(typeof team === "string"){
-    return team;
+
+    return team.trim();
+
   }
 
-  if(!team || typeof team !== "object"){
-    return "Team";
+  if(
+    typeof team === "number" ||
+    typeof team === "boolean"
+  ){
+
+    return String(team);
+
   }
+
+  if(
+    !team ||
+    typeof team !== "object"
+  ){
+
+    return "";
+
+  }
+
 
   /*
-    IMPORTANT:
-    API में full_name मौजूद है।
-
-    Example:
-    {
-      "name":"IND",
-      "full_name":"India"
-    }
-
-    इसलिए full_name को पहले रखा गया है।
+    Most specific/common API fields first.
   */
 
-  return safeString(
-    team.full_name ||
-    team.fullName ||
-    team.name ||
-    team.teamName ||
-    team.shortName ||
-    team.shortname ||
-    team.title ||
-    "Team"
-  );
+  const keys = [
+
+    "full_name",
+    "fullName",
+
+    "teamName",
+    "team_name",
+
+    "displayName",
+    "display_name",
+
+    "shortName",
+    "shortname",
+    "short_name",
+
+    "name",
+    "title",
+    "label"
+
+  ];
+
+
+  for(const key of keys){
+
+    const value =
+      team[key];
+
+    if(
+      typeof value === "string" &&
+      value.trim()
+    ){
+
+      return value.trim();
+
+    }
+
+  }
+
+
+  /*
+    Sometimes team itself is nested.
+  */
+
+  for(
+    const key of [
+      "team",
+      "teamInfo",
+      "team_info",
+      "data"
+    ]
+  ){
+
+    if(
+      team[key] &&
+      typeof team[key] === "object"
+    ){
+
+      const nested =
+        getTeamName(team[key]);
+
+      if(nested){
+        return nested;
+      }
+
+    }
+
+  }
+
+  return "";
+
 }
 
 
 /* ============================================================
-   FIXED GET TEAMS
+   ROBUST GET TEAMS
 ============================================================ */
 
 function getTeams(match){
 
+  if(
+    !match ||
+    typeof match !== "object"
+  ){
+
+    return [];
+
+  }
+
+
   /*
-    ✅ Main API format
+    PRIMARY API FORMAT
 
-    first_team:
-    {
-      name:"IND",
-      full_name:"India"
+    first_team.full_name
+    second_team.full_name
+  */
+
+  const firstTeam =
+    match.first_team ||
+    match.firstTeam ||
+    match.first_team_info;
+
+  const secondTeam =
+    match.second_team ||
+    match.secondTeam ||
+    match.second_team_info;
+
+
+  if(firstTeam || secondTeam){
+
+    const first =
+      getTeamName(firstTeam);
+
+    const second =
+      getTeamName(secondTeam);
+
+    if(first || second){
+
+      return [
+        first,
+        second
+      ].filter(Boolean);
+
     }
 
-    second_team:
-    {
-      name:"WI",
-      full_name:"West Indies"
+  }
+
+
+  /*
+    ARRAY FORMATS
+  */
+
+  for(
+    const key of [
+      "teams",
+      "teamInfo",
+      "team_info"
+    ]
+  ){
+
+    if(Array.isArray(match[key])){
+
+      const names =
+        match[key]
+          .map(getTeamName)
+          .filter(Boolean);
+
+      if(names.length >= 2){
+
+        return names.slice(0,2);
+
+      }
+
     }
+
+  }
+
+
+  /*
+    DIRECT STRING / OBJECT FORMATS
+  */
+
+  const aKeys = [
+
+    "team1",
+    "teamA",
+    "team_a",
+
+    "homeTeam",
+    "home",
+
+    "team1Name",
+    "team1name",
+    "team1_name",
+
+    "teamAName",
+    "teamAname",
+
+    "homeTeamName",
+    "home_name",
+
+    "firstTeam",
+    "first_team_name",
+
+    "teamOne",
+    "team_one"
+
+  ];
+
+  const bKeys = [
+
+    "team2",
+    "teamB",
+    "team_b",
+
+    "awayTeam",
+    "away",
+
+    "team2Name",
+    "team2name",
+    "team2_name",
+
+    "teamBName",
+    "teamBname",
+
+    "awayTeamName",
+    "away_name",
+
+    "secondTeam",
+    "second_team_name",
+
+    "teamTwo",
+    "team_two"
+
+  ];
+
+
+  const a =
+    getTeamName(
+      findValue(
+        match,
+        aKeys
+      )
+    );
+
+  const b =
+    getTeamName(
+      findValue(
+        match,
+        bKeys
+      )
+    );
+
+
+  if(a || b){
+
+    return [
+      a,
+      b
+    ].filter(Boolean);
+
+  }
+
+
+  /*
+    teams object format
   */
 
   if(
-    match?.first_team ||
-    match?.second_team
+    match.teams &&
+    typeof match.teams === "object" &&
+    !Array.isArray(match.teams)
   ){
 
-    const first =
-      getTeamName(match.first_team);
+    const t1 =
+      getTeamName(
+        findValue(
+          match.teams,
+          [
+            "team1",
+            "teamA",
+            "home",
+            "homeTeam",
+            "first",
+            "firstTeam"
+          ]
+        )
+      );
 
-    const second =
-      getTeamName(match.second_team);
+    const t2 =
+      getTeamName(
+        findValue(
+          match.teams,
+          [
+            "team2",
+            "teamB",
+            "away",
+            "awayTeam",
+            "second",
+            "secondTeam"
+          ]
+        )
+      );
 
-    return [
-      first,
-      second
-    ];
+    if(t1 || t2){
+
+      return [
+        t1,
+        t2
+      ].filter(Boolean);
+
+    }
+
   }
 
 
-  /*
-    Other API formats
-  */
-
-  if(Array.isArray(match?.teams)){
-
-    return match.teams
-      .map(getTeamName)
-      .filter(Boolean);
-
-  }
-
-
-  if(Array.isArray(match?.teamInfo)){
-
-    return match.teamInfo
-      .map(getTeamName)
-      .filter(Boolean);
-
-  }
-
-
-  /*
-    Generic fallback
-  */
-
-  const a = findValue(
-    match,
-    [
-      "team1",
-      "teamA",
-      "homeTeam",
-      "home"
-    ]
-  );
-
-  const b = findValue(
-    match,
-    [
-      "team2",
-      "teamB",
-      "awayTeam",
-      "away"
-    ]
-  );
-
-
-  return [
-    getTeamName(a),
-    getTeamName(b)
-  ].filter(Boolean);
+  return [];
 
 }
 
@@ -1467,12 +1741,9 @@ function getScoreArray(match){
     return match.innings;
   }
 
-  /*
-    New API format:
-    first_team.score
-    second_team.score
 
-    This makes Fixtures/Live more robust.
+  /*
+    first_team.score / second_team.score
   */
 
   if(
@@ -1483,15 +1754,23 @@ function getScoreArray(match){
     const scores = [];
 
     if(match.first_team){
+
       scores.push(
-        match.first_team.score || ""
+        match.first_team.score ||
+        match.first_team.scoreText ||
+        ""
       );
+
     }
 
     if(match.second_team){
+
       scores.push(
-        match.second_team.score || ""
+        match.second_team.score ||
+        match.second_team.scoreText ||
+        ""
       );
+
     }
 
     return scores;
@@ -1499,49 +1778,59 @@ function getScoreArray(match){
   }
 
   return [];
+
 }
 
 function formatScore(score){
 
-  if(!score){
+  if(
+    score === null ||
+    score === undefined ||
+    score === ""
+  ){
+
     return "—";
+
   }
 
   if(typeof score === "string"){
-    return score;
+    return score.trim() || "—";
   }
 
   if(typeof score !== "object"){
     return safeString(score) || "—";
   }
 
-  const runs = findValue(
-    score,
-    [
-      "r",
-      "runs",
-      "score",
-      "total"
-    ]
-  );
+  const runs =
+    findValue(
+      score,
+      [
+        "r",
+        "runs",
+        "score",
+        "total"
+      ]
+    );
 
-  const wickets = findValue(
-    score,
-    [
-      "w",
-      "wickets",
-      "wkts"
-    ]
-  );
+  const wickets =
+    findValue(
+      score,
+      [
+        "w",
+        "wickets",
+        "wkts"
+      ]
+    );
 
-  const overs = findValue(
-    score,
-    [
-      "o",
-      "overs",
-      "over"
-    ]
-  );
+  const overs =
+    findValue(
+      score,
+      [
+        "o",
+        "overs",
+        "over"
+      ]
+    );
 
   let output = "";
 
@@ -1562,7 +1851,8 @@ function formatScore(score){
 
 function parseScores(match){
 
-  const scores = getScoreArray(match);
+  const scores =
+    getScoreArray(match);
 
   if(scores.length){
 
@@ -1570,21 +1860,42 @@ function parseScores(match){
 
   }
 
-  const direct = findValue(
-    match,
-    [
-      "scoreText",
-      "score",
-      "currentScore"
-    ]
-  );
+  const direct =
+    findValue(
+      match,
+      [
+        "scoreText",
+        "score",
+        "currentScore"
+      ]
+    );
 
   if(direct){
-    return [safeString(direct)];
+
+    if(
+      typeof direct === "object"
+    ){
+
+      return [
+        formatScore(direct)
+      ];
+
+    }
+
+    return [
+      safeString(direct)
+    ];
+
   }
 
   return [];
+
 }
+
+
+/* ============================================================
+   STATUS
+============================================================ */
 
 function getStatusText(match){
 
@@ -1603,19 +1914,61 @@ function getStatusText(match){
 
 }
 
+function getStatusClass(status){
+
+  const s =
+    safeString(status).toLowerCase();
+
+  if(
+    s.includes("live") ||
+    s.includes("progress") ||
+    s.includes("in progress") ||
+    s.includes("started")
+  ){
+
+    return "live";
+
+  }
+
+  if(
+    s.includes("result") ||
+    s.includes("won") ||
+    s.includes("loss") ||
+    s.includes("draw") ||
+    s.includes("complete") ||
+    s.includes("finished")
+  ){
+
+    return "result";
+
+  }
+
+  return "upcoming";
+
+}
+
+
+/* ============================================================
+   VENUE / SERIES / MATCH NAME
+============================================================ */
+
 function getVenue(match){
 
-  const venue = findValue(
-    match,
-    [
-      "venue",
-      "stadium",
-      "ground",
-      "location"
-    ]
-  );
+  const venue =
+    findValue(
+      match,
+      [
+        "venue",
+        "stadium",
+        "ground",
+        "location"
+      ]
+    );
 
-  if(typeof venue === "object"){
+  if(
+    venue &&
+    typeof venue === "object"
+  ){
 
     return safeString(
       findValue(
@@ -1623,7 +1976,8 @@ function getVenue(match){
         [
           "name",
           "venue",
-          "ground"
+          "ground",
+          "title"
         ]
       )
     );
@@ -1631,23 +1985,41 @@ function getVenue(match){
   }
 
   return safeString(venue);
+
 }
 
 function getSeries(match){
 
-  return safeString(
+  const series =
     findValue(
       match,
       [
         "series",
         "seriesName",
         "series_name",
-        "series_name",
         "tournament",
         "competition"
       ]
-    )
-  );
+    );
+
+  if(
+    series &&
+    typeof series === "object"
+  ){
+
+    return safeString(
+      findValue(
+        series,
+        [
+          "name",
+          "title"
+        ]
+      )
+    );
+
+  }
+
+  return safeString(series);
 
 }
 
@@ -1686,34 +2058,316 @@ function getDateText(match){
 
 }
 
-function getStatusClass(status){
 
-  const s = status.toLowerCase();
+/* ============================================================
+   DATE / IST HELPERS
+============================================================ */
 
-  if(
-    s.includes("live") ||
-    s.includes("progress") ||
-    s.includes("in progress")
-  ){
+function parseDateValue(match){
 
-    return "live";
+  const value =
+    getDateText(match);
+
+  if(!value){
+    return null;
+  }
+
+  try{
+
+    let normalized =
+      value.trim();
+
+    /*
+      GMT without explicit timezone.
+    */
+
+    if(
+      /GMT$/i.test(normalized)
+    ){
+
+      normalized =
+        normalized.replace(
+          /\s*GMT$/i,
+          "Z"
+        );
+
+    }
+
+    /*
+      ISO date without timezone:
+      treat as GMT for cricket API data.
+    */
+
+    if(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(normalized) &&
+      !/[zZ]|[+-]\d{2}:?\d{2}$/.test(normalized)
+    ){
+
+      normalized += "Z";
+
+    }
+
+    const date =
+      new Date(normalized);
+
+    if(
+      Number.isNaN(
+        date.getTime()
+      )
+    ){
+
+      return null;
+
+    }
+
+    return date;
+
+  }catch(error){
+
+    return null;
 
   }
 
-  if(
-    s.includes("result") ||
-    s.includes("won") ||
-    s.includes("loss") ||
-    s.includes("draw") ||
-    s.includes("complete") ||
-    s.includes("finished")
-  ){
+}
 
-    return "result";
+function formatIST(match){
+
+  const date =
+    parseDateValue(match);
+
+  if(!date){
+
+    return "";
 
   }
 
-  return "upcoming";
+  try{
+
+    return new Intl.DateTimeFormat(
+      "en-IN",
+      {
+        timeZone:"Asia/Kolkata",
+        day:"2-digit",
+        month:"short",
+        year:"numeric",
+        hour:"2-digit",
+        minute:"2-digit",
+        hour12:true
+      }
+    ).format(date) + " IST";
+
+  }catch(error){
+
+    return "";
+
+  }
+
+}
+
+function getCountdownText(match){
+
+  const date =
+    parseDateValue(match);
+
+  if(!date){
+    return "";
+  }
+
+  const diff =
+    date.getTime() -
+    Date.now();
+
+  if(diff <= 0){
+    return "";
+  }
+
+  const totalMinutes =
+    Math.floor(
+      diff / 60000
+    );
+
+  const days =
+    Math.floor(
+      totalMinutes / 1440
+    );
+
+  const hours =
+    Math.floor(
+      (totalMinutes % 1440) / 60
+    );
+
+  const minutes =
+    totalMinutes % 60;
+
+  if(days > 0){
+
+    return (
+      "⏳ Starts in " +
+      days +
+      "d " +
+      hours +
+      "h"
+    );
+
+  }
+
+  if(hours > 0){
+
+    return (
+      "⏳ Starts in " +
+      hours +
+      "h " +
+      minutes +
+      "m"
+    );
+
+  }
+
+  return (
+    "⏳ Starts in " +
+    minutes +
+    "m"
+  );
+
+}
+
+
+/* ============================================================
+   MATCH SHARE
+============================================================ */
+
+function buildMatchShareText(match){
+
+  const teams =
+    getTeams(match);
+
+  const scores =
+    parseScores(match);
+
+  const name =
+    getMatchName(match);
+
+  const venue =
+    getVenue(match);
+
+  const ist =
+    formatIST(match);
+
+  let text =
+    "🏏 Cricket Short\n\n";
+
+  text +=
+    (name ||
+    (
+      (teams[0] || "Team 1") +
+      " vs " +
+      (teams[1] || "Team 2")
+    )) +
+    "\n\n";
+
+  text +=
+    (teams[0] || "Team 1") +
+    " " +
+    (scores[0] || "—") +
+    "\n";
+
+  text +=
+    (teams[1] || "Team 2") +
+    " " +
+    (scores[1] || "—") +
+    "\n\n";
+
+  if(venue){
+
+    text +=
+      "📍 " +
+      venue +
+      "\n";
+
+  }
+
+  if(ist){
+
+    text +=
+      "🕒 " +
+      ist +
+      "\n";
+
+  }
+
+  text +=
+    "\n🏏 Live updates: Cricket Short";
+
+  return text;
+
+}
+
+async function shareMatch(match){
+
+  const text =
+    buildMatchShareText(match);
+
+  const shareData = {
+
+    title:
+      "🏏 Cricket Short",
+
+    text:text,
+
+    url:
+      window.location.href
+
+  };
+
+  try{
+
+    if(
+      navigator.share &&
+      typeof navigator.share === "function"
+    ){
+
+      await navigator.share(
+        shareData
+      );
+
+      return;
+
+    }
+
+  }catch(error){
+
+    if(
+      error?.name === "AbortError"
+    ){
+
+      return;
+
+    }
+
+  }
+
+  try{
+
+    await navigator.clipboard.writeText(
+      text +
+      "\n" +
+      window.location.href
+    );
+
+    alert(
+      "Match details copy हो गए। अब Facebook/WhatsApp पर paste कर सकते हैं।"
+    );
+
+  }catch(error){
+
+    prompt(
+      "यह text copy करें:",
+      text +
+      "\n" +
+      window.location.href
+    );
+
+  }
 
 }
 
@@ -1724,9 +2378,11 @@ function getStatusClass(status){
 
 function renderMatchCard(match,index=0){
 
-  const teams = getTeams(match);
+  const teams =
+    getTeams(match);
 
-  const scores = parseScores(match);
+  const scores =
+    parseScores(match);
 
   const team1 =
     teams[0] ||
@@ -1746,7 +2402,10 @@ function renderMatchCard(match,index=0){
 
   const status =
     getStatusText(match) ||
-    "LIVE";
+    "UPCOMING";
+
+  const statusClass =
+    getStatusClass(status);
 
   const venue =
     getVenue(match);
@@ -1757,18 +2416,36 @@ function renderMatchCard(match,index=0){
   const date =
     getDateText(match);
 
+  const ist =
+    formatIST(match);
+
+  const countdown =
+    getCountdownText(match);
+
   const id =
     getMatchId(match);
 
   const name =
     getMatchName(match);
 
+  const isLive =
+    statusClass === "live";
+
+  const cardClass =
+    isLive
+    ?
+    "match-card live-card"
+    :
+    "match-card upcoming-card";
+
+
   return `
-    <div class="match-card">
+
+    <div class="${cardClass}">
 
       <div class="match-top">
 
-        <div>
+        <div style="flex:1;min-width:0;">
 
           <div class="match-title">
             ${escapeHTML(
@@ -1780,59 +2457,121 @@ function renderMatchCard(match,index=0){
           ${
             series
             ?
-            `<div class="match-meta">
-              ${escapeHTML(series)}
-            </div>`
+            `
+              <div class="series-line">
+                ${escapeHTML(series)}
+              </div>
+            `
             :
             ""
           }
 
         </div>
 
-        <span class="badge ${getStatusClass(status)}">
-          ${escapeHTML(status)}
+        <span class="badge ${statusClass}">
+          ${escapeHTML(
+            isLive
+            ?
+            "🔴 LIVE"
+            :
+            status
+          )}
         </span>
 
       </div>
 
-      <div class="team-row">
 
-        <div class="team-name">
-          ${escapeHTML(team1)}
+      <div class="teams-box">
+
+        <div class="team-row">
+
+          <div class="team-name">
+            ${escapeHTML(team1)}
+          </div>
+
+          <div class="team-score ${
+            isLive
+            ?
+            "live-score-big"
+            :
+            ""
+          }">
+            ${escapeHTML(score1)}
+          </div>
+
         </div>
 
-        <div class="team-score">
-          ${escapeHTML(score1)}
+        <div class="vs-line">
+          VS
+        </div>
+
+        <div class="team-row">
+
+          <div class="team-name">
+            ${escapeHTML(team2)}
+          </div>
+
+          <div class="team-score ${
+            isLive
+            ?
+            "live-score-big"
+            :
+            ""
+          }">
+            ${escapeHTML(score2)}
+          </div>
+
         </div>
 
       </div>
 
-      <div class="team-row">
-
-        <div class="team-name">
-          ${escapeHTML(team2)}
-        </div>
-
-        <div class="team-score">
-          ${escapeHTML(score2)}
-        </div>
-
-      </div>
 
       <div class="match-meta">
 
         ${
           venue
           ?
-          "📍 " + escapeHTML(venue)
+          `
+            <div>
+              📍 ${escapeHTML(venue)}
+            </div>
+          `
           :
           ""
         }
 
         ${
-          date
+          ist
           ?
-          "<br>🕒 " + escapeHTML(date)
+          `
+            <div class="match-time-ist">
+              🕒 ${escapeHTML(ist)}
+            </div>
+          `
+          :
+          (
+            date
+            ?
+            `
+              <div>
+                🕒 ${escapeHTML(date)}
+              </div>
+            `
+            :
+            ""
+          )
+        }
+
+        ${
+          countdown && !isLive
+          ?
+          `
+            <div>
+              <span class="countdown">
+                ${escapeHTML(countdown)}
+              </span>
+            </div>
+          `
           :
           ""
         }
@@ -1840,41 +2579,50 @@ function renderMatchCard(match,index=0){
         ${
           id
           ?
-          "<br>🆔 " + escapeHTML(id)
+          `
+            <div>
+              🆔 ${escapeHTML(id)}
+            </div>
+          `
           :
           ""
         }
 
       </div>
 
+
       ${
         id
         ?
         `
-          <div class="button-row">
+          <div class="match-actions">
 
             <button
               class="secondary-btn"
               onclick="useMatchId(${safeJSONArg(id)})">
-
               📊 Scorecard
-
             </button>
 
             <button
               class="secondary-btn"
               onclick="useBallId(${safeJSONArg(id)})">
-
               🏏 Ball-by-Ball
-
             </button>
 
             <button
               class="secondary-btn"
               onclick="usePointsId(${safeJSONArg(id)})">
-
               🎯 Points
+            </button>
 
+            <button
+              class="primary-btn"
+              onclick="shareMatchByIndex(${index}, ${
+                isLive
+                ? "'live'"
+                : "'fixture'"
+              })">
+              📤 Share
             </button>
 
           </div>
@@ -1884,7 +2632,39 @@ function renderMatchCard(match,index=0){
       }
 
     </div>
+
   `;
+
+}
+
+
+/* ============================================================
+   SHARE MATCH BY INDEX
+============================================================ */
+
+async function shareMatchByIndex(index,type){
+
+  const source =
+    type === "fixture"
+    ?
+    fixtureMatchesCache
+    :
+    liveMatchesCache;
+
+  const match =
+    source[index];
+
+  if(!match){
+
+    alert(
+      "Match information उपलब्ध नहीं है।"
+    );
+
+    return;
+
+  }
+
+  await shareMatch(match);
 
 }
 
@@ -1925,7 +2705,9 @@ function showSection(sectionId){
     $(sectionId);
 
   if(target){
+
     target.classList.add("active");
+
   }
 
   document
@@ -1945,11 +2727,15 @@ function showSection(sectionId){
   });
 
   if(sectionId === "live"){
+
     loadScores();
+
   }
 
   if(sectionId === "fixtures"){
+
     loadFixtures();
+
   }
 
 }
@@ -1968,15 +2754,18 @@ async function loadScores(){
   );
 
   $("liveMatches").innerHTML =
-    `<div class="loading-box">
-      🔄 Loading live matches...
-    </div>`;
+    `
+      <div class="loading-box">
+        🔄 Loading live matches...
+      </div>
+    `;
 
   try{
 
     const data =
       await getJSON(
-        API_BASE + "/api/live-score"
+        API_BASE +
+        "/api/live-score"
       );
 
     const raw =
@@ -1986,7 +2775,8 @@ async function loadScores(){
 
     if(Array.isArray(raw)){
 
-      matches = raw;
+      matches =
+        raw;
 
     }else if(
       raw &&
@@ -2011,11 +2801,16 @@ async function loadScores(){
 
     if(!matches.length){
 
-      $("liveMatches").innerHTML = `
-        <div class="empty">
-          🔴 अभी कोई लाइव मैच नहीं है
-        </div>
-      `;
+      $("liveMatches").innerHTML =
+        `
+          <div class="empty">
+            🔴 अभी कोई लाइव मैच नहीं है
+            <br><br>
+            <small>
+              अगले live update के लिए Refresh दबाएँ।
+            </small>
+          </div>
+        `;
 
       setStatus(
         "liveStatus",
@@ -2031,7 +2826,13 @@ async function loadScores(){
 
     $("liveMatches").innerHTML =
       matches
-        .map(renderMatchCard)
+        .map(
+          (match,index) =>
+            renderMatchCard(
+              match,
+              index
+            )
+        )
         .join("");
 
     setStatus(
@@ -2050,17 +2851,20 @@ async function loadScores(){
 
     console.error(error);
 
-    $("liveMatches").innerHTML = `
-      <div class="empty">
+    $("liveMatches").innerHTML =
+      `
+        <div class="empty">
 
-        ❌ Live score load नहीं हुआ।
+          ❌ Live score load नहीं हुआ।
 
-        <br><br>
+          <br><br>
 
-        ${escapeHTML(error.message)}
+          ${escapeHTML(
+            error.message
+          )}
 
-      </div>
-    `;
+        </div>
+      `;
 
     setStatus(
       "liveStatus",
@@ -2086,15 +2890,18 @@ async function loadFixtures(){
   );
 
   $("fixtureMatches").innerHTML =
-    `<div class="loading-box">
-      🔄 Loading fixtures...
-    </div>`;
+    `
+      <div class="loading-box">
+        🔄 Loading fixtures...
+      </div>
+    `;
 
   try{
 
     const data =
       await getJSON(
-        API_BASE + "/api/fixtures"
+        API_BASE +
+        "/api/fixtures"
       );
 
     const raw =
@@ -2104,7 +2911,8 @@ async function loadFixtures(){
 
     if(Array.isArray(raw)){
 
-      matches = raw;
+      matches =
+        raw;
 
     }else if(
       raw &&
@@ -2124,13 +2932,17 @@ async function loadFixtures(){
 
     }
 
+    fixtureMatchesCache =
+      matches;
+
     if(!matches.length){
 
-      $("fixtureMatches").innerHTML = `
-        <div class="empty">
-          📅 अभी कोई upcoming fixture नहीं मिला।
-        </div>
-      `;
+      $("fixtureMatches").innerHTML =
+        `
+          <div class="empty">
+            📅 अभी कोई upcoming fixture नहीं मिला।
+          </div>
+        `;
 
       setStatus(
         "fixturesStatus",
@@ -2144,7 +2956,13 @@ async function loadFixtures(){
 
     $("fixtureMatches").innerHTML =
       matches
-        .map(renderMatchCard)
+        .map(
+          (match,index) =>
+            renderMatchCard(
+              match,
+              index
+            )
+        )
         .join("");
 
     setStatus(
@@ -2157,17 +2975,22 @@ async function loadFixtures(){
 
   }catch(error){
 
-    $("fixtureMatches").innerHTML = `
-      <div class="empty">
+    console.error(error);
 
-        ❌ Fixtures load नहीं हुए।
+    $("fixtureMatches").innerHTML =
+      `
+        <div class="empty">
 
-        <br><br>
+          ❌ Fixtures load नहीं हुए।
 
-        ${escapeHTML(error.message)}
+          <br><br>
 
-      </div>
-    `;
+          ${escapeHTML(
+            error.message
+          )}
+
+        </div>
+      `;
 
     setStatus(
       "fixturesStatus",
@@ -2248,9 +3071,11 @@ async function loadScorecard(){
   );
 
   $("scorecardData").innerHTML =
-    `<div class="loading-box">
-      🔄 Loading...
-    </div>`;
+    `
+      <div class="loading-box">
+        🔄 Loading...
+      </div>
+    `;
 
   try{
 
@@ -2271,11 +3096,12 @@ async function loadScorecard(){
 
   }catch(error){
 
-    $("scorecardData").innerHTML = `
-      <div class="empty">
-        ❌ ${escapeHTML(error.message)}
-      </div>
-    `;
+    $("scorecardData").innerHTML =
+      `
+        <div class="empty">
+          ❌ ${escapeHTML(error.message)}
+        </div>
+      `;
 
     setStatus(
       "scorecardStatus",
@@ -2296,7 +3122,8 @@ function renderScorecard(data){
 
   if(Array.isArray(raw)){
 
-    innings = raw;
+    innings =
+      raw;
 
   }else if(
     raw &&
@@ -2318,21 +3145,26 @@ function renderScorecard(data){
 
   if(!innings.length){
 
-    $("scorecardData").innerHTML = `
-      <div class="card">
+    $("scorecardData").innerHTML =
+      `
+        <div class="card">
 
-        <pre
-          style="
-            white-space:pre-wrap;
-            color:#aac4d8;
-            font-size:11px;
-          "
-        >${escapeHTML(
-          JSON.stringify(data,null,2)
-        )}</pre>
+          <pre
+            style="
+              white-space:pre-wrap;
+              color:#aac4d8;
+              font-size:11px;
+            "
+          >${escapeHTML(
+            JSON.stringify(
+              data,
+              null,
+              2
+            )
+          )}</pre>
 
-      </div>
-    `;
+        </div>
+      `;
 
     return;
 
@@ -2370,162 +3202,168 @@ function renderScorecard(data){
           ]
         );
 
-      html += `
-        <div class="card">
+      html +=
+        `
+          <div class="card">
 
-          <h3
-            style="margin-bottom:10px;">
-            ${escapeHTML(title)}
-          </h3>
-      `;
+            <h3
+              style="margin-bottom:10px;">
+              ${escapeHTML(title)}
+            </h3>
+        `;
 
       if(batsmen.length){
 
-        html += `
-          <div class="table-wrap">
+        html +=
+          `
+            <div class="table-wrap">
 
-            <table>
+              <table>
 
-              <thead>
+                <thead>
 
-                <tr>
+                  <tr>
 
-                  <th>Batter</th>
-                  <th>R</th>
-                  <th>B</th>
-                  <th>4s</th>
-                  <th>6s</th>
-                  <th>SR</th>
+                    <th>Batter</th>
+                    <th>R</th>
+                    <th>B</th>
+                    <th>4s</th>
+                    <th>6s</th>
+                    <th>SR</th>
 
-                </tr>
+                  </tr>
 
-              </thead>
+                </thead>
 
-              <tbody>
-        `;
+                <tbody>
+          `;
 
         batsmen.forEach(
           player => {
 
-            html += `
-              <tr>
+            html +=
+              `
+                <tr>
 
-                <td>
-                  ${escapeHTML(
-                    findValue(
-                      player,
-                      [
-                        "name",
-                        "player",
-                        "batter"
-                      ]
-                    ) ||
-                    "—"
-                  )}
-                </td>
+                  <td>
+                    ${escapeHTML(
+                      findValue(
+                        player,
+                        [
+                          "name",
+                          "player",
+                          "batter"
+                        ]
+                      ) ||
+                      "—"
+                    )}
+                  </td>
 
-                <td>
-                  ${escapeHTML(
-                    findValue(
-                      player,
-                      [
-                        "r",
-                        "runs"
-                      ]
-                    ) ||
-                    "—"
-                  )}
-                </td>
+                  <td>
+                    ${escapeHTML(
+                      findValue(
+                        player,
+                        [
+                          "r",
+                          "runs"
+                        ]
+                      ) ||
+                      "—"
+                    )}
+                  </td>
 
-                <td>
-                  ${escapeHTML(
-                    findValue(
-                      player,
-                      [
-                        "b",
-                        "balls"
-                      ]
-                    ) ||
-                    "—"
-                  )}
-                </td>
+                  <td>
+                    ${escapeHTML(
+                      findValue(
+                        player,
+                        [
+                          "b",
+                          "balls"
+                        ]
+                      ) ||
+                      "—"
+                    )}
+                  </td>
 
-                <td>
-                  ${escapeHTML(
-                    findValue(
-                      player,
-                      [
-                        "4s",
-                        "fours"
-                      ]
-                    ) ||
-                    "—"
-                  )}
-                </td>
+                  <td>
+                    ${escapeHTML(
+                      findValue(
+                        player,
+                        [
+                          "4s",
+                          "fours"
+                        ]
+                      ) ||
+                      "—"
+                    )}
+                  </td>
 
-                <td>
-                  ${escapeHTML(
-                    findValue(
-                      player,
-                      [
-                        "6s",
-                        "sixes"
-                      ]
-                    ) ||
-                    "—"
-                  )}
-                </td>
+                  <td>
+                    ${escapeHTML(
+                      findValue(
+                        player,
+                        [
+                          "6s",
+                          "sixes"
+                        ]
+                      ) ||
+                      "—"
+                    )}
+                  </td>
 
-                <td>
-                  ${escapeHTML(
-                    findValue(
-                      player,
-                      [
-                        "sr",
-                        "strikeRate"
-                      ]
-                    ) ||
-                    "—"
-                  )}
-                </td>
+                  <td>
+                    ${escapeHTML(
+                      findValue(
+                        player,
+                        [
+                          "sr",
+                          "strikeRate"
+                        ]
+                      ) ||
+                      "—"
+                    )}
+                  </td>
 
-              </tr>
-            `;
+                </tr>
+              `;
 
           }
         );
 
-        html += `
-              </tbody>
+        html +=
+          `
+                </tbody>
 
-            </table>
+              </table>
 
-          </div>
-        `;
+            </div>
+          `;
 
       }else{
 
-        html += `
-          <pre
-            style="
-              white-space:pre-wrap;
-              color:#aac4d8;
-              font-size:11px;
-            "
-          >${escapeHTML(
-            JSON.stringify(
-              inning,
-              null,
-              2
-            )
-          )}</pre>
-        `;
+        html +=
+          `
+            <pre
+              style="
+                white-space:pre-wrap;
+                color:#aac4d8;
+                font-size:11px;
+              "
+            >${escapeHTML(
+              JSON.stringify(
+                inning,
+                null,
+                2
+              )
+            )}</pre>
+          `;
 
       }
 
-      html += `
-        </div>
-      `;
+      html +=
+        `
+          </div>
+        `;
 
     }
   );
@@ -2566,9 +3404,11 @@ async function loadBallByBall(){
   );
 
   $("ballData").innerHTML =
-    `<div class="loading-box">
-      🔄 Loading commentary...
-    </div>`;
+    `
+      <div class="loading-box">
+        🔄 Loading commentary...
+      </div>
+    `;
 
   try{
 
@@ -2589,11 +3429,12 @@ async function loadBallByBall(){
 
   }catch(error){
 
-    $("ballData").innerHTML = `
-      <div class="empty">
-        ❌ ${escapeHTML(error.message)}
-      </div>
-    `;
+    $("ballData").innerHTML =
+      `
+        <div class="empty">
+          ❌ ${escapeHTML(error.message)}
+        </div>
+      `;
 
     setStatus(
       "ballStatus",
@@ -2614,7 +3455,8 @@ function renderBallByBall(data){
 
   if(Array.isArray(raw)){
 
-    items = raw;
+    items =
+      raw;
 
   }else if(
     raw &&
@@ -2639,25 +3481,26 @@ function renderBallByBall(data){
 
   if(!items.length){
 
-    $("ballData").innerHTML = `
-      <div class="card">
+    $("ballData").innerHTML =
+      `
+        <div class="card">
 
-        <pre
-          style="
-            white-space:pre-wrap;
-            color:#aac4d8;
-            font-size:11px;
-          "
-        >${escapeHTML(
-          JSON.stringify(
-            data,
-            null,
-            2
-          )
-        )}</pre>
+          <pre
+            style="
+              white-space:pre-wrap;
+              color:#aac4d8;
+              font-size:11px;
+            "
+          >${escapeHTML(
+            JSON.stringify(
+              data,
+              null,
+              2
+            )
+          )}</pre>
 
-      </div>
-    `;
+        </div>
+      `;
 
     return;
 
@@ -2808,9 +3651,11 @@ async function loadPoints(){
   );
 
   $("pointsData").innerHTML =
-    `<div class="loading-box">
-      🔄 Loading...
-    </div>`;
+    `
+      <div class="loading-box">
+        🔄 Loading...
+      </div>
+    `;
 
   try{
 
@@ -2831,11 +3676,12 @@ async function loadPoints(){
 
   }catch(error){
 
-    $("pointsData").innerHTML = `
-      <div class="empty">
-        ❌ ${escapeHTML(error.message)}
-      </div>
-    `;
+    $("pointsData").innerHTML =
+      `
+        <div class="empty">
+          ❌ ${escapeHTML(error.message)}
+        </div>
+      `;
 
     setStatus(
       "pointsStatus",
@@ -2856,7 +3702,8 @@ function renderPoints(data){
 
   if(Array.isArray(raw)){
 
-    rows = raw;
+    rows =
+      raw;
 
   }else if(
     raw &&
@@ -2880,159 +3727,163 @@ function renderPoints(data){
 
   if(!rows.length){
 
-    $("pointsData").innerHTML = `
-      <div class="card">
+    $("pointsData").innerHTML =
+      `
+        <div class="card">
 
-        <pre
-          style="
-            white-space:pre-wrap;
-            color:#aac4d8;
-            font-size:11px;
-          "
-        >${escapeHTML(
-          JSON.stringify(
-            data,
-            null,
-            2
-          )
-        )}</pre>
+          <pre
+            style="
+              white-space:pre-wrap;
+              color:#aac4d8;
+              font-size:11px;
+            "
+          >${escapeHTML(
+            JSON.stringify(
+              data,
+              null,
+              2
+            )
+          )}</pre>
 
-      </div>
-    `;
+        </div>
+      `;
 
     return;
 
   }
 
-  let html = `
-    <div class="card">
+  let html =
+    `
+      <div class="card">
 
-      <div class="table-wrap">
+        <div class="table-wrap">
 
-        <table>
+          <table>
 
-          <thead>
+            <thead>
 
-            <tr>
-              <th>#</th>
-              <th>Team</th>
-              <th>P</th>
-              <th>W</th>
-              <th>L</th>
-              <th>Pts</th>
-              <th>NRR</th>
-            </tr>
+              <tr>
+                <th>#</th>
+                <th>Team</th>
+                <th>P</th>
+                <th>W</th>
+                <th>L</th>
+                <th>Pts</th>
+                <th>NRR</th>
+              </tr>
 
-          </thead>
+            </thead>
 
-          <tbody>
-  `;
+            <tbody>
+    `;
 
   rows.forEach(
     (row,index) => {
 
-      html += `
-        <tr>
+      html +=
+        `
+          <tr>
 
-          <td>
-            ${index + 1}
-          </td>
+            <td>
+              ${index + 1}
+            </td>
 
-          <td>
-            ${escapeHTML(
-              findValue(
-                row,
-                [
-                  "team",
-                  "teamName",
-                  "name"
-                ]
-              ) ||
-              "—"
-            )}
-          </td>
+            <td>
+              ${escapeHTML(
+                findValue(
+                  row,
+                  [
+                    "team",
+                    "teamName",
+                    "name"
+                  ]
+                ) ||
+                "—"
+              )}
+            </td>
 
-          <td>
-            ${escapeHTML(
-              findValue(
-                row,
-                [
-                  "p",
-                  "played",
-                  "matches"
-                ]
-              ) ||
-              "—"
-            )}
-          </td>
+            <td>
+              ${escapeHTML(
+                findValue(
+                  row,
+                  [
+                    "p",
+                    "played",
+                    "matches"
+                  ]
+                ) ||
+                "—"
+              )}
+            </td>
 
-          <td>
-            ${escapeHTML(
-              findValue(
-                row,
-                [
-                  "w",
-                  "won"
-                ]
-              ) ||
-              "—"
-            )}
-          </td>
+            <td>
+              ${escapeHTML(
+                findValue(
+                  row,
+                  [
+                    "w",
+                    "won"
+                  ]
+                ) ||
+                "—"
+              )}
+            </td>
 
-          <td>
-            ${escapeHTML(
-              findValue(
-                row,
-                [
-                  "l",
-                  "lost"
-                ]
-              ) ||
-              "—"
-            )}
-          </td>
+            <td>
+              ${escapeHTML(
+                findValue(
+                  row,
+                  [
+                    "l",
+                    "lost"
+                  ]
+                ) ||
+                "—"
+              )}
+            </td>
 
-          <td>
-            ${escapeHTML(
-              findValue(
-                row,
-                [
-                  "pts",
-                  "points"
-                ]
-              ) ||
-              "—"
-            )}
-          </td>
+            <td>
+              ${escapeHTML(
+                findValue(
+                  row,
+                  [
+                    "pts",
+                    "points"
+                  ]
+                ) ||
+                "—"
+              )}
+            </td>
 
-          <td>
-            ${escapeHTML(
-              findValue(
-                row,
-                [
-                  "nrr",
-                  "netRunRate"
-                ]
-              ) ||
-              "—"
-            )}
-          </td>
+            <td>
+              ${escapeHTML(
+                findValue(
+                  row,
+                  [
+                    "nrr",
+                    "netRunRate"
+                  ]
+                ) ||
+                "—"
+              )}
+            </td>
 
-        </tr>
-      `;
+          </tr>
+        `;
 
     }
   );
 
-  html += `
-          </tbody>
+  html +=
+    `
+            </tbody>
 
-        </table>
+          </table>
+
+        </div>
 
       </div>
-
-    </div>
-  `;
+    `;
 
   $("pointsData").innerHTML =
     html;
@@ -3259,6 +4110,7 @@ function findImageValue(value){
   if(typeof value === "object"){
 
     const possibleKeys = [
+
       "image",
       "image_url",
       "imageUrl",
@@ -3270,6 +4122,7 @@ function findImageValue(value){
       "data",
       "output",
       "result"
+
     ];
 
     for(
@@ -3340,7 +4193,8 @@ function showGeneratedImage(
     typeof value === "string"
   ){
 
-    src = value;
+    src =
+      value;
 
   }else{
 
@@ -3364,7 +4218,8 @@ function showGeneratedImage(
       typeof found === "string"
     ){
 
-      src = found;
+      src =
+        found;
 
     }
 
@@ -3372,13 +4227,12 @@ function showGeneratedImage(
 
   if(!src){
 
-    container.innerHTML = `
-      <div class="image-placeholder">
-
-        ❌ Image data उपलब्ध नहीं है।
-
-      </div>
-    `;
+    container.innerHTML =
+      `
+        <div class="image-placeholder">
+          ❌ Image data उपलब्ध नहीं है।
+        </div>
+      `;
 
     return false;
 
@@ -3410,13 +4264,12 @@ function showGeneratedImage(
 
   img.onerror = () => {
 
-    container.innerHTML = `
-      <div class="image-placeholder">
-
-        ❌ Image display नहीं हो सकी।
-
-      </div>
-    `;
+    container.innerHTML =
+      `
+        <div class="image-placeholder">
+          ❌ Image display नहीं हो सकी।
+        </div>
+      `;
 
   };
 
@@ -3446,17 +4299,18 @@ async function generateImageFromPrompt(
       containerId
     );
 
-    container.innerHTML = `
-      <div class="image-placeholder">
+    container.innerHTML =
+      `
+        <div class="image-placeholder">
 
-        🖼️ Image generate हो रही है...
+          🖼️ Image generate हो रही है...
 
-        <br>
+          <br>
 
-        कृपया थोड़ा इंतज़ार करें।
+          कृपया थोड़ा इंतज़ार करें।
 
-      </div>
-    `;
+        </div>
+      `;
 
   }
 
@@ -3500,10 +4354,6 @@ async function generateImageFromPrompt(
       ).toLowerCase();
 
 
-    /*
-      DIRECT IMAGE RESPONSE
-    */
-
     if(
       contentType.includes("image/") ||
       contentType.includes(
@@ -3542,10 +4392,6 @@ async function generateImageFromPrompt(
 
     }
 
-
-    /*
-      JSON RESPONSE
-    */
 
     const text =
       await response.text();
@@ -3600,11 +4446,6 @@ async function generateImageFromPrompt(
       );
 
     }
-
-
-    /*
-      FIND IMAGE
-    */
 
     let imageValue =
       findImageValue(result);
@@ -3684,19 +4525,20 @@ async function generateImageFromPrompt(
 
     if(container){
 
-      container.innerHTML = `
-        <div class="image-placeholder">
+      container.innerHTML =
+        `
+          <div class="image-placeholder">
 
-          ❌ Image generate/display नहीं हो सकी।
+            ❌ Image generate/display नहीं हो सकी।
 
-          <br><br>
+            <br><br>
 
-          ${escapeHTML(
-            error.message
-          )}
+            ${escapeHTML(
+              error.message
+            )}
 
-        </div>
-      `;
+          </div>
+        `;
 
     }
 
@@ -3998,7 +4840,7 @@ No duplicate player.
 
 
 /* ============================================================
-   SHARE
+   SHARE LIVE SCORES
 ============================================================ */
 
 async function shareLiveScores(){
@@ -4037,8 +4879,7 @@ async function shareLiveScores(){
   }catch(error){
 
     if(
-      error?.name ===
-      "AbortError"
+      error?.name === "AbortError"
     ){
 
       return;
@@ -4175,11 +5016,12 @@ function renderLiveMode(){
 
   if(!liveMatchesCache.length){
 
-    $("liveModeMatches").innerHTML = `
-      <div class="empty">
-        🔴 अभी कोई लाइव मैच नहीं है
-      </div>
-    `;
+    $("liveModeMatches").innerHTML =
+      `
+        <div class="empty">
+          🔴 अभी कोई लाइव मैच नहीं है
+        </div>
+      `;
 
     return;
 
@@ -4187,7 +5029,13 @@ function renderLiveMode(){
 
   $("liveModeMatches").innerHTML =
     liveMatchesCache
-      .map(renderMatchCard)
+      .map(
+        (match,index) =>
+          renderMatchCard(
+            match,
+            index
+          )
+      )
       .join("");
 
 }
@@ -4197,6 +5045,14 @@ function startLiveModeRefresh(){
   stopLiveModeRefresh();
 
   liveSeconds = 120;
+
+  if($("liveCountdown")){
+
+    $("liveCountdown")
+      .textContent =
+      "Auto refresh: 120 seconds";
+
+  }
 
   liveCountdownTimer =
     setInterval(
@@ -4312,6 +5168,47 @@ async function toggleFullscreen(){
 
 
 /* ============================================================
+   UPDATE COUNTDOWNS
+============================================================ */
+
+function updateFixtureCountdowns(){
+
+  document
+    .querySelectorAll(
+      "#fixtureMatches .countdown"
+    )
+    .forEach(
+      (element,index) => {
+
+        const match =
+          fixtureMatchesCache[index];
+
+        if(!match){
+          return;
+        }
+
+        const text =
+          getCountdownText(match);
+
+        if(text){
+
+          element.textContent =
+            text;
+
+        }else{
+
+          element.textContent =
+            "🏏 Match starting";
+
+        }
+
+      }
+    );
+
+}
+
+
+/* ============================================================
    INITIAL LOAD
 ============================================================ */
 
@@ -4324,7 +5221,31 @@ document.addEventListener(
   }
 );
 
+
+/* ============================================================
+   KEEP FIXTURE COUNTDOWN FRESH
+============================================================ */
+
+setInterval(
+  () => {
+
+    if(
+      fixtureMatchesCache.length &&
+      document
+        .getElementById("fixtures")
+        ?.classList
+        .contains("active")
+    ){
+
+      updateFixtureCountdowns();
+
+    }
+
+  },
+  60000
+);
+
 </script>
 
 </body>
-          </html>
+  </html>
