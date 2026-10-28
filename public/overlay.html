@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cricket Short Live Overlay</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+  font-family: Arial, sans-serif;
+  color: white;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay {
+  width: 94%;
+  max-width: 1200px;
+  background: rgba(5, 12, 25, 0.94);
+  border: 2px solid #f5c542;
+  border-radius: 16px;
+  padding: 15px 22px;
+  box-shadow: 0 5px 25px rgba(0,0,0,.4);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,.25);
+  padding-bottom: 9px;
+  margin-bottom: 12px;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: #f5c542;
+}
+
+.live {
+  color: #ff3333;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  background: red;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.match-name {
+  text-align: center;
+  font-size: 15px;
+  color: #ddd;
+  margin-bottom: 12px;
+}
+
+.teams {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 15px;
+}
+
+.team {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.team-name {
+  font-size: 21px;
+  font-weight: bold;
+  color: white;
+  overflow-wrap: anywhere;
+}
+
+.score {
+  font-size: 36px;
+  font-weight: 900;
+  color: #f5c542;
+  margin-top: 5px;
+}
+
+.overs {
+  font-size: 17px;
+  color: #ddd;
+  margin-top: 4px;
+}
+
+.vs {
+  font-size: 19px;
+  font-weight: bold;
+  color: #aaa;
+}
+
+.status {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #39e58c;
+  margin-top: 13px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #bbb;
+  margin-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.2);
+  padding-top: 8px;
+}
+
+#error {
+  text-align: center;
+  color: #ff7777;
+  font-size: 14px;
+  padding: 8px;
+  display: none;
+}
+
+/* MOBILE 9:16 */
+
+body.mobile .overlay {
+  width: 94%;
+  max-width: 430px;
+  padding: 22px 15px;
+  border-radius: 18px;
+}
+
+body.mobile .header {
+  margin-bottom: 18px;
+}
+
+body.mobile .brand {
+  font-size: 19px;
+}
+
+body.mobile .match-name {
+  font-size: 17px;
+  margin-bottom: 22px;
+}
+
+body.mobile .teams {
+  flex-direction: column;
+  gap: 18px;
+}
+
+body.mobile .team-name {
+  font-size: 25px;
+}
+
+body.mobile .score {
+  font-size: 46px;
+}
+
+body.mobile .overs {
+  font-size: 19px;
+}
+
+body.mobile .vs {
+  font-size: 18px;
+}
+
+body.mobile .status {
+  font-size: 16px;
+  margin-top: 22px;
+}
+
+body.mobile .footer {
+  font-size: 12px;
+}
+
+/* SMALL SCREEN */
+
+@media(max-width:600px) {
+  .overlay {
+    padding: 12px;
+  }
+
+  .team-name {
+    font-size: 15px;
+  }
+
+  .score {
+    font-size: 27px;
+  }
+
+  .overs {
+    font-size: 13px;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="overlay">
+
+  <div class="header">
+    <div class="brand">🏏 CRICKET SHORT</div>
+    <div class="live">
+      <span class="live-dot"></span>
+      LIVE
+    </div>
+  </div>
+
+  <div class="match-name" id="matchName">
+    Loading Match...
+  </div>
+
+  <div class="teams">
+
+    <div class="team">
+      <div class="team-name" id="team1">
+        TEAM 1
+      </div>
+
+      <div class="score" id="score1">
+        --
+      </div>
+
+      <div class="overs" id="overs1">
+        --
+      </div>
+    </div>
+
+    <div class="vs">VS</div>
+
+    <div class="team">
+      <div class="team-name" id="team2">
+        TEAM 2
+      </div>
+
+      <div class="score" id="score2">
+        --
+      </div>
+
+      <div class="overs" id="overs2">
+        --
+      </div>
+    </div>
+
+  </div>
+
+  <div class="status" id="status">
+    Connecting to Live API...
+  </div>
+
+  <div id="error"></div>
+
+  <div class="footer">
+    <span>CRICKET SHORT LIVE</span>
+    <span id="updated">Connecting...</span>
+  </div>
+
+</div>
+
+<script>
+
+const API_URL =
+"https://cricket-ai-app.moqaddashusain12.workers.dev/api/live-score";
+
+const REFRESH_TIME = 30000;
+
+
+// ==================================================
+// SCREEN MODE
+// ==================================================
+
+const params =
+new URLSearchParams(location.search);
+
+if(params.get("mode") === "mobile") {
+  document.body.classList.add("mobile");
+}
+
+
+// ==================================================
+// HELPERS
+// ==================================================
+
+function value(obj, keys) {
+
+  for(const key of keys) {
+
+    if(obj && obj[key] !== undefined &&
+       obj[key] !== null &&
+       obj[key] !== "") {
+
+      return obj[key];
+
+    }
+
+  }
+
+  return "";
+
+}
+
+
+function getScoreText(team) {
+
+  if(typeof team === "string") {
+    return team;
+  }
+
+  if(!team || typeof team !== "object") {
+    return "";
+  }
+
+  const runs = value(team, [
+    "runs", "r"
+  ]);
+
+  const wickets = value(team, [
+    "wickets", "w"
+  ]);
+
+  const score = value(team, [
+    "score", "scores", "inningScore"
+  ]);
+
+  if(score !== "") {
+    return String(score);
+  }
+
+  if(runs !== "") {
+
+    return String(runs) +
+      (wickets !== "" ? "/" + wickets : "");
+
+  }
+
+  return "";
+
+}
+
+
+function getOvers(team) {
+
+  if(!team || typeof team !== "object") {
+    return "";
+  }
+
+  return value(team, [
+    "overs", "over", "o"
+  ]);
+
+}
+
+
+function getTeamName(team) {
+
+  if(typeof team === "string") {
+    return team;
+  }
+
+  if(!team || typeof team !== "object") {
+    return "";
+  }
+
+  return value(team, [
+    "name", "teamName", "shortName",
+    "team", "title"
+  ]);
+
+}
+
+
+// ==================================================
+// GET MATCH DATA
+// ==================================================
+
+function prepareMatch(match) {
+
+  const teams =
+    Array.isArray(match.teams)
+      ? match.teams
+      : [];
+
+  const first =
+    match.first_team ||
+    match.team1 ||
+    teams[0] ||
+    {};
+
+  const second =
+    match.second_team ||
+    match.team2 ||
+    teams[1] ||
+    {};
+
+
+  let scoreArray =
+    Array.isArray(match.score)
+      ? match.score
+      : [];
+
+
+  let name1 =
+    getTeamName(first) ||
+    value(match, ["t1", "team1Name"]) ||
+    teams[0] ||
+    "TEAM 1";
+
+  let name2 =
+    getTeamName(second) ||
+    value(match, ["t2", "team2Name"]) ||
+    teams[1] ||
+    "TEAM 2";
+
+
+  let score1 =
+    getScoreText(first) ||
+    value(match, ["t1s", "score1"]) ||
+    "";
+
+  let score2 =
+    getScoreText(second) ||
+    value(match, ["t2s", "score2"]) ||
+    "";
+
+
+  let over1 =
+    getOvers(first);
+
+  let over2 =
+    getOvers(second);
+
+
+  if(scoreArray.length > 0) {
+
+    if(!score1) {
+      score1 = getScoreText(scoreArray[0]);
+    }
+
+    if(!score2 && scoreArray[1]) {
+      score2 = getScoreText(scoreArray[1]);
+    }
+
+    if(!over1) {
+      over1 = getOvers(scoreArray[0]);
+    }
+
+    if(!over2 && scoreArray[1]) {
+      over2 = getOvers(scoreArray[1]);
+    }
+
+  }
+
+
+  const matchName =
+    value(match, [
+      "name", "matchName", "title"
+    ]) ||
+    (name1 + " vs " + name2);
+
+
+  const status =
+    value(match, [
+      "status", "matchStatus", "state"
+    ]) ||
+    "LIVE";
+
+
+  return {
+    name1,
+    name2,
+    score1,
+    score2,
+    over1,
+    over2,
+    matchName,
+    status
+  };
+
+}
+
+
+// ==================================================
+// DISPLAY MATCH
+// ==================================================
+
+function showMatch(match) {
+
+  const data = prepareMatch(match);
+
+  document.getElementById("matchName").textContent =
+    data.matchName;
+
+  document.getElementById("team1").textContent =
+    data.name1;
+
+  document.getElementById("team2").textContent =
+    data.name2;
+
+  document.getElementById("score1").textContent =
+    data.score1 || "--";
+
+  document.getElementById("score2").textContent =
+    data.score2 || "--";
+
+  document.getElementById("overs1").textContent =
+    data.over1 ? data.over1 + " Overs" : "";
+
+  document.getElementById("overs2").textContent =
+    data.over2 ? data.over2 + " Overs" : "";
+
+  document.getElementById("status").textContent =
+    data.status;
+
+  document.getElementById("error").style.display =
+    "none";
+
+  document.getElementById("updated").textContent =
+    "Updated: " + new Date().toLocaleTimeString();
+
+}
+
+
+// ==================================================
+// LOAD LIVE SCORE
+// ==================================================
+
+async function loadLiveScore() {
+
+  try {
+
+    const response = await fetch(
+      API_URL + "?_=" + Date.now(),
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
+
+    if(!response.ok) {
+      throw new Error("API HTTP " + response.status);
+    }
+
+    const result = await response.json();
+
+    const matches =
+      result.data ||
+      result.matches ||
+      [];
+
+    if(!Array.isArray(matches) || matches.length === 0) {
+
+      document.getElementById("status").textContent =
+        "NO LIVE MATCH";
+
+      document.getElementById("error").textContent =
+        "अभी कोई लाइव मैच उपलब्ध नहीं है।";
+
+      document.getElementById("error").style.display =
+        "block";
+
+      document.getElementById("updated").textContent =
+        "Last Check: " + new Date().toLocaleTimeString();
+
+      return;
+
+    }
+
+    // First available live match
+    showMatch(matches[0]);
+
+  } catch(error) {
+
+    console.log("Overlay API Error:", error);
+
+    document.getElementById("status").textContent =
+      "CONNECTION ERROR";
+
+    document.getElementById("error").textContent =
+      error.message;
+
+    document.getElementById("error").style.display =
+      "block";
+
+  }
+
+}
+
+
+// ==================================================
+// AUTO REFRESH
+// ==================================================
+
+loadLiveScore();
+
+setInterval(
+  loadLiveScore,
+  REFRESH_TIME
+);
+
+</script>
+
+</body>
+  </html>
